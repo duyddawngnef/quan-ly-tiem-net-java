@@ -8,8 +8,8 @@ public class KhachHang {
     String tendangnhap;
     String matkhau;
     double sodu;
+    String trangthai;
     public KhachHang(){
-
     }
     public KhachHang(String makh, String ho, String ten, String sodienthoai, String tendangnhap, String matkhau, double sodu) {
         this.makh = makh;
@@ -75,5 +75,19 @@ public class KhachHang {
 
     public void setSodu(double sodu) {
         this.sodu = sodu;
+    }
+
+    public String getTrangthai() {
+        return trangthai;
+    }
+
+    public void setTrangthai(String trangthai) {
+        this.trangthai = trangthai;
+    }
+    public boolean isNgung(){
+        if(trangthai.equals("NGUNG")){
+            return true;
+        }
+        return false;
     }
 }

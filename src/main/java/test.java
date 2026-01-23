@@ -32,7 +32,7 @@ public static void main(String[] args) {
     KhachHang kh1 = dao.login("hoangnam", "123456");
     if (kh1 != null) {
         System.out.println("Đăng nhập thành công: " + kh1.getHo() + " " + kh1.getTen());
-        System.out.println("Số dư: " + kh1.getSoDu());
+        System.out.println("Số dư: " + kh1.getSodu());
     } else {
         System.out.println("Sai tên đăng nhập hoặc mật khẩu");
     }
@@ -50,13 +50,14 @@ public static void main(String[] args) {
 
     // Test 4: Đăng ký mới
     KhachHang newKH = new KhachHang();
-    newKH.setMaKH(dao.generateMaKH());  // Tự sinh mã
+    newKH.setMakh(dao.generateMaKH());  // Tự sinh mã
     newKH.setHo("Lê");
     newKH.setTen("Văn Test");
-    newKH.setSoDienThoai("0909123456");
-    newKH.setTenDangNhap("levantest");
-    newKH.setMatKhau("123456");
-    newKH.setSoDu(0);
+    newKH.setSodienthoai("0909123456");
+    newKH.setTendangnhap("levantest");
+    newKH.setMatkhau("123456");
+    newKH.setSodu(0);
+    newKH.setTrangthai("HOATDONG");
 
     boolean result = dao.insert(newKH);
     System.out.println("Đăng ký: " + (result ? "Thành công" : "Thất bại"));
