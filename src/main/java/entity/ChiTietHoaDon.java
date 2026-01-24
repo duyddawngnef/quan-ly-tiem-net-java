@@ -1,4 +1,4 @@
-package quanlytiemnet.java.entity;
+package entity;
 
 public class ChiTietHoaDon {
     
@@ -55,5 +55,9 @@ public class ChiTietHoaDon {
     }
     public double getThanhTien() {
         return thanhTien;
+    }
+
+    public void setThanhTien(double thanhTien) {
+        this.thanhTien = thanhTien;
     }
 }
