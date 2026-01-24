@@ -38,6 +38,7 @@ public class KhachHangDAO {
             throw new RuntimeException("Mật khẩu không được để trống !");
         }
 
+
         String sql = "SELECT * FROM khachhang "+
                     "WHERE TenDangNhap = ? AND MatKhau = ?";
         try{
@@ -50,7 +51,9 @@ public class KhachHangDAO {
 
             if(rs.next()){
                 kh = mapResultSetToEntity(rs);
-                return kh;
+                if(kh.isNgung()){
+                    throw new RuntimeException("Khách hàng hiện tại đã bị xóa !");
+                }
             }
             rs.close();
             pstmt.close();
@@ -75,7 +78,6 @@ public class KhachHangDAO {
 
             if(rs.next()){
                 kh = mapResultSetToEntity(rs);
-                return kh;
             }
             conn.close();
             pstmt.close();
@@ -228,7 +230,7 @@ public class KhachHangDAO {
                     .append(" đồng. \n ");
 
         }
-        if(hasActiveSession(kh.getMakh())){
+        if(hasActivePackage(MaKH)){
             warning.append("Khách hàng còn gói dịch vụ chưa sử dụng hết. \n");
         }
 
@@ -288,6 +290,10 @@ public class KhachHangDAO {
                 //LẤY TỪ VỊ TRÍ THỨ 2
                 int num = Integer.parseInt(maKH.substring(2));
                 //FORMAT CHO MÃ KHÁCH HÀNG
+
+                conn.close();
+                stmt.close();
+
                 return String.format("KH%03d" ,num + 1);
             }
 
@@ -376,12 +382,13 @@ public class KhachHangDAO {
 
             ResultSet rs = pstmt.executeQuery();
 
+            conn.close();
+            pstmt.close();
+
             if(rs.next()){
                 return rs.getInt(1) > 0;
             }
 
-            conn.close();
-            pstmt.close();
 
         }catch (SQLException e){
             throw  new RuntimeException("Lỗi isTenDangNhapExists KhachHang " + e.getMessage());
@@ -400,12 +407,15 @@ public class KhachHangDAO {
 
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()){
-                return rs.getInt(1) > 0 ;
-            }
+
 
             conn.close();
             pstmt.close();
+
+
+            if(rs.next()){
+                return rs.getInt(1) > 0 ;
+            }
 
         }catch (SQLException e){
             throw new RuntimeException("Lỗi hasActiveSession KhachHang " + e.getMessage());
@@ -448,6 +458,7 @@ public class KhachHangDAO {
         kh.setHo(rs.getString("Ho"));
         kh.setTen(rs.getString("Ten"));
         kh.setSodienthoai(rs.getString("SoDienThoai"));
+        kh.setTendangnhap(rs.getString("TenDangNhap"));
         kh.setMatkhau(rs.getString("MatKhau"));
         kh.setSodu(rs.getDouble("SoDu"));
 
@@ -460,5 +471,25 @@ public class KhachHangDAO {
         }
         return kh;
     }
+    private boolean hasActivePackage(String maKH) {
+        String sql = "SELECT COUNT(*) FROM goidichvu_khachhang " +
+                "WHERE MaKH = ? AND TrangThai = 'CONHAN' AND SoGioConLai > 0 AND NgayHetHan > NOW()";
 
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, maKH);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+
+        } catch (SQLException e) {
+            // Bảng có thể chưa có, bỏ qua lỗi
+        }
+
+        return false;
+    }
 }
