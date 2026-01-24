@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entity.ChiTietHoaDon;
-import utils.DBConnection;
 
 public class ChiTietHoaDonDAO {
 
@@ -17,8 +16,8 @@ public class ChiTietHoaDonDAO {
              PreparedStatement ps = conn.prepareStatement(sql)
             ) {
 
-            ps.setInt(1, ct.getMaHD());
-            ps.setInt(2, ct.getMaDV());
+            ps.setInt(1, ct.getMaChiTietHoaDon());
+            ps.setInt(2, ct.getMaHoaDon());
             ps.setInt(3, ct.getSoLuong());
             ps.setDouble(4, ct.getDonGia());
             return ps.executeUpdate() > 0;
