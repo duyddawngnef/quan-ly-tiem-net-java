@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entity.HoaDon;
-import utils.DBConnection;
 
 public class HoaDonDAO {
     public List<HoaDon> getAll() {

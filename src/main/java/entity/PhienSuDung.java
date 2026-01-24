@@ -1,4 +1,4 @@
-package quanlytiemnet.java.entity;
+package entity;
 
 import java.time.LocalDateTime;
 

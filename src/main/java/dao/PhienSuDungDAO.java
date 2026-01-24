@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entity.PhienSuDung;
-import utils.DBConnection;
 
 public class PhienSuDungDAO {
     public List<PhienSuDung> getAll() {
