@@ -1,59 +1,70 @@
 package entity;
 
 public class NhaCungCap {
-    private String mancc;
-    private String tenncc;
-    private String diachi;
-    private String sodienthoai;
+    private String maNCC;
+    private String tenNCC;
+    private String diaChi;
+    private String soDienThoai;
     private String email;
 
     public NhaCungCap() {}
 
-    public NhaCungCap(String mancc, String tenncc, String diachi, String sodienthoai, String email) {
-        this.mancc = mancc;
-        this.tenncc =  tenncc;
-        this.diachi = diachi;
-        this.sodienthoai = sodienthoai;
+    public NhaCungCap(String maNCC, String tenNCC, String diaChi, String soDienThoai, String email) {
+        this.maNCC = maNCC;
+        this.tenNCC =  tenNCC;
+        this.diaChi = diaChi;
+        this.soDienThoai = soDienThoai;
         this.email = email;
     }
 
-    public String getMancc() {
-        return mancc;
+    public String getMaNCC() {
+        return maNCC;
     }
 
-    public String getTenncc() {
-        return tenncc;
+    public String getTenNCC() {
+        return tenNCC;
     }
 
-    public String getDiachi() {
-        return diachi;
+    public String getDiaChi() {
+        return diaChi;
     }
 
-    public String getSodienthoai() {
-        return sodienthoai;
+    public String getSoDienThoai() {
+        return soDienThoai;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setMancc(String mancc) {
-        this.mancc = mancc;
+    public void setMaNCC(String maNCC) {
+        this.maNCC = maNCC;
     }
 
-    public void setTenncc(String tenncc) {
-        this.tenncc = tenncc;
+    public void setTenNCC(String tenNCC) {
+        this.tenNCC = tenNCC;
     }
 
-    public void setDiachi(String diachi) {
-        this.diachi = diachi;
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
     }
 
-    public void setSodienthoai(String sodienthoai) {
-        this.sodienthoai = sodienthoai;
+    public void setSoDienThoai(String soDienThoai) {
+        this.soDienThoai = soDienThoai;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "NhaCungCap{" +
+                "maNCC=" + maNCC +
+                ", tenNCC=" + tenNCC +
+                ", diaChi=" + diaChi +
+                ", soDienThoai=" + soDienThoai +
+                ", email=" + email +
+                '}';
     }
 }

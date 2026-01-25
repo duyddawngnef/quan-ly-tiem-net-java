@@ -3,69 +3,81 @@ package entity;
 import java.time.LocalDate;
 
 public class PhieuNhapHang {
-    private String maphieu;
-    private String mancc;
-    private String manv;
-    private LocalDate ngaynhap;
-    private double tongtien;
-    private String ghichu;
+    private String maPhieu;
+    private String maNCC;
+    private String maNV;
+    private LocalDate ngayNhap;
+    private double tongTien;
+    private String ghiChu;
 
     public PhieuNhapHang() {}
 
-    public PhieuNhapHang(String maphieu, String mancc, String manv, LocalDate ngaynhap, double tongtien, String ghichu) {
-        this.maphieu = maphieu;
-        this.mancc = mancc;
-        this.manv = manv;
-        this.ngaynhap = ngaynhap;
-        this.tongtien = tongtien;
-        this.ghichu = ghichu;
+    public PhieuNhapHang(String maPhieu, String maNCC, String maNV, LocalDate ngayNhap, double tongTien, String ghiChu) {
+        this.maPhieu = maPhieu;
+        this.maNCC = maNCC;
+        this.maNV = maNV;
+        this.ngayNhap = ngayNhap;
+        this.tongTien = tongTien;
+        this.ghiChu = ghiChu;
     }
 
-    public String getMaphieu() {
-        return maphieu;
+    public String getMaPhieu() {
+        return maPhieu;
     }
 
-    public String getMancc() {
-        return mancc;
+    public String getMaNCC() {
+        return maNCC;
     }
 
-    public String getManv() {
-        return manv;
+    public String getMaNV() {
+        return maNV;
     }
 
-    public LocalDate getNgaynhap() {
-        return ngaynhap;
+    public LocalDate getNgayNhap() {
+        return ngayNhap;
     }
 
-    public double getTongtien() {
-        return tongtien;
+    public double getTongTien() {
+        return tongTien;
     }
 
-    public String getGhichu() {
-        return ghichu;
+    public String getGhiChu() {
+        return ghiChu;
     }
 
-    public void setMaphieu(String maphieu) {
-        this.maphieu = maphieu;
+    public void setMaPhieu(String maPhieu) {
+        this.maPhieu = maPhieu;
     }
 
-    public void setMancc(String mancc) {
-        this.mancc = mancc;
+    public void setMaNCC(String maNCC) {
+        this.maNCC = maNCC;
     }
 
-    public void setManv(String manv) {
-        this.manv = manv;
+    public void setMaNV(String maNV) {
+        this.maNV = maNV;
     }
 
-    public void setNgaynhap(LocalDate ngaynhap) {
-        this.ngaynhap = ngaynhap;
+    public void setNgayNhap(LocalDate ngayNhap) {
+        this.ngayNhap = ngayNhap;
     }
 
-    public void setTongtien(double tongtien) {
-        this.tongtien = tongtien;
+    public void setTongTien(double tongTien) {
+        this.tongTien = tongTien;
     }
 
-    public void setGhichu(String ghichu) {
-        this.ghichu = ghichu;
+    public void setGhiChu(String ghiChu) {
+        this.ghiChu = ghiChu;
+    }
+
+    @Override
+    public String toString() {
+        return "PhieuNhapHang{" +
+                "maPhieu=" + maPhieu +
+                ", maNCC=" + maNCC +
+                ", maNV=" + maNV +
+                ", ngayNhap=" + ngayNhap +
+                ", tongTien=" + tongTien +
+                ", ghiChu=" + ghiChu +
+                '}';
     }
 }
