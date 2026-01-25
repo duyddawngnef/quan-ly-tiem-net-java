@@ -39,7 +39,7 @@ public class MayTinh
         this.tenmay = tenmay;
     }
 
-    public String geMakhu() {
+    public String getMakhu() {
         return makhu;
     }
 
@@ -67,7 +67,7 @@ public class MayTinh
         return trangthai;
     }
 
-    public void settrangThai(String trangthai) {
+    public void setTrangthai(String trangthai) {
         this.trangthai = trangthai;
     }
 
