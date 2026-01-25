@@ -3,89 +3,109 @@ package entity;
 import java.time.LocalDate;
 
 public class LichSuNapTien {
-    private String manap;
-    private String makh;
-    private String manv;
-    private String mactkm;
-    private double sotiennap;
-    private double tienkhuyenmai;
-    private double tongtien;
-    private LocalDate ngaynap;
+    private String maNap;
+    private String maKH;
+    private String maNV;
+    private String maCTKM;
+    private double soTienNap;
+    private double tienKhuyenMai;
+    private double tongTien;
+    private LocalDate ngayNap;
 
     public LichSuNapTien() {}
 
-    public LichSuNapTien(String manap, String makh, String manv, String mactkm, double sotiennap, double tienkhuyenmai, double tongtien, LocalDate ngaynap) {
-        this.manap = manap;
-        this.makh = makh;
-        this.manv = manv;
-        this.mactkm = mactkm;
-        this.sotiennap = sotiennap;
-        this.tienkhuyenmai = tienkhuyenmai;
-        this.tongtien = tongtien;
-        this.ngaynap = ngaynap;
+    public LichSuNapTien(String maNap, String maKH, String maNV, String maCTKM, double soTienNap, double tienKhuyenMai, LocalDate ngayNap) {
+        this.maNap = maNap;
+        this.maKH = maKH;
+        this.maNV = maNV;
+        this.maCTKM = maCTKM;
+        this.soTienNap = soTienNap;
+        this.tienKhuyenMai = tienKhuyenMai;
+        this.ngayNap = ngayNap;
+        this.tongTien = soTienNap + tienKhuyenMai;
     }
 
-    public String getManap(){
-        return manap;
+    public String getMaNap(){
+        return maNap;
     }
 
-    public String getMakh() {
-        return makh;
+    public String getMaKH() {
+        return maKH;
     }
 
-    public String getManv() {
-        return manv;
+    public String getMaNV() {
+        return maNV;
     }
 
-    public String getMactkm() {
-        return mactkm;
+    public String getMaCTKM() {
+        return maCTKM;
     }
 
-    public double getSotiennap() {
-        return sotiennap;
+    public double getSoTienNap() {
+        return soTienNap;
     }
 
-    public double getTienkhuyenmai() {
-        return tienkhuyenmai;
+    public double getTienKhuyenMai() {
+        return tienKhuyenMai;
     }
 
-    public double getTongtien() {
-        return tongtien;
+    public double getTongTien() {
+        return tongTien;
     }
 
-    public LocalDate getNgaynap() {
-        return ngaynap;
+    public LocalDate getNgayNap() {
+        return ngayNap;
     }
 
-    public void setManap(String manap) {
-        this.manap = manap;
+    public void setMaNap(String maNap) {
+        this.maNap = maNap;
     }
 
-    public void setMakh(String makh) {
-        this.makh = makh;
+    public void setMaKH(String maKH) {
+        this.maKH = maKH;
     }
 
-    public void setManv(String manv) {
-        this.manv = manv;
+    public void setMaNV(String maNV) {
+        this.maNV = maNV;
     }
 
-    public void setMactkm(String mactkm) {
-        this.mactkm = mactkm;
+    public void setMaCTKM(String maCTKM) {
+        this.maCTKM = maCTKM;
     }
 
-    public void setSotiennap(double sotiennap) {
-        this.sotiennap = sotiennap;
+    public void setSoTienNap(double soTienNap) {
+        this.soTienNap = soTienNap;
+        tinhTongTien();
     }
 
-    public void setTienkhuyenmai(double tienkhuyenmai) {
-        this.tienkhuyenmai = tienkhuyenmai;
+    public void setTienKhuyenMai(double tienKhuyenMai) {
+        this.tienKhuyenMai = tienKhuyenMai;
+        tinhTongTien();
     }
 
-    public void setTongtien(double tongtien) {
-        this.tongtien = tongtien;
+    public void setTongTien(double tongTien) {
+        this.tongTien = tongTien;
     }
 
-    public void setNgaynap(LocalDate ngaynap) {
-        this.ngaynap = ngaynap;
+    public void setNgayNap(LocalDate ngayNap) {
+        this.ngayNap = ngayNap;
+    }
+
+    public void tinhTongTien() {
+        this.tongTien = this.soTienNap + this.tienKhuyenMai;
+    }
+
+    @Override
+    public String toString() {
+        return "LichSuNapTien{" +
+                "maNap=" + maNap +
+                ", maKH=" + maKH +
+                ", maNV=" + maNV +
+                ", maCTKM=" + maCTKM +
+                ", soTienNap=" + soTienNap +
+                ", tienKhuyenMai=" + tienKhuyenMai +
+                ", tongTien=" + tongTien +
+                ", ngayNap=" + ngayNap +
+                '}';
     }
 }

@@ -1,59 +1,72 @@
 package entity;
 
 public class ChiTietPhieuNhap {
-    private String maphieu;
-    private String madv;
-    private int soluong;
-    private double dongianhap;
-    private double thanhtien;
+    private String maPhieu;
+    private String maDV;
+    private int soLuong;
+    private double donGiaNhap;
+    private double thanhTien;
 
     public ChiTietPhieuNhap() {}
 
-    public ChiTietPhieuNhap(String maphieu, String madv, int soluong, double dongianhap, double thanhtien) {
-        this.maphieu = maphieu;
-        this.madv = madv;
-        this.soluong = soluong;
-        this.dongianhap = dongianhap;
-        this.thanhtien = thanhtien;
+    public ChiTietPhieuNhap(String maPhieu, String maDV, int soLuong, double donGiaNhap) {
+        this.maPhieu = maPhieu;
+        this.maDV = maDV;
+        this.soLuong = soLuong;
+        this.donGiaNhap = donGiaNhap;
+        this.thanhTien = soLuong * donGiaNhap;
     }
 
-    public String getMaphieu() {
-        return maphieu;
+    public String getMaPhieu() {
+        return maPhieu;
     }
 
-    public String getMadv() {
-        return madv;
+    public String getMaDV() {
+        return maDV;
     }
 
-    public int getSoluong() {
-        return soluong;
+    public int getSoLuong() {
+        return soLuong;
     }
 
-    public double getDongianhap() {
-        return dongianhap;
+    public double getDonGiaNhap() {
+        return donGiaNhap;
     }
 
     public double getThanhtien() {
-        return thanhtien;
+        return thanhTien;
     }
 
-    public void setMaphieu(String maphieu) {
-        this.maphieu = maphieu;
+    public void setMaPhieu(String maPhieu) {
+        this.maPhieu = maPhieu;
     }
 
-    public void setMadv(String madv) {
-        this.madv = madv;
+    public void setMaDV(String maDV) {
+        this.maDV = maDV;
     }
 
-    public void setSoluong(int soluong) {
-        this.soluong = soluong;
+    public void setSoLuong(int soLuong) {
+        this.soLuong = soLuong;
+        tinhThanhTien();
     }
 
-    public void setDongianhap(double dongianhap) {
-        this.dongianhap = dongianhap;
+    public void setDonGiaNhap(double donGiaNhap) {
+        this.donGiaNhap = donGiaNhap;
+        tinhThanhTien();
     }
 
-    public void setThanhtien(double thanhtien) {
-        this.thanhtien = thanhtien;
+    public void tinhThanhTien() {
+        this.thanhTien = this.soLuong * this.donGiaNhap;
+    }
+
+    @Override
+    public String toString() {
+        return "ChiTietPhieuNhap{" +
+                "maPhieu=" + maPhieu +
+                ", maDV=" + maDV +
+                ", soLuong=" + soLuong +
+                ", donGiaNhap=" + donGiaNhap +
+                ", thanhTien=" + thanhTien +
+                '}';
     }
 }
