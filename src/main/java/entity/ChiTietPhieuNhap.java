@@ -33,7 +33,7 @@ public class ChiTietPhieuNhap {
         return donGiaNhap;
     }
 
-    public double getThanhtien() {
+    public double getThanhTien() {
         return thanhTien;
     }
 

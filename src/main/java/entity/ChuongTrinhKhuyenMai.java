@@ -39,7 +39,7 @@ public class ChuongTrinhKhuyenMai {
         return giaTri;
     }
 
-    public LocalDate getNgaybBatDau() {
+    public LocalDate getNgayBatDau() {
         return ngayBatDau;
     }
 
