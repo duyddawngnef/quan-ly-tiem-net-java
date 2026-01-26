@@ -11,7 +11,7 @@ public class KhuMayDAO
     public List<KhuMay> getAll()
     {
         List<KhuMay> list = new ArrayList<>();
-        String sql = "SELECT * FROM khumay ORDER BY DESC";
+        String sql = "SELECT * FROM khumay ORDER BY MaKhu DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql))
@@ -79,7 +79,7 @@ public class KhuMayDAO
         //kiểm tra Valid
         validateKhuMay(km);
 
-        String sql = "UPDATE KhuMay SET TenKhu = ?, GiaCoSo = ?, SoMayToiDa = ?" +
+        String sql = "UPDATE khumay SET TenKhu = ?, GiaCoSo = ?, SoMayToiDa = ? " +
                      "WHERE MaKhu = ? AND TrangThai = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql))
@@ -146,7 +146,7 @@ public class KhuMayDAO
     //Tạo mã tự động
     public  String generateMaKhu()
     {
-        String sql = "SELECT MaKhu FROM khumay"+
+        String sql = "SELECT MaKhu FROM khumay "+
                      "ORDER BY MaKhu DESC LIMIT 1";
 
         try (Connection conn = DBConnection.getConnection();

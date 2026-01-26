@@ -12,7 +12,7 @@ public class MayTinhDAO
     public List<MayTinh> getAll()
     {
         List<MayTinh> list = new ArrayList<>();
-        String sql = "SELECT * FROM maytinh ORDER BY DESC";
+        String sql = "SELECT * FROM maytinh ORDER BY MaMay DESC";
 
         try
         {
@@ -35,7 +35,7 @@ public class MayTinhDAO
     public List<MayTinh> getByKhu(String makhu)
     {
         List<MayTinh> list = new ArrayList<>();
-        String sql = "SELECT * FROM maytinh WHERE MaKhu = ? ORDER BY DESC";
+        String sql = "SELECT * FROM maytinh WHERE MaKhu = ? ORDER BY MaKhu DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql))
@@ -59,8 +59,8 @@ public class MayTinhDAO
     {
         validateMayTinh(mt);
 
-        String sql = "INSERT INTO maytinh (TenMay, MaKhu, CauHinh, GiaMoiGio, TrangThai)" +
-                     "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO maytinh (MaMay, TenMay, MaKhu, CauHinh, GiaMoiGio, TrangThai) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
 
         // Tạo mã khu tự động
         String makhu = generateMaMay();
@@ -72,11 +72,12 @@ public class MayTinhDAO
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql))
         {
-            pstmt.setString(1, mt.getTenmay());
-            pstmt.setString(2, mt.getMakhu());
-            pstmt.setString(3, mt.getCauhinh());
-            pstmt.setDouble(4, mt.getGiamoigio());
-            pstmt.setString(5, mt.getTrangthai());
+            pstmt.setString(1, mt.getMamay());
+            pstmt.setString(2, mt.getTenmay());
+            pstmt.setString(3, mt.getMakhu());
+            pstmt.setString(4, mt.getCauhinh());
+            pstmt.setDouble(5, mt.getGiamoigio());
+            pstmt.setString(6, mt.getTrangthai());
 
             int rowUpdate = pstmt.executeUpdate();
             return rowUpdate > 0;
@@ -163,7 +164,7 @@ public class MayTinhDAO
     //Tạo mã tự động
     public  String generateMaMay()
     {
-        String sql = "SELECT MaKhu FROM maytinh"+
+        String sql = "SELECT MaMay FROM maytinh "+
                      "ORDER BY MaMay DESC LIMIT 1";
 
         try (Connection conn = DBConnection.getConnection();
