@@ -1,24 +1,30 @@
 package entity;
 
 public class ChiTietPhieuNhap {
-    private String maPhieu;
+    private String maCTPN;    // thêm mã chi tiết phiếu nhập
+    private String maPhieuNhap;
     private String maDV;
     private int soLuong;
-    private double donGiaNhap;
+    private double giaNhap;
     private double thanhTien;
 
     public ChiTietPhieuNhap() {}
 
-    public ChiTietPhieuNhap(String maPhieu, String maDV, int soLuong, double donGiaNhap) {
-        this.maPhieu = maPhieu;
+    public ChiTietPhieuNhap(String maCTPN, String maPhieuNhap, String maDV, int soLuong, double giaNhap, double thanhTien) {
+        this.maCTPN = maCTPN;
+        this.maPhieuNhap = maPhieuNhap;
         this.maDV = maDV;
         this.soLuong = soLuong;
-        this.donGiaNhap = donGiaNhap;
-        this.thanhTien = soLuong * donGiaNhap;
+        this.giaNhap = giaNhap;
+        this.thanhTien = soLuong * giaNhap;
     }
 
-    public String getMaPhieu() {
-        return maPhieu;
+    public String getMaCTPN() {
+        return maCTPN;
+    }
+
+    public String getMaPhieuNhap() {
+        return maPhieuNhap;
     }
 
     public String getMaDV() {
@@ -29,16 +35,20 @@ public class ChiTietPhieuNhap {
         return soLuong;
     }
 
-    public double getDonGiaNhap() {
-        return donGiaNhap;
+    public double getGiaNhap() {
+        return giaNhap;
     }
 
     public double getThanhTien() {
         return thanhTien;
     }
 
-    public void setMaPhieu(String maPhieu) {
-        this.maPhieu = maPhieu;
+    public void setMaCTPN(String maCTPN) {
+        this.maCTPN = maCTPN;
+    }
+
+    public void setMaPhieu(String maPhieuNhap) {
+        this.maPhieuNhap = maPhieuNhap;
     }
 
     public void setMaDV(String maDV) {
@@ -50,22 +60,23 @@ public class ChiTietPhieuNhap {
         tinhThanhTien();
     }
 
-    public void setDonGiaNhap(double donGiaNhap) {
-        this.donGiaNhap = donGiaNhap;
+    public void setGiaNhap(double giaNhap) {
+        this.giaNhap = giaNhap;
         tinhThanhTien();
     }
 
     public void tinhThanhTien() {
-        this.thanhTien = this.soLuong * this.donGiaNhap;
+        this.thanhTien = this.soLuong * this.giaNhap;
     }
 
     @Override
     public String toString() {
         return "ChiTietPhieuNhap{" +
-                "maPhieu=" + maPhieu +
+                "maCTPN=" + maCTPN +
+                ", maPhieuNhap=" + maPhieuNhap +
                 ", maDV=" + maDV +
                 ", soLuong=" + soLuong +
-                ", donGiaNhap=" + donGiaNhap +
+                ", giaNhap=" + giaNhap +
                 ", thanhTien=" + thanhTien +
                 '}';
     }

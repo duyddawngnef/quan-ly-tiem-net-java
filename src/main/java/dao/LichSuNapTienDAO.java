@@ -25,7 +25,12 @@ public class LichSuNapTienDAO {
                         rs.getString("maNV"),
                         rs.getString("maCTKM"),
                         rs.getDouble("soTienNap"),
-                        rs.getDouble("tienKhuyenMai"),
+                        rs.getDouble("khuyenMai"),
+                        rs.getDouble("tongTienCong"),
+                        rs.getDouble("soDuTruoc"),
+                        rs.getDouble("soDuSau"),
+                        rs.getString("phuongThuc"),
+                        rs.getString("maGiaoDich"),
                         rs.getDate("ngayNap").toLocalDate()
                 );
             }
@@ -38,8 +43,8 @@ public class LichSuNapTienDAO {
 
     // phương thức insert
     public boolean insert(LichSuNapTien lsnt){
-        String sql = "INSERT INTO LichSuNapTien (maNap, maKH, maNV, maCTKM, soTienNap, tienKhuyenMai, tongTien, ngayNap) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO LichSuNapTien (maNap, maKH, maNV, maCTKM, soTienNap, khuyenMai, tongTienCong, soDuTruoc, soDuSau, phuongThuc, maGiaoDich, ngayNap) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
@@ -50,9 +55,13 @@ public class LichSuNapTienDAO {
             pstmt.setString(3, lsnt.getMaNV());
             pstmt.setString(4, lsnt.getMaCTKM());
             pstmt.setDouble(5, lsnt.getSoTienNap());
-            pstmt.setDouble(6, lsnt.getTienKhuyenMai());
-            pstmt.setDouble(7, lsnt.getTongTien());
-            pstmt.setDate(8, Date.valueOf(lsnt.getNgayNap()));
+            pstmt.setDouble(6, lsnt.getKhuyenMai());
+            pstmt.setDouble(7, lsnt.getTongTienCong());
+            pstmt.setDouble(8, lsnt.getSoDuTruoc());
+            pstmt.setDouble(9, lsnt.getSoDuSau());
+            pstmt.setString(10, lsnt.getPhuongThuc());
+            pstmt.setString(11, lsnt.getMaGiaoDich());
+            pstmt.setDate(12, Date.valueOf(lsnt.getNgayNap()));
 
             int rows = pstmt.executeUpdate();
 
@@ -84,7 +93,12 @@ public class LichSuNapTienDAO {
                         rs.getString("maNV"),
                         rs.getString("maCTKM"),
                         rs.getDouble("soTienNap"),
-                        rs.getDouble("tienKhuyenMai"),
+                        rs.getDouble("khuyenMai"),
+                        rs.getDouble("tongTienCong"),
+                        rs.getDouble("soDuTruoc"),
+                        rs.getDouble("soDuSau"),
+                        rs.getString("phuongThuc"),
+                        rs.getString("maGiaoDich"),
                         rs.getDate("ngayNap").toLocalDate()
                 );
                 danhSach.add(lsnt);

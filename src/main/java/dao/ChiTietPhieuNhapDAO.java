@@ -11,22 +11,24 @@ import java.util.ArrayList;
 public class ChiTietPhieuNhapDAO {
 
     // phương thức getByPhieu
-    public ArrayList<ChiTietPhieuNhap> getByPhieu(String maPhieu){
+    public ArrayList<ChiTietPhieuNhap> getByPhieu(String maPhieuNhap){
         ArrayList<ChiTietPhieuNhap> danhSach = new ArrayList<>();
-        String sql = "SELECT * FROM ChiTietPhieuNhap WHERE maPhieu = ?";
+        String sql = "SELECT * FROM ChiTietPhieuNhap WHERE maPhieuNhap = ?";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, maPhieu);
+            pstmt.setString(1, maPhieuNhap);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()){
                 ChiTietPhieuNhap ctpn = new ChiTietPhieuNhap(
-                        rs.getString("maPhieu"),
+                        rs.getString("maCTPN"),
+                        rs.getString("maPhieuNhap"),
                         rs.getString("maDV"),
                         rs.getInt("soLuong"),
-                        rs.getDouble("donGiaNhap")
+                        rs.getDouble("giaNhap"),
+                        rs.getDouble("thanhTien")
                 );
                 danhSach.add(ctpn);
             }
@@ -39,17 +41,18 @@ public class ChiTietPhieuNhapDAO {
 
     // phương thức insert
     public boolean insert(ChiTietPhieuNhap ctpn){
-        String sql = "INSERT INTO ChiTietPhieuNhap (maPhieu, maDV, soLuong, donGiaNhap, thanhTien) "
-                + "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ChiTietPhieuNhap (maCTPN, maPhieuNhap, maDV, soLuong, giaNhap, thanhTien) "
+                   + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, ctpn.getMaPhieu());
-            pstmt.setString(2, ctpn.getMaDV());
-            pstmt.setInt(3, ctpn.getSoLuong());
-            pstmt.setDouble(4, ctpn.getDonGiaNhap());
-            pstmt.setDouble(5, ctpn.getThanhTien());
+            pstmt.setString(1, ctpn.getMaCTPN());
+            pstmt.setString(2, ctpn.getMaPhieuNhap());
+            pstmt.setString(3, ctpn.getMaDV());
+            pstmt.setInt(4, ctpn.getSoLuong());
+            pstmt.setDouble(5, ctpn.getGiaNhap());
+            pstmt.setDouble(6, ctpn.getThanhTien());
 
             int rows = pstmt.executeUpdate();
 

@@ -4,20 +4,22 @@ import java.time.LocalDate;
 
 public class ChuongTrinhKhuyenMai {
     private String maCTKM;
-    private String tenCTKM;
+    private String tenCT;
     private String loaiKM;
-    private double giaTri;
+    private double giaTriKM;
+    private double dieuKienToiThieu;
     private LocalDate ngayBatDau;
     private LocalDate ngayKetThuc;
     private String trangThai;
 
     public ChuongTrinhKhuyenMai() {}
 
-    public ChuongTrinhKhuyenMai(String maCTKM, String tenCTKM, String loaiKM, double giaTri, LocalDate ngayBatDau, LocalDate ngayKetThuc, String trangThai) {
+    public ChuongTrinhKhuyenMai(String maCTKM, String tenCT, String loaiKM, double giaTriKM, double dieuKienToiThieu, LocalDate ngayBatDau, LocalDate ngayKetThuc, String trangThai) {
         this.maCTKM = maCTKM;
-        this.tenCTKM = tenCTKM;
+        this.tenCT = tenCT;
         this.loaiKM = loaiKM;
-        this.giaTri = giaTri;
+        this.giaTriKM = giaTriKM;
+        this.dieuKienToiThieu = dieuKienToiThieu;
         this.ngayBatDau = ngayBatDau;
         this.ngayKetThuc = ngayKetThuc;
         this.trangThai = trangThai;
@@ -27,16 +29,20 @@ public class ChuongTrinhKhuyenMai {
         return maCTKM;
     }
 
-    public String getTenCTKM() {
-        return tenCTKM;
+    public String getTenCT() {
+        return tenCT;
     }
 
     public String getLoaiKM() {
         return loaiKM;
     }
 
-    public double getGiaTri() {
-        return giaTri;
+    public double getGiaTriKM() {
+        return giaTriKM;
+    }
+
+    public double getDieuKienToiThieu() {
+        return dieuKienToiThieu;
     }
 
     public LocalDate getNgayBatDau() {
@@ -55,16 +61,20 @@ public class ChuongTrinhKhuyenMai {
         this.maCTKM = maCTKM;
     }
 
-    public void setTenCTKM(String tenCTKM) {
-        this.tenCTKM = tenCTKM;
+    public void setTenCT(String tenCT) {
+        this.tenCT = tenCT;
     }
 
     public void setLoaiKM(String loaiKM) {
         this.loaiKM = loaiKM;
     }
 
-    public void setGiaTri(double giaTri) {
-        this.giaTri = giaTri;
+    public void setGiaTriKM(double giaTriKM) {
+        this.giaTriKM = giaTriKM;
+    }
+
+    public void setDieuKienToiThieu(double dieuKienToiThieu) {
+        this.dieuKienToiThieu = dieuKienToiThieu;
     }
 
     public void setNgayBatDau(LocalDate ngayBatDau) {
@@ -83,9 +93,10 @@ public class ChuongTrinhKhuyenMai {
     public String toString() {
         return "ChuongTrinhKhuyenMai{" +
                 "maCTKM=" + maCTKM +
-                ", tenCTKM=" + tenCTKM +
+                ", tenCT=" + tenCT +
                 ", loaiKM=" + loaiKM +
-                ", giaTri=" + giaTri +
+                ", giaTriKM=" + giaTriKM +
+                ", dieuKienToiThieu=" + dieuKienToiThieu +
                 ", ngayBatDau=" + ngayBatDau +
                 ", ngayKetThuc=" + ngayKetThuc +
                 ", trangThai=" + trangThai +

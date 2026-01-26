@@ -19,9 +19,10 @@ public class ChuongTrinhKhuyenMaiDAO {
             while(rs.next()){
                 ChuongTrinhKhuyenMai ctkm = new ChuongTrinhKhuyenMai(
                         rs.getString("maCTKM"),
-                        rs.getString("tenCTKM"),
+                        rs.getString("tenCT"),
                         rs.getString("loaiKM"),
-                        rs.getDouble("giaTri"),
+                        rs.getDouble("giaTriKM"),
+                        rs.getDouble("dieuKienToiThieu"),
                         rs.getDate("ngayBatDau").toLocalDate(),
                         rs.getDate("ngayKetThuc").toLocalDate(),
                         rs.getString("trangThai")
@@ -47,9 +48,10 @@ public class ChuongTrinhKhuyenMaiDAO {
             if(rs.next()){
                 ctkm = new ChuongTrinhKhuyenMai(
                         rs.getString("maCTKM"),
-                        rs.getString("tenCTKM"),
+                        rs.getString("tenCT"),
                         rs.getString("loaiKM"),
-                        rs.getDouble("giaTri"),
+                        rs.getDouble("giaTriKM"),
+                        rs.getDouble("dieuKienToiThieu"),
                         rs.getDate("ngayBatDau").toLocalDate(),
                         rs.getDate("ngayKetThuc").toLocalDate(),
                         rs.getString("trangThai")
@@ -64,19 +66,20 @@ public class ChuongTrinhKhuyenMaiDAO {
 
     // phương thức insert
     public boolean insert(ChuongTrinhKhuyenMai ctkm){
-        String sql = "INSERT INTO ChuongTrinhKhuyenMai (maCTKM, tenCTKM, loaiKM, giaTri, ngayBatDau, ngayKetThuc, trangThai) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ChuongTrinhKhuyenMai (maCTKM, tenCT, loaiKM, giaTriKM, dieuKienToiThieu, ngayBatDau, ngayKetThuc, trangThai) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
 
             pstmt.setString(1, ctkm.getMaCTKM());
-            pstmt.setString(2, ctkm.getTenCTKM());
+            pstmt.setString(2, ctkm.getTenCT());
             pstmt.setString(3, ctkm.getLoaiKM());
-            pstmt.setDouble(4, ctkm.getGiaTri());
-            pstmt.setDate(5, Date.valueOf(ctkm.getNgayBatDau()));
-            pstmt.setDate(6, Date.valueOf(ctkm.getNgayKetThuc()));
-            pstmt.setString(7, ctkm.getTrangThai());
+            pstmt.setDouble(4, ctkm.getGiaTriKM());
+            pstmt.setDouble(5, ctkm.getDieuKienToiThieu());
+            pstmt.setDate(6, Date.valueOf(ctkm.getNgayBatDau()));
+            pstmt.setDate(7, Date.valueOf(ctkm.getNgayKetThuc()));
+            pstmt.setString(8, ctkm.getTrangThai());
 
             int rows = pstmt.executeUpdate();
 
@@ -90,20 +93,21 @@ public class ChuongTrinhKhuyenMaiDAO {
     // phương thức update
     public boolean update(ChuongTrinhKhuyenMai ctkm){
         String sql = "UPDATE ChuongTrinhKhuyenMai "
-                + "SET tenCTKM = ?, loaiKM = ?, giaTri = ?, ngayBatDau = ?, ngayKetThuc = ?, trangThai = ? "
+                + "SET tenCT = ?, loaiKM = ?, giaTriKM = ?, dieuKienToiThieu = ?, ngayBatDau = ?, ngayKetThuc = ?, trangThai = ? "
                 + "WHERE maCTKM = ?";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
 
-            pstmt.setString(1, ctkm.getTenCTKM());
-            pstmt.setString(2, ctkm.getLoaiKM());
-            pstmt.setDouble(3, ctkm.getGiaTri());
-            pstmt.setDate(4, Date.valueOf(ctkm.getNgayBatDau()));
-            pstmt.setDate(5, Date.valueOf(ctkm.getNgayKetThuc()));
-            pstmt.setString(6, ctkm.getTrangThai());
-            pstmt.setString(7, ctkm.getMaCTKM());
 
+            pstmt.setString(1, ctkm.getTenCT());
+            pstmt.setString(2, ctkm.getLoaiKM());
+            pstmt.setDouble(3, ctkm.getGiaTriKM());
+            pstmt.setDouble(4, ctkm.getDieuKienToiThieu());
+            pstmt.setDate(5, Date.valueOf(ctkm.getNgayBatDau()));
+            pstmt.setDate(6, Date.valueOf(ctkm.getNgayKetThuc()));
+            pstmt.setString(7, ctkm.getTrangThai());
+            pstmt.setString(8, ctkm.getMaCTKM());
             int rows = pstmt.executeUpdate();
 
             return rows > 0;
@@ -144,9 +148,10 @@ public class ChuongTrinhKhuyenMaiDAO {
             while(rs.next()){
                 ChuongTrinhKhuyenMai ctkm = new ChuongTrinhKhuyenMai(
                         rs.getString("maCTKM"),
-                        rs.getString("tenCTKM"),
+                        rs.getString("tenCT"),
                         rs.getString("loaiKM"),
-                        rs.getDouble("giaTri"),
+                        rs.getDouble("giaTriKM"),
+                        rs.getDouble("dieuKienToiThieu"),
                         rs.getDate("ngayBatDau").toLocalDate(),
                         rs.getDate("ngayKetThuc").toLocalDate(),
                         rs.getString("trangThai")

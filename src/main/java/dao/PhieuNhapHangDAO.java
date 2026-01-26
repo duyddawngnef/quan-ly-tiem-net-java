@@ -19,12 +19,12 @@ public class PhieuNhapHangDAO {
 
             while (rs.next()) {
                 PhieuNhapHang pnh = new PhieuNhapHang(
-                        rs.getString("maPhieu"),
+                        rs.getString("maPhieuNhap"),
                         rs.getString("maNCC"),
                         rs.getString("maNV"),
                         rs.getDate("ngayNhap").toLocalDate(),
                         rs.getDouble("tongTien"),
-                        rs.getString("ghiChu")
+                        rs.getString("trangThai")
                 );
                 danhSach.add(pnh);
             }
@@ -35,24 +35,24 @@ public class PhieuNhapHangDAO {
     }
 
     // phương thức getByID
-    public PhieuNhapHang getByID(String maPhieu){
+    public PhieuNhapHang getByID(String maPhieuNhap){
         PhieuNhapHang pnh = null;
-        String sql = "SELECT * FROM PhieuNhapHang WHERE maPhieu = ?";
+        String sql = "SELECT * FROM PhieuNhapHang WHERE maPhieuNhap = ?";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
 
-            pstmt.setString(1, maPhieu);
+            pstmt.setString(1, maPhieuNhap);
             ResultSet rs = pstmt.executeQuery();
 
             if(rs.next()){
                 pnh = new PhieuNhapHang(
-                        rs.getString("maPhieu"),
+                        rs.getString("maPhieuNhap"),
                         rs.getString("maNCC"),
                         rs.getString("maNV"),
                         rs.getDate("ngayNhap").toLocalDate(),
                         rs.getDouble("tongTien"),
-                        rs.getString("ghiChu")
+                        rs.getString("trangThai")
                 );
             }
             rs.close();
@@ -75,12 +75,12 @@ public class PhieuNhapHangDAO {
 
             while (rs.next()){
                 PhieuNhapHang pnh = new PhieuNhapHang(
-                        rs.getString("maPhieu"),
+                        rs.getString("maPhieuNhap"),
                         rs.getString("maNCC"),
                         rs.getString("maNV"),
                         rs.getDate("ngayNhap").toLocalDate(),
                         rs.getDouble("tongTien"),
-                        rs.getString("ghiChu")
+                        rs.getString("trangThai")
                 );
                 danhSach.add(pnh);
             }
@@ -93,18 +93,18 @@ public class PhieuNhapHangDAO {
 
     // phương thức insert
     public boolean insert(PhieuNhapHang pnh){
-        String sql = "INSERT INTO PhieuNhapHang (maPhieu, maNCC, maNV, ngayNhap, tongTien, ghiChu) "
+        String sql = "INSERT INTO PhieuNhapHang (maPhieuNhap, maNCC, maNV, ngayNhap, tongTien, trangThai) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
 
-            pstmt.setString(1, pnh.getMaPhieu());
+            pstmt.setString(1, pnh.getMaPhieuNhap());
             pstmt.setString(2, pnh.getMaNCC());
             pstmt.setString(3, pnh.getMaNV());
             pstmt.setDate(4, Date.valueOf(pnh.getNgayNhap()));
             pstmt.setDouble(5, pnh.getTongTien());
-            pstmt.setString(6, pnh.getGhiChu());
+            pstmt.setString(6, pnh.getTrangThai());
 
             int rows = pstmt.executeUpdate();
 
