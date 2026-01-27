@@ -123,6 +123,7 @@ public class KhachHangDAO {
 
             int rowUpdate = pstmt.executeUpdate();
 
+
             conn.close();
             pstmt.close();
             return rowUpdate > 0 ;
@@ -382,14 +383,14 @@ public class KhachHangDAO {
 
             ResultSet rs = pstmt.executeQuery();
 
-            conn.close();
-            pstmt.close();
 
             if(rs.next()){
                 return rs.getInt(1) > 0;
             }
 
-
+            rs.close();
+            conn.close();
+            pstmt.close();
         }catch (SQLException e){
             throw  new RuntimeException("Lỗi isTenDangNhapExists KhachHang " + e.getMessage());
         }
