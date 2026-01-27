@@ -2,61 +2,65 @@ package dao;
 
 import entity.SuDungDichVu;
 
-import java.sql.*;
-import java.time.LocalDateTime;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SuDungDichVuDAO {
 
     public boolean insert(SuDungDichVu sd) {
-        String sql = "INSERT INTO sudungdichvu(maPhien, maDichVu, soLuong, thanhTien, thoiGian) VALUES(?,?,?,?,?)";
+        String sql = """
+            INSERT INTO sudungdichvu
+            (MaSD, MaPhien, MaDV, SoLuong, DonGia, ThanhTien, ThoiGian)
+            VALUES (?,?,?,?,?,?,?)
+        """;
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, sd.getMaPhien());
-            ps.setInt(2, sd.getMaDichVu());
-            ps.setInt(3, sd.getSoLuong());
-            ps.setDouble(4, sd.getThanhTien());
-            ps.setTimestamp(5, Timestamp.valueOf(sd.getThoiGian()));
+            ps.setString(1, sd.getMaSD());
+            ps.setString(2, sd.getMaPhien());
+            ps.setString(3, sd.getMaDV());
+            ps.setInt(4, sd.getSoLuong());
+            ps.setDouble(5, sd.getDonGia());
+            ps.setDouble(6, sd.getThanhTien());
+            ps.setTimestamp(7, Timestamp.valueOf(sd.getThoiGian()));
 
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
-    public List<SuDungDichVu> getByPhien(int maPhien) {
+    public List<SuDungDichVu> getByPhien(String maPhien) {
         List<SuDungDichVu> list = new ArrayList<>();
-        String sql = "SELECT * FROM sudungdichvu WHERE maPhien=? ORDER BY thoiGian DESC";
+        String sql = "SELECT * FROM sudungdichvu WHERE MaPhien = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, maPhien);
+            ps.setString(1, maPhien);
+            ResultSet rs = ps.executeQuery();
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    LocalDateTime time = rs.getTimestamp("thoiGian").toLocalDateTime();
-
-                    SuDungDichVu sd = new SuDungDichVu(
-                            rs.getInt("maSuDung"),
-                            rs.getInt("maPhien"),
-                            rs.getInt("maDichVu"),
-                            rs.getInt("soLuong"),
-                            rs.getDouble("thanhTien"),
-                            time
-                    );
-                    list.add(sd);
-                }
+            while (rs.next()) {
+                SuDungDichVu sd = new SuDungDichVu(
+                        rs.getString("MaSD"),
+                        rs.getString("MaPhien"),
+                        rs.getString("MaDV"),
+                        rs.getInt("SoLuong"),
+                        rs.getDouble("DonGia"),
+                        rs.getDouble("ThanhTien"),
+                        rs.getTimestamp("ThoiGian").toLocalDateTime()
+                );
+                list.add(sd);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return list;
     }
 }
