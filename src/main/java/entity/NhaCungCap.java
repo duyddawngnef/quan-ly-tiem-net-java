@@ -3,18 +3,23 @@ package entity;
 public class NhaCungCap {
     private String maNCC;
     private String tenNCC;
-    private String diaChi;
     private String soDienThoai;
     private String email;
+    private String diaChi;
+    private String nguoiLienHe;
+    private String trangThai;
+
 
     public NhaCungCap() {}
 
-    public NhaCungCap(String maNCC, String tenNCC, String diaChi, String soDienThoai, String email) {
+    public NhaCungCap(String maNCC, String tenNCC, String soDienThoai, String email, String diaChi, String nguoiLienHe, String trangThai) {
         this.maNCC = maNCC;
         this.tenNCC =  tenNCC;
-        this.diaChi = diaChi;
         this.soDienThoai = soDienThoai;
         this.email = email;
+        this.diaChi = diaChi;
+        this.nguoiLienHe = nguoiLienHe;
+        this.trangThai = trangThai;
     }
 
     public String getMaNCC() {
@@ -25,16 +30,24 @@ public class NhaCungCap {
         return tenNCC;
     }
 
-    public String getDiaChi() {
-        return diaChi;
-    }
-
     public String getSoDienThoai() {
         return soDienThoai;
     }
 
     public String getEmail() {
         return email;
+    }
+
+    public String getDiaChi() {
+        return diaChi;
+    }
+
+    public String getNguoiLienHe() {
+        return nguoiLienHe;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
     }
 
     public void setMaNCC(String maNCC) {
@@ -45,10 +58,6 @@ public class NhaCungCap {
         this.tenNCC = tenNCC;
     }
 
-    public void setDiaChi(String diaChi) {
-        this.diaChi = diaChi;
-    }
-
     public void setSoDienThoai(String soDienThoai) {
         this.soDienThoai = soDienThoai;
     }
@@ -57,14 +66,29 @@ public class NhaCungCap {
         this.email = email;
     }
 
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
+    }
+
+    public void setNguoiLienHe(String nguoiLienHe) {
+        this.nguoiLienHe = nguoiLienHe;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
     @Override
     public String toString() {
         return "NhaCungCap{" +
                 "maNCC=" + maNCC +
                 ", tenNCC=" + tenNCC +
-                ", diaChi=" + diaChi +
                 ", soDienThoai=" + soDienThoai +
                 ", email=" + email +
+                ", diaChi=" + diaChi +
+                ", nguoiLienHe=" + nguoiLienHe +
+                ", trangThai=" + trangThai +
                 '}';
     }
+
 }

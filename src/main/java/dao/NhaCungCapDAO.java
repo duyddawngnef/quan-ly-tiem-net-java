@@ -24,9 +24,11 @@ public class NhaCungCapDAO {
                 NhaCungCap ncc = new NhaCungCap(
                         rs.getString("maNCC"),
                         rs.getString("tenNCC"),
-                        rs.getString("diaChi"),
                         rs.getString("soDienThoai"),
-                        rs.getString("email")
+                        rs.getString("email"),
+                        rs.getString("diaChi"),
+                        rs.getString("nguoiLienHe"),
+                        rs.getString("trangThai")
                 );
                 danhSach.add(ncc);
             }
@@ -51,9 +53,11 @@ public class NhaCungCapDAO {
                 ncc = new NhaCungCap(
                         rs.getString("maNCC"),
                         rs.getString("tenNCC"),
-                        rs.getString("diaChi"),
                         rs.getString("soDienThoai"),
-                        rs.getString("email")
+                        rs.getString("email"),
+                        rs.getString("diaChi"),
+                        rs.getString("nguoiLienHe"),
+                        rs.getString("trangThai")
                 );
             }
             rs.close();
@@ -65,17 +69,19 @@ public class NhaCungCapDAO {
 
     // phương thức insert
     public boolean insert(NhaCungCap ncc){
-        String sql = "INSERT INTO NhaCungCap (maNCC, tenNCC, diaChi, soDienThoai, email) "
-                + "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NhaCungCap (maNCC, tenNCC, soDienThoai, email, diaChi, nguoiLienHe, trangThai) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ncc.getMaNCC());
             pstmt.setString(2, ncc.getTenNCC());
-            pstmt.setString(3, ncc.getDiaChi());
-            pstmt.setString(4, ncc.getSoDienThoai());
-            pstmt.setString(5, ncc.getEmail());
+            pstmt.setString(3, ncc.getSoDienThoai());
+            pstmt.setString(4, ncc.getEmail());
+            pstmt.setString(5, ncc.getDiaChi());
+            pstmt.setString(6, ncc.getNguoiLienHe());
+            pstmt.setString(7, ncc.getTrangThai());
 
             int rows = pstmt.executeUpdate();
 
@@ -89,17 +95,19 @@ public class NhaCungCapDAO {
     // phương thức update
     public boolean update(NhaCungCap ncc){
         String sql = "UPDATE NhaCungCap "
-                + "SET tenNCC = ?, diaChi = ?, soDienThoai = ?, email = ? "
+                + "SET tenNCC = ?, soDienThoai = ?, email = ?, diaChi = ?, nguoiLienHe = ?, trangThai = ? "
                 + "WHERE maNCC = ?";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ncc.getTenNCC());
-            pstmt.setString(2, ncc.getDiaChi());
-            pstmt.setString(3, ncc.getSoDienThoai());
-            pstmt.setString(4, ncc.getEmail());
-            pstmt.setString(5, ncc.getMaNCC());
+            pstmt.setString(2, ncc.getSoDienThoai());
+            pstmt.setString(3, ncc.getEmail());
+            pstmt.setString(4, ncc.getDiaChi());
+            pstmt.setString(5, ncc.getNguoiLienHe());
+            pstmt.setString(6, ncc.getTrangThai());
+            pstmt.setString(7, ncc.getMaNCC());
 
             int rows = pstmt.executeUpdate();
 

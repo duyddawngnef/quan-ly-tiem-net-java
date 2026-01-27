@@ -8,21 +8,30 @@ public class LichSuNapTien {
     private String maNV;
     private String maCTKM;
     private double soTienNap;
-    private double tienKhuyenMai;
-    private double tongTien;
+    private double khuyenMai;
+    private double tongTienCong;
+    private double soDuTruoc;
+    private double soDuSau;
+    private String phuongThuc;
+    private String maGiaoDich;
     private LocalDate ngayNap;
 
     public LichSuNapTien() {}
 
-    public LichSuNapTien(String maNap, String maKH, String maNV, String maCTKM, double soTienNap, double tienKhuyenMai, LocalDate ngayNap) {
+    public LichSuNapTien(String maNap, String maKH, String maNV, String maCTKM, double soTienNap, double khuyenMai, double tongTienCong, double soDuTruoc, double soDuSau, String phuongThuc, String maGiaoDich, LocalDate ngayNap) {
         this.maNap = maNap;
         this.maKH = maKH;
         this.maNV = maNV;
         this.maCTKM = maCTKM;
         this.soTienNap = soTienNap;
-        this.tienKhuyenMai = tienKhuyenMai;
+        this.khuyenMai = khuyenMai;
+        this.tongTienCong = soTienNap + khuyenMai;
+        this.soDuTruoc = soDuTruoc;
+        this.soDuSau = soDuSau;
+        this.phuongThuc= phuongThuc;
+        this.maGiaoDich = maGiaoDich;
         this.ngayNap = ngayNap;
-        this.tongTien = soTienNap + tienKhuyenMai;
+
     }
 
     public String getMaNap(){
@@ -45,12 +54,28 @@ public class LichSuNapTien {
         return soTienNap;
     }
 
-    public double getTienKhuyenMai() {
-        return tienKhuyenMai;
+    public double getKhuyenMai() {
+        return khuyenMai;
     }
 
-    public double getTongTien() {
-        return tongTien;
+    public double getTongTienCong() {
+        return tongTienCong;
+    }
+
+    public double getSoDuTruoc() {
+        return soDuTruoc;
+    }
+
+    public double getSoDuSau() {
+        return soDuSau;
+    }
+
+    public String getPhuongThuc() {
+        return phuongThuc;
+    }
+
+    public String getMaGiaoDich() {
+        return maGiaoDich;
     }
 
     public LocalDate getNgayNap() {
@@ -78,13 +103,29 @@ public class LichSuNapTien {
         tinhTongTien();
     }
 
-    public void setTienKhuyenMai(double tienKhuyenMai) {
-        this.tienKhuyenMai = tienKhuyenMai;
+    public void setKhuyenMai(double khuyenMai) {
+        this.khuyenMai = khuyenMai;
         tinhTongTien();
     }
 
-    public void setTongTien(double tongTien) {
-        this.tongTien = tongTien;
+    public void setTongTienCong(double tongTienCong) {
+        this.tongTienCong = tongTienCong;
+    }
+
+    public void setSoDuTruoc(double soDuTruoc) {
+        this.soDuTruoc = soDuTruoc;
+    }
+
+    public void setSoDuSau(double soDuSau) {
+        this.soDuSau = soDuSau;
+    }
+
+    public void setPhuongThuc(String phuongThuc) {
+        this.phuongThuc = phuongThuc;
+    }
+
+    public void setMaGiaoDich(String maGiaoDich) {
+        this.maGiaoDich = maGiaoDich;
     }
 
     public void setNgayNap(LocalDate ngayNap) {
@@ -92,7 +133,7 @@ public class LichSuNapTien {
     }
 
     public void tinhTongTien() {
-        this.tongTien = this.soTienNap + this.tienKhuyenMai;
+        this.tongTienCong = this.soTienNap + this.khuyenMai;
     }
 
     @Override
@@ -103,9 +144,14 @@ public class LichSuNapTien {
                 ", maNV=" + maNV +
                 ", maCTKM=" + maCTKM +
                 ", soTienNap=" + soTienNap +
-                ", tienKhuyenMai=" + tienKhuyenMai +
-                ", tongTien=" + tongTien +
+                ", khuyenMai=" + khuyenMai +
+                ", tongTienCong=" + tongTienCong +
+                ", soDuTruoc=" + soDuTruoc +
+                ", soDuSau=" + soDuSau +
+                ", phuongThuc=" + phuongThuc +
+                ", maGiaoDich=" + maGiaoDich +
                 ", ngayNap=" + ngayNap +
                 '}';
     }
+
 }
