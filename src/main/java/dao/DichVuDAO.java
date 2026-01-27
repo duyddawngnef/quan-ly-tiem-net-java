@@ -2,7 +2,9 @@ package dao;
 
 import entity.DichVu;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +20,13 @@ public class DichVuDAO {
 
             while (rs.next()) {
                 DichVu dv = new DichVu(
-                        rs.getInt("maDichVu"),
-                        rs.getString("tenDichVu"),
-                        rs.getDouble("donGia"),
-                        rs.getInt("soLuongTon"),
-                        rs.getString("loai")
+                        rs.getString("MaDV"),
+                        rs.getString("TenDV"),
+                        rs.getString("LoaiDV"),
+                        rs.getDouble("DonGia"),
+                        rs.getString("DonViTinh"),
+                        rs.getInt("SoLuongTon"),
+                        rs.getString("TrangThai")
                 );
                 list.add(dv);
             }
@@ -33,68 +37,26 @@ public class DichVuDAO {
     }
 
     public boolean insert(DichVu dv) {
-        String sql = "INSERT INTO dichvu(tenDichVu, donGia, soLuongTon, loai) VALUES(?,?,?,?)";
+        String sql = """
+            INSERT INTO dichvu(MaDV, TenDV, LoaiDV, DonGia, DonViTinh, SoLuongTon, TrangThai)
+            VALUES (?,?,?,?,?,?,?)
+        """;
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, dv.getTenDichVu());
-            ps.setDouble(2, dv.getDonGia());
-            ps.setInt(3, dv.getSoLuongTon());
-            ps.setString(4, dv.getLoai());
+            ps.setString(1, dv.getMaDV());
+            ps.setString(2, dv.getTenDV());
+            ps.setString(3, dv.getLoaiDV());
+            ps.setDouble(4, dv.getDonGia());
+            ps.setString(5, dv.getDonViTinh());
+            ps.setInt(6, dv.getSoLuongTon());
+            ps.setString(7, dv.getTrangThai());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
-    }
-
-    public boolean update(DichVu dv) {
-        String sql = "UPDATE dichvu SET tenDichVu=?, donGia=?, soLuongTon=?, loai=? WHERE maDichVu=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, dv.getTenDichVu());
-            ps.setDouble(2, dv.getDonGia());
-            ps.setInt(3, dv.getSoLuongTon());
-            ps.setString(4, dv.getLoai());
-            ps.setInt(5, dv.getMaDichVu());
-
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public boolean delete(int maDichVu) {
-        String sql = "DELETE FROM dichvu WHERE maDichVu=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, maDichVu);
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public boolean updateSoLuong(int maDichVu, int soLuongTru) {
-        String sql = "UPDATE dichvu SET soLuongTon = soLuongTon - ? WHERE maDichVu=? AND soLuongTon >= ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, soLuongTru);
-            ps.setInt(2, maDichVu);
-            ps.setInt(3, soLuongTru);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 }
