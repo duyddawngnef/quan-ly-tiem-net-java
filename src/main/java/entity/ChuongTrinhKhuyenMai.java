@@ -102,4 +102,5 @@ public class ChuongTrinhKhuyenMai {
                 ", trangThai=" + trangThai +
                 '}';
     }
+
 }
