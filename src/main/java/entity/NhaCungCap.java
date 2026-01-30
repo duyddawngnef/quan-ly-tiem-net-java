@@ -1,59 +1,94 @@
 package entity;
 
 public class NhaCungCap {
-    private String mancc;
-    private String tenncc;
-    private String diachi;
-    private String sodienthoai;
+    private String maNCC;
+    private String tenNCC;
+    private String soDienThoai;
     private String email;
+    private String diaChi;
+    private String nguoiLienHe;
+    private String trangThai;
+
 
     public NhaCungCap() {}
 
-    public NhaCungCap(String mancc, String tenncc, String diachi, String sodienthoai, String email) {
-        this.mancc = mancc;
-        this.tenncc =  tenncc;
-        this.diachi = diachi;
-        this.sodienthoai = sodienthoai;
+    public NhaCungCap(String maNCC, String tenNCC, String soDienThoai, String email, String diaChi, String nguoiLienHe, String trangThai) {
+        this.maNCC = maNCC;
+        this.tenNCC =  tenNCC;
+        this.soDienThoai = soDienThoai;
         this.email = email;
+        this.diaChi = diaChi;
+        this.nguoiLienHe = nguoiLienHe;
+        this.trangThai = trangThai;
     }
 
-    public String getMancc() {
-        return mancc;
+    public String getMaNCC() {
+        return maNCC;
     }
 
-    public String getTenncc() {
-        return tenncc;
+    public String getTenNCC() {
+        return tenNCC;
     }
 
-    public String getDiachi() {
-        return diachi;
-    }
-
-    public String getSodienthoai() {
-        return sodienthoai;
+    public String getSoDienThoai() {
+        return soDienThoai;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setMancc(String mancc) {
-        this.mancc = mancc;
+    public String getDiaChi() {
+        return diaChi;
     }
 
-    public void setTenncc(String tenncc) {
-        this.tenncc = tenncc;
+    public String getNguoiLienHe() {
+        return nguoiLienHe;
     }
 
-    public void setDiachi(String diachi) {
-        this.diachi = diachi;
+    public String getTrangThai() {
+        return trangThai;
     }
 
-    public void setSodienthoai(String sodienthoai) {
-        this.sodienthoai = sodienthoai;
+    public void setMaNCC(String maNCC) {
+        this.maNCC = maNCC;
+    }
+
+    public void setTenNCC(String tenNCC) {
+        this.tenNCC = tenNCC;
+    }
+
+    public void setSoDienThoai(String soDienThoai) {
+        this.soDienThoai = soDienThoai;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
+    }
+
+    public void setNguoiLienHe(String nguoiLienHe) {
+        this.nguoiLienHe = nguoiLienHe;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    @Override
+    public String toString() {
+        return "NhaCungCap{" +
+                "maNCC=" + maNCC +
+                ", tenNCC=" + tenNCC +
+                ", soDienThoai=" + soDienThoai +
+                ", email=" + email +
+                ", diaChi=" + diaChi +
+                ", nguoiLienHe=" + nguoiLienHe +
+                ", trangThai=" + trangThai +
+                '}';
+    }
+
 }

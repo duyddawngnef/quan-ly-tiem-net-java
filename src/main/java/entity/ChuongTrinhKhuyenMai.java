@@ -3,79 +3,104 @@ package entity;
 import java.time.LocalDate;
 
 public class ChuongTrinhKhuyenMai {
-    private String mactkm;
-    private String tenctkm;
-    private String loaikm;
-    private double giatri;
-    private LocalDate ngaybatdau;
-    private LocalDate ngayketthuc;
-    private String trangthai;
+    private String maCTKM;
+    private String tenCT;
+    private String loaiKM;
+    private double giaTriKM;
+    private double dieuKienToiThieu;
+    private LocalDate ngayBatDau;
+    private LocalDate ngayKetThuc;
+    private String trangThai;
 
     public ChuongTrinhKhuyenMai() {}
 
-    public ChuongTrinhKhuyenMai(String mactkm, String tenctkm, String loaikm, double giatri, LocalDate ngaybatdau, LocalDate ngayketthuc, String trangthai) {
-        this.mactkm = mactkm;
-        this.tenctkm = tenctkm;
-        this.loaikm = loaikm;
-        this.giatri = giatri;
-        this.ngaybatdau = ngaybatdau;
-        this.ngayketthuc = ngayketthuc;
-        this.trangthai = trangthai;
+    public ChuongTrinhKhuyenMai(String maCTKM, String tenCT, String loaiKM, double giaTriKM, double dieuKienToiThieu, LocalDate ngayBatDau, LocalDate ngayKetThuc, String trangThai) {
+        this.maCTKM = maCTKM;
+        this.tenCT = tenCT;
+        this.loaiKM = loaiKM;
+        this.giaTriKM = giaTriKM;
+        this.dieuKienToiThieu = dieuKienToiThieu;
+        this.ngayBatDau = ngayBatDau;
+        this.ngayKetThuc = ngayKetThuc;
+        this.trangThai = trangThai;
     }
 
-    public String getMactkm() {
-        return mactkm;
+    public String getMaCTKM() {
+        return maCTKM;
     }
 
-    public String getTenctkm() {
-        return tenctkm;
+    public String getTenCT() {
+        return tenCT;
     }
 
-    public String getLoaikm() {
-        return loaikm;
+    public String getLoaiKM() {
+        return loaiKM;
     }
 
-    public double getGiatri() {
-        return giatri;
+    public double getGiaTriKM() {
+        return giaTriKM;
     }
 
-    public LocalDate getNgaybatdau() {
-        return ngaybatdau;
+    public double getDieuKienToiThieu() {
+        return dieuKienToiThieu;
     }
 
-    public LocalDate getNgayketthuc() {
-        return ngayketthuc;
+    public LocalDate getNgayBatDau() {
+        return ngayBatDau;
     }
 
-    public String getTrangthai() {
-        return trangthai;
+    public LocalDate getNgayKetThuc() {
+        return ngayKetThuc;
     }
 
-    public void setMactkm(String mactkm) {
-        this.mactkm = mactkm;
+    public String getTrangThai() {
+        return trangThai;
     }
 
-    public void setTenctkm(String tenctkm) {
-        this.tenctkm = tenctkm;
+    public void setMaCTKM(String maCTKM) {
+        this.maCTKM = maCTKM;
     }
 
-    public void setLoaikm(String loaikm) {
-        this.loaikm = loaikm;
+    public void setTenCT(String tenCT) {
+        this.tenCT = tenCT;
     }
 
-    public void setGiatri(double giatri) {
-        this.giatri = giatri;
+    public void setLoaiKM(String loaiKM) {
+        this.loaiKM = loaiKM;
     }
 
-    public void setNgaybatdau(LocalDate ngaybatdau) {
-        this.ngaybatdau = ngaybatdau;
+    public void setGiaTriKM(double giaTriKM) {
+        this.giaTriKM = giaTriKM;
     }
 
-    public void setNgayketthuc(LocalDate ngayketthuc) {
-        this.ngayketthuc = ngayketthuc;
+    public void setDieuKienToiThieu(double dieuKienToiThieu) {
+        this.dieuKienToiThieu = dieuKienToiThieu;
     }
 
-    public void setTrangthai(String trangthai) {
-        this.trangthai = trangthai;
+    public void setNgayBatDau(LocalDate ngayBatDau) {
+        this.ngayBatDau = ngayBatDau;
     }
+
+    public void setNgayKetThuc(LocalDate ngayKetThuc) {
+        this.ngayKetThuc = ngayKetThuc;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    @Override
+    public String toString() {
+        return "ChuongTrinhKhuyenMai{" +
+                "maCTKM=" + maCTKM +
+                ", tenCT=" + tenCT +
+                ", loaiKM=" + loaiKM +
+                ", giaTriKM=" + giaTriKM +
+                ", dieuKienToiThieu=" + dieuKienToiThieu +
+                ", ngayBatDau=" + ngayBatDau +
+                ", ngayKetThuc=" + ngayKetThuc +
+                ", trangThai=" + trangThai +
+                '}';
+    }
+
 }

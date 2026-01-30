@@ -4,18 +4,16 @@ public  class KhuMay
 {
     String makhu;
     String tenkhu;
-    String mota;
     double giacoso;
     int somaytoida;
     String trangthai;
 
     public KhuMay() {}
 
-    public  KhuMay(String makhu, String tenkhu, String mota, double giacoso, int somaytoida, String trangthai)
+    public  KhuMay(String makhu, String tenkhu, double giacoso, int somaytoida, String trangthai)
     {
         this.makhu = makhu;
         this.tenkhu = tenkhu;
-        this.mota = mota;
         this.giacoso = giacoso;
         this.somaytoida = somaytoida;
         this.trangthai = trangthai;
@@ -35,14 +33,6 @@ public  class KhuMay
 
     public void setTenKhu(String tenkhu) {
         this.tenkhu = tenkhu;
-    }
-
-    public String getMota() {
-        return mota;
-    }
-
-    public void setMota(String mota) {
-        this.mota = mota;
     }
 
     public double getGiacoso() {
