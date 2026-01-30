@@ -8,9 +8,9 @@ import java.util.ArrayList;
 public class LichSuNapTienDAO {
 
     // phương thức getByKhachHang
-    public LichSuNapTien getByKhachHang(String maKH){
-        LichSuNapTien lsnt = null;
-        String sql = "SELECT * FROM LichSuNapTien WHERE maKH = ?";
+    public ArrayList<LichSuNapTien> getByKhachHang(String maKH){
+        ArrayList<LichSuNapTien> danhSach = new ArrayList<>();
+        String sql = "SELECT * FROM LichSuNapTien WHERE maKH = ? ORDER BY ngayNap DESC";
 
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)){
@@ -18,8 +18,8 @@ public class LichSuNapTienDAO {
             pstmt.setString(1, maKH);
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()){
-                lsnt = new LichSuNapTien(
+            while (rs.next()){
+                LichSuNapTien lsnt = new LichSuNapTien(
                         rs.getString("maNap"),
                         rs.getString("maKH"),
                         rs.getString("maNV"),
@@ -33,12 +33,13 @@ public class LichSuNapTienDAO {
                         rs.getString("maGiaoDich"),
                         rs.getDate("ngayNap").toLocalDate()
                 );
+                danhSach.add(lsnt);
             }
             rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return lsnt;
+        return danhSach;
     }
 
     // phương thức insert
