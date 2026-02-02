@@ -58,7 +58,7 @@ public class TestKhuMayDAO {
         try {
             // Thử tạo một mã không tồn tại để xem nó có throw lỗi không
             // Hoặc dùng mã vừa tạo ở bước 1 để xóa
-            String idToDelete = list.get(list.size() - 1).getMaKhu();
+            String idToDelete = "KHU007";
             boolean isDeleted = dao.delete(idToDelete);
             if (isDeleted) {
                 System.out.println(">> Xóa (Ngưng hoạt động) thành công mã: " + idToDelete);

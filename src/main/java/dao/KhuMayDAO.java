@@ -113,31 +113,18 @@ public class KhuMayDAO
 
         if (hasActiveComputer(MaKhu)) {
             throw new RuntimeException("Không thể xóa khu máy có máy đang sử dụng !");
+        } else {
+            updateMaKhuNull(MaKhu);
         }
 
-        String sqlUpdateMayTinh = "UPDATE maytinh SET MaKhu = NULL WHERE MaKhu = ? ";
-        String sqlUpdateKhuMay = "UPDATE khumay SET TrangThai = 'NGUNG' WHERE MaKhu = ?";
-        try
+        String sql = "UPDATE khumay SET TrangThai = 'NGUNG' WHERE MaKhu = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
         {
-            Connection conn = DBConnection.getConnection();
-
-            if (!hasActiveComputer(MaKhu)) {
-                System.out.println("Trong khu không có có máy đang sử dụng !");
-                PreparedStatement pstmt = conn.prepareStatement(sqlUpdateMayTinh);
-                pstmt.setString(1, MaKhu);
-                pstmt.executeUpdate();
-                pstmt.close();
-            }
-
-            PreparedStatement pstmt = conn.prepareStatement(sqlUpdateKhuMay);
             pstmt.setString(1, MaKhu);
-
             int row = pstmt.executeUpdate();
-
-            conn.close();
-            pstmt.close();
-
             return row > 0;
+
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi delete KhuMay: " + e.getMessage());
         }
@@ -256,6 +243,22 @@ public class KhuMayDAO
             throw new RuntimeException("Lỗi hasActiveComputer KhuMay " + e.getMessage());
         }
         return false;
+    }
+
+    private boolean updateMaKhuNull(String MaKhu)
+    {
+        String sql = "UPDATE maytinh SET MaKhu = NULL WHERE MaKhu = ? ";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
+        {
+            pstmt.setString(1, MaKhu);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi updateMaKhuNull KhuMay " + e.getMessage());
+        }
+        return true;
     }
 
     public KhuMay mapResultSetToEntity(ResultSet rs) throws SQLException
