@@ -92,6 +92,7 @@ public class ChiTietHoaDon {
         return thanhTien;
     }
 
+<<<<<<< Updated upstream
     public void setThanhTien(double thanhTien) {
         this.thanhTien = thanhTien;
     }
@@ -145,3 +146,6 @@ public class ChiTietHoaDon {
         return maCTHD != null ? maCTHD.hashCode() : 0;
     }
 }
+=======
+}
+>>>>>>> Stashed changes
