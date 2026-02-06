@@ -125,7 +125,7 @@ public class MayTinhDAO
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi update MayTinh: " + e.getMessage());
         }
-        return false;
+        return true;
     }
 
     public boolean delete(String MaMay)
@@ -161,6 +161,23 @@ public class MayTinhDAO
         }
     }
 
+    public boolean updateTrangThai(String MaMay, String TrangThai)
+    {
+        String sql = "UPDATE maytinh SET TrangThai = ? WHERE MaMay = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
+        {
+            pstmt.setString(1, TrangThai);
+            pstmt.setString(2, MaMay);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi updateTrangThai MayTinh: " + e.getMessage());
+        }
+        return true;
+    }
+
     //Tạo mã tự động
     public  String generateMaMay()
     {
@@ -180,7 +197,7 @@ public class MayTinhDAO
             }
             rs.close();
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi generateMaMay" + e.getMessage());
+            throw new RuntimeException("Lỗi generateMaMay MayTinh" + e.getMessage());
         }
         //CHƯA CÓ DATABASE
         return "MAY001";
@@ -206,6 +223,48 @@ public class MayTinhDAO
             throw new RuntimeException("Lỗi getByID MayTinh: " + e.getMessage());
         }
         return mt;
+    }
+
+    public List<MayTinh> getByTrangThai(String TrangThai) {
+        List<MayTinh> list = new ArrayList<>();
+        String sql = "SELECT * FROM maytinh WHERE TrangThai = ? ORDER BY TenMay";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
+        {
+            pstmt.setString(1, TrangThai);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToEntity(rs));
+            }
+            rs.close();
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi getByTrangThai MayTinh: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public int countByTrangThai(String TrangThai) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM maytinh WHERE TrangThai = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
+        {
+            pstmt.setString(1, TrangThai);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+            rs.close();
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi countByTrangThai MayTinh: " + e.getMessage());
+        }
+        return count;
     }
 
     /*
@@ -268,7 +327,7 @@ public class MayTinhDAO
             ResultSet rs = pstmt.executeQuery();
 
             if(rs.next())
-                if (rs.getString("TrangThai").equals("HOATDONG"))
+                if (!rs.getString("TrangThai").equals("HOATDONG"))
                     return true;
             rs.close();
 
@@ -293,5 +352,29 @@ public class MayTinhDAO
             mt.setTrangthai("TRONG");
         }
         return mt;
+    }
+    public void chuyenDangDung(String maMay) {
+        // chuyển trạng thái TRONG sang DANGDUNG
+        updateTrangThai(maMay, "TRONG", "DANGDUNG");
+    }
+    public void chuyenTrong(String maMay) {
+        // chuyển trạng thái DANGDUNG sang TRONG
+        updateTrangThai(maMay, "DANGDUNG", "TRONG");
+    }
+    private boolean updateTrangThai(String maMay, String fromTrangThai, String toTrangThai) {
+        String sql = "UPDATE MayTinh SET TrangThai = ? WHERE MaMay = ? AND TrangThai = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, toTrangThai);
+            ps.setString(2, maMay);
+            ps.setString(3, fromTrangThai);
+
+            int rows = ps.executeUpdate();
+            return rows > 0;  // true = có đổi trạng thái
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi updateTrangThai: " + e.getMessage(), e);
+        }
     }
 }
