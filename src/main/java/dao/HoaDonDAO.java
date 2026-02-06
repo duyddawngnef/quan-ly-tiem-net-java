@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.HoaDon;
+import quanlytiemnet.java.entity.HoaDon;
 import utils.DBConnection;
 
 public class HoaDonDAO {

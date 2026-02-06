@@ -1,30 +1,33 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.ChiTietHoaDon;
+import quanlytiemnet.java.entity.ChiTietHoaDon;
 import utils.DBConnection;
 
 public class ChiTietHoaDonDAO {
 
     public boolean insert(ChiTietHoaDon ct) {
-        String sql = "INSERT INTO ChiTietHoaDon (maHD, maDV, soLuong, donGia) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO ChiTietHoaDon (maChiTietHoaDon, maHoaDon, tenDichVu, soLuong, donGia, thanhTien) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)
             ) {
 
-            ps.setInt(1, ct.getMaHD());
-            ps.setInt(2, ct.getMaDV());
-            ps.setInt(3, ct.getSoLuong());
-            ps.setDouble(4, ct.getDonGia());
+            ps.setInt(1, ct.getMaChiTietHoaDon());
+            ps.setInt(2, ct.getMaHoaDon());
+            ps.setString(3, ct.getTenDichVu());
+            ps.setInt(4, ct.getSoLuong());
+            ps.setDouble(5, ct.getDonGia());
+            ps.setDouble(6, ct.getThanhTien());
+
             return ps.executeUpdate() > 0;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
     public List<ChiTietHoaDon> getByHoaDon(int maHD) {
@@ -38,8 +41,8 @@ public class ChiTietHoaDonDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 ChiTietHoaDon ct = new ChiTietHoaDon();
-                ct.setMaHD(rs.getInt("maHD"));
-                ct.setMaDV(rs.getInt("maDV"));
+                ct.setMaChiTietHoaDon(rs.getInt("maChiTietHoaDon"));
+                ct.setMaHoaDon(rs.getInt("maHoaDon"));
                 ct.setSoLuong(rs.getInt("soLuong"));
                 ct.setDonGia(rs.getDouble("donGia"));
                 list.add(ct);
