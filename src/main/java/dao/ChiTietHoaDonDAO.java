@@ -7,6 +7,10 @@ import java.util.List;
 import quanlytiemnet.java.entity.ChiTietHoaDon;
 import utils.DBConnection;
 
+/**
+ * DAO class để quản lý chi tiết hóa đơn
+ * Các phương thức: getByHoaDon, insert
+ */
 public class ChiTietHoaDonDAO {
 
     public boolean insert(ChiTietHoaDon ct) {

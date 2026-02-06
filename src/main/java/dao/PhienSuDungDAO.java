@@ -36,6 +36,7 @@ public class PhienSuDungDAO {
         return list;
     }
 
+>>>>>>>HEAD
     public boolean insert(PhienSuDung p) {
         String sql = "INSERT INTO PhienSuDung(maMay, batDau) VALUES(?, ?)";
 
@@ -72,3 +73,52 @@ public class PhienSuDungDAO {
         return false;
     }
 }
+
+    /**
+     * Lấy phiên sử dụng theo mã phiên
+     *
+     * @param maPhien Mã phiên cần tìm
+     * @return PhienSuDung hoặc null nếu không tìm thấy
+     * @throws SQLException nếu có lỗi database
+     */
+    public PhienSuDung getByMaPhien(String maPhien) throws SQLException {
+        String sql = "SELECT * FROM phiensudung WHERE maPhien = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        pst.setString(1, maPhien);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPhienSuDung(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Thêm phiên sử dụng mới
+     *
+     * @param phien PhienSuDung cần thêm
+     * @return true nếu thêm thành công
+     * @throws SQLException nếu có lỗi database
+     */
+    public boolean insert(PhienSuDung phien) throws SQLException {
+        String sql = "INSERT INTO phiensudung (maPhien, maKH, maMay, maNV, maGoiKH, " +
+                "gioBatDau, gioKetThuc, tongGio, gioSuDungTuGoi, gioSuDungTuTaiKhoan, " +
+                "giaMoiGio, tienGioChoi, loaiThanhToan, trangThai) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            setPhienSuDungParameters(pst, phien);
+
+            return pst.executeUpdate() > 0;
+        }
+    }
+
+    /**
