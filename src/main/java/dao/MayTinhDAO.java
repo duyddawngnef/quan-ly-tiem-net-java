@@ -353,4 +353,28 @@ public class MayTinhDAO
         }
         return mt;
     }
+    public void chuyenDangDung(String maMay) {
+        // chuyển trạng thái TRONG sang DANGDUNG
+        updateTrangThai(maMay, "TRONG", "DANGDUNG");
+    }
+    public void chuyenTrong(String maMay) {
+        // chuyển trạng thái DANGDUNG sang TRONG
+        updateTrangThai(maMay, "DANGDUNG", "TRONG");
+    }
+    private boolean updateTrangThai(String maMay, String fromTrangThai, String toTrangThai) {
+        String sql = "UPDATE MayTinh SET TrangThai = ? WHERE MaMay = ? AND TrangThai = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, toTrangThai);
+            ps.setString(2, maMay);
+            ps.setString(3, fromTrangThai);
+
+            int rows = ps.executeUpdate();
+            return rows > 0;  // true = có đổi trạng thái
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi updateTrangThai: " + e.getMessage(), e);
+        }
+    }
 }

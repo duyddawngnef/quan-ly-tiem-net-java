@@ -260,6 +260,28 @@ public class HoaDonDAO {
         return 0;
     }
 
+    public String taoMaHoaDonTuDong() {
+        String sql = "SELECT MaHD FROM hoadon ORDER BY MaHD DESC LIMIT 1";
+
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                String maCuoi = rs.getString("MaHD");
+                int soThuTu = Integer.parseInt(maCuoi.substring(2)) + 1;
+                return String.format("HD%03d", soThuTu);
+            } else {
+                return "HD001";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "HD001";
+        }
+    }
+
+
     // ==================== HELPER METHODS ====================
 
     /**
