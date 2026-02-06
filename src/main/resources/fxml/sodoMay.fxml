@@ -1,0 +1,14 @@
+<?import javafx.scene.layout.VBox?>
+<VBox spacing="10"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.SoDoMayController"
+      style="-fx-padding: 10;">
+
+<ComboBox fx:id="comboKhuMay" />
+
+<GridPane fx:id="gridMay"
+          hgap="10"
+          vgap="10"/>
+
+</VBox>
