@@ -14,10 +14,9 @@ public class MayTinhDAO
         List<MayTinh> list = new ArrayList<>();
         String sql = "SELECT * FROM maytinh ORDER BY MaMay DESC";
 
-        try
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
         {
-            Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -51,6 +50,28 @@ public class MayTinhDAO
 
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi getByKhu MayTinh: " + e.getMessage());
+        }
+        return list;
+    }
+
+    public List<MayTinh> getMayTrong()
+    {
+        List<MayTinh> list = new ArrayList<>();
+        String sql = "SELECT * FROM maytinh WHERE TrangThai = 'TRONG'";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
+        {
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                MayTinh mt = mapResultSetToEntity(rs);
+                list.add(mt);
+            }
+            rs.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi getMayTrong MayTinh: " + e.getMessage());
         }
         return list;
     }
@@ -361,7 +382,7 @@ public class MayTinhDAO
         // chuyển trạng thái DANGDUNG sang TRONG
         updateTrangThai(maMay, "DANGDUNG", "TRONG");
     }
-    private boolean updateTrangThai(String maMay, String fromTrangThai, String toTrangThai) {
+    public boolean updateTrangThai(String maMay, String fromTrangThai, String toTrangThai) {
         String sql = "UPDATE MayTinh SET TrangThai = ? WHERE MaMay = ? AND TrangThai = ?";
 
         try (Connection conn = DBConnection.getConnection();
