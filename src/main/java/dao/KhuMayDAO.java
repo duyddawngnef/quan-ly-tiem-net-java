@@ -131,7 +131,7 @@ public class KhuMayDAO
     }
 
     //Tạo mã tự động
-    public  String generateMaKhu()
+    public String generateMaKhu()
     {
         String sql = "SELECT MaKhu FROM khumay "+
                      "ORDER BY MaKhu DESC LIMIT 1";
@@ -227,7 +227,7 @@ public class KhuMayDAO
     }
 
     // Đếm số lượng máy đang dùng ở trong khu
-    private  boolean hasActiveComputer (String MaKhu) {
+    public boolean hasActiveComputer (String MaKhu) {
         String sql = "SELECT COUNT(*) FROM maytinh WHERE MaKhu = ? AND TrangThai = 'DANGDUNG'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql))
@@ -245,7 +245,27 @@ public class KhuMayDAO
         return false;
     }
 
-    private boolean updateMaKhuNull(String MaKhu)
+    public int countMayTinhByKhu (String MaKhu)
+    {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM maytinh WHERE MaKhu = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
+        {
+            pstmt.setString(1, MaKhu);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next())
+                count = rs.getInt(1);
+            rs.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi countMayTinhByKhu KhuMay " + e.getMessage());
+        }
+        return count;
+    }
+
+    public boolean updateMaKhuNull(String MaKhu)
     {
         String sql = "UPDATE maytinh SET MaKhu = NULL WHERE MaKhu = ? ";
 
