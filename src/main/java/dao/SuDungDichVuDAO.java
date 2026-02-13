@@ -2,10 +2,7 @@ package dao;
 
 import entity.SuDungDichVu;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,5 +101,25 @@ public class SuDungDichVuDAO {
             e.printStackTrace();
             return false;
         }
+    //tính tống tiền sử dụng dịch vụ
+    public  double tinhTongTienKhachHang(String maKH ) throws Exception {
+        String sql = "SELECT SUM(DonGia) FROM sudungdichvu" +
+                "WHERE MaPhien = ?";
+
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+        ){
+            pstmt.setString(1,maKH);
+
+            try (ResultSet rs = pstmt.executeQuery()){
+                if(rs.next()){
+                    return  rs.getDouble(1);
+                }
+            }
+        }
+        catch (SQLException e ){
+            throw  new Exception("Lỗi tính tổng tiền khách hàng " + e.getMessage());
+        }
+        return  0.0;
     }
 }
