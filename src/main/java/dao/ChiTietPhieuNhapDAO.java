@@ -11,25 +11,24 @@ import java.util.ArrayList;
 public class ChiTietPhieuNhapDAO {
 
     // phương thức getByPhieu
-    public ArrayList<ChiTietPhieuNhap> getByPhieu(String maPhieuNhap){
+    public ArrayList<ChiTietPhieuNhap> getByPhieu(String maPhieuNhap) {
         ArrayList<ChiTietPhieuNhap> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM ChiTietPhieuNhap WHERE maPhieuNhap = ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, maPhieuNhap);
             ResultSet rs = pstmt.executeQuery();
 
-            while (rs.next()){
+            while (rs.next()) {
                 ChiTietPhieuNhap ctpn = new ChiTietPhieuNhap(
                         rs.getString("maCTPN"),
                         rs.getString("maPhieuNhap"),
                         rs.getString("maDV"),
                         rs.getInt("soLuong"),
                         rs.getDouble("giaNhap"),
-                        rs.getDouble("thanhTien")
-                );
+                        rs.getDouble("thanhTien"));
                 danhSach.add(ctpn);
             }
             rs.close();
@@ -40,12 +39,12 @@ public class ChiTietPhieuNhapDAO {
     }
 
     // phương thức insert
-    public boolean insert(ChiTietPhieuNhap ctpn){
+    public boolean insert(ChiTietPhieuNhap ctpn) {
         String sql = "INSERT INTO ChiTietPhieuNhap (maCTPN, maPhieuNhap, maDV, soLuong, giaNhap, thanhTien) "
-                   + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?)";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ctpn.getMaCTPN());
             pstmt.setString(2, ctpn.getMaPhieuNhap());
@@ -61,5 +60,17 @@ public class ChiTietPhieuNhapDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // cập nhật số lượng tồn
+    public boolean updateSoLuongTon(Connection conn, String maDV, int soLuong) throws SQLException {
+
+        String sql = "UPDATE DichVu SET soLuongTon = soLuongTon + ?, trangThai = 'CONHANG' WHERE maDV = ?";
+
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, soLuong);
+        pstmt.setString(2, maDV);
+
+        return pstmt.executeUpdate() > 0;
     }
 }
