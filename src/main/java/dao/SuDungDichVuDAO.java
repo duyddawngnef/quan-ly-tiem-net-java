@@ -8,6 +8,33 @@ import java.util.List;
 
 public class SuDungDichVuDAO {
 
+    // Lấy theo mã
+    public SuDungDichVu getById(String maSD) {
+        String sql = "SELECT * FROM sudungdichvu WHERE MaSD = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maSD);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new SuDungDichVu(
+                        rs.getString("MaSD"),
+                        rs.getString("MaPhien"),
+                        rs.getString("MaDV"),
+                        rs.getInt("SoLuong"),
+                        rs.getDouble("DonGia"),
+                        rs.getDouble("ThanhTien"),
+                        rs.getTimestamp("ThoiGian").toLocalDateTime()
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean insert(SuDungDichVu sd) {
         String sql = """
             INSERT INTO sudungdichvu
@@ -60,6 +87,20 @@ public class SuDungDichVuDAO {
         }
         return list;
     }
+
+    // Xóa dịch vụ đã gọi
+    public boolean delete(String maSD) {
+        String sql = "DELETE FROM sudungdichvu WHERE MaSD = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maSD);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     //tính tống tiền sử dụng dịch vụ
     public  double tinhTongTienKhachHang(String maKH ) throws Exception {
         String sql = "SELECT SUM(DonGia) FROM sudungdichvu" +
