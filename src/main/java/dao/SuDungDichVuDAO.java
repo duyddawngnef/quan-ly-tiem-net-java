@@ -101,6 +101,7 @@ public class SuDungDichVuDAO {
             e.printStackTrace();
             return false;
         }
+    }
     //tính tống tiền sử dụng dịch vụ
     public  double tinhTongTienKhachHang(String maKH ) throws Exception {
         String sql = "SELECT SUM(DonGia) FROM sudungdichvu" +
