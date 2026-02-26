@@ -8,12 +8,29 @@ import java.util.List;
 
 public class SuDungDichVuDAO {
 
+    // Tạo mã tự động: SD001, SD002, ...
+    public String generateId() {
+        String sql = "SELECT MaSD FROM sudungdichvu ORDER BY MaSD DESC LIMIT 1";
+        try (Connection conn = DBConnection.getConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                String lastId = rs.getString("MaSD");
+                int num = Integer.parseInt(lastId.replace("SD", "")) + 1;
+                return String.format("SD%03d", num);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "SD001";
+    }
+
     // Lấy theo mã
     public SuDungDichVu getById(String maSD) {
         String sql = "SELECT * FROM sudungdichvu WHERE MaSD = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maSD);
             ResultSet rs = ps.executeQuery();
@@ -26,8 +43,7 @@ public class SuDungDichVuDAO {
                         rs.getInt("SoLuong"),
                         rs.getDouble("DonGia"),
                         rs.getDouble("ThanhTien"),
-                        rs.getTimestamp("ThoiGian").toLocalDateTime()
-                );
+                        rs.getTimestamp("ThoiGian").toLocalDateTime());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -37,13 +53,13 @@ public class SuDungDichVuDAO {
 
     public boolean insert(SuDungDichVu sd) {
         String sql = """
-            INSERT INTO sudungdichvu
-            (MaSD, MaPhien, MaDV, SoLuong, DonGia, ThanhTien, ThoiGian)
-            VALUES (?,?,?,?,?,?,?)
-        """;
+                    INSERT INTO sudungdichvu
+                    (MaSD, MaPhien, MaDV, SoLuong, DonGia, ThanhTien, ThoiGian)
+                    VALUES (?,?,?,?,?,?,?)
+                """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, sd.getMaSD());
             ps.setString(2, sd.getMaPhien());
@@ -65,7 +81,7 @@ public class SuDungDichVuDAO {
         String sql = "SELECT * FROM sudungdichvu WHERE MaPhien = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maPhien);
             ResultSet rs = ps.executeQuery();
@@ -78,8 +94,7 @@ public class SuDungDichVuDAO {
                         rs.getInt("SoLuong"),
                         rs.getDouble("DonGia"),
                         rs.getDouble("ThanhTien"),
-                        rs.getTimestamp("ThoiGian").toLocalDateTime()
-                );
+                        rs.getTimestamp("ThoiGian").toLocalDateTime());
                 list.add(sd);
             }
         } catch (Exception e) {
@@ -93,7 +108,7 @@ public class SuDungDichVuDAO {
         String sql = "DELETE FROM sudungdichvu WHERE MaSD = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maSD);
             return ps.executeUpdate() > 0;
@@ -102,25 +117,24 @@ public class SuDungDichVuDAO {
             return false;
         }
     }
-    //tính tống tiền sử dụng dịch vụ
-    public  double tinhTongTienKhachHang(String maKH ) throws Exception {
+
+    // tính tống tiền sử dụng dịch vụ
+    public double tinhTongTienKhachHang(String maKH) throws Exception {
         String sql = "SELECT SUM(DonGia) FROM sudungdichvu" +
                 "WHERE MaPhien = ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-        ){
-            pstmt.setString(1,maKH);
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);) {
+            pstmt.setString(1, maKH);
 
-            try (ResultSet rs = pstmt.executeQuery()){
-                if(rs.next()){
-                    return  rs.getDouble(1);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble(1);
                 }
             }
+        } catch (SQLException e) {
+            throw new Exception("Lỗi tính tổng tiền khách hàng " + e.getMessage());
         }
-        catch (SQLException e ){
-            throw  new Exception("Lỗi tính tổng tiền khách hàng " + e.getMessage());
-        }
-        return  0.0;
+        return 0.0;
     }
 }

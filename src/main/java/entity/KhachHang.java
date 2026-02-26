@@ -1,7 +1,5 @@
 package entity;
 
-import java.util.Collection;
-
 public class KhachHang {
     String makh;
     String ho;
@@ -11,9 +9,12 @@ public class KhachHang {
     String matkhau;
     double sodu;
     String trangthai;
-    public KhachHang(){
+
+    public KhachHang() {
     }
-    public KhachHang(String makh, String ho, String ten, String sodienthoai, String tendangnhap, String matkhau, double sodu) {
+
+    public KhachHang(String makh, String ho, String ten, String sodienthoai, String tendangnhap, String matkhau,
+            double sodu) {
         this.makh = makh;
         this.ho = ho;
         this.ten = ten;
@@ -79,7 +80,6 @@ public class KhachHang {
         this.sodu = sodu;
     }
 
-<<<<<<< Updated upstream
     public String getTrangthai() {
         return trangthai;
     }
@@ -87,31 +87,11 @@ public class KhachHang {
     public void setTrangthai(String trangthai) {
         this.trangthai = trangthai;
     }
-    public boolean isNgung(){
-        if(trangthai.equals("NGUNG")){
-=======
-    public String gettrangThai() {
-        return gettrangThai();
-    }
 
-    public void setTrangthai(String trangthai) {
-        this.gettrangThai() = trangthai;
-    }
-    public boolean isNgung(){
-        if(gettrangThai().equals("NGUNG")){
->>>>>>> Stashed changes
+    public boolean isNgung() {
+        if (trangthai.equals("NGUNG")) {
             return true;
         }
         return false;
     }
-<<<<<<< Updated upstream
 }
-=======
-
-    public Collection<Object> getHoTen() {
-    }
-
-    public String getSdt() {
-        return null;
-    }
->>>>>>> Stashed changes

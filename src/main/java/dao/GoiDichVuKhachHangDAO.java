@@ -14,8 +14,8 @@ public class GoiDichVuKhachHangDAO {
     public String generateId() {
         String sql = "SELECT MaGoiKH FROM goidichvu_khachhang ORDER BY MaGoiKH DESC LIMIT 1";
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 String lastId = rs.getString("MaGoiKH");
                 int num = Integer.parseInt(lastId.replace("GOIKH", "")) + 1;
@@ -30,13 +30,13 @@ public class GoiDichVuKhachHangDAO {
     // Đăng ký gói cho khách
     public boolean insert(GoiDichVuKhachHang g) {
         String sql = """
-            INSERT INTO goidichvu_khachhang
-            (MaGoiKH, MaKH, MaGoi, MaNV, SoGioBanDau, SoGioConLai, NgayMua, NgayHetHan, GiaMua, TrangThai)
-            VALUES (?,?,?,?,?,?,?,?,?,?)
-        """;
+                    INSERT INTO goidichvu_khachhang
+                    (MaGoiKH, MaKH, MaGoi, MaNV, SoGioBanDau, SoGioConLai, NgayMua, NgayHetHan, GiaMua, TrangThai)
+                    VALUES (?,?,?,?,?,?,?,?,?,?)
+                """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, g.getMaGoiKH());
             ps.setString(2, g.getMaKH());
@@ -62,7 +62,7 @@ public class GoiDichVuKhachHangDAO {
         String sql = "SELECT * FROM goidichvu_khachhang WHERE MaKH = ? AND TrangThai = 'CONHAN' AND NgayHetHan > NOW() AND SoGioConLai > 0";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maKH);
             ResultSet rs = ps.executeQuery();
@@ -78,8 +78,7 @@ public class GoiDichVuKhachHangDAO {
                         rs.getTimestamp("NgayMua").toLocalDateTime(),
                         rs.getTimestamp("NgayHetHan").toLocalDateTime(),
                         rs.getDouble("GiaMua"),
-                        rs.getString("TrangThai")
-                );
+                        rs.getString("TrangThai"));
                 list.add(g);
             }
         } catch (Exception e) {
@@ -93,7 +92,7 @@ public class GoiDichVuKhachHangDAO {
         String sql = "SELECT * FROM goidichvu_khachhang WHERE MaKH = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maKH);
             ResultSet rs = ps.executeQuery();
@@ -109,8 +108,7 @@ public class GoiDichVuKhachHangDAO {
                         rs.getTimestamp("NgayMua").toLocalDateTime(),
                         rs.getTimestamp("NgayHetHan").toLocalDateTime(),
                         rs.getDouble("GiaMua"),
-                        rs.getString("TrangThai")
-                );
+                        rs.getString("TrangThai"));
                 list.add(g);
             }
         } catch (Exception e) {
@@ -118,13 +116,14 @@ public class GoiDichVuKhachHangDAO {
         }
         return list;
     }
+
     public GoiDichVuKhachHang getByMaGoiKhachHang(String maGoiKH) {
         GoiDichVuKhachHang goiKH = new GoiDichVuKhachHang();
         String sql = "SELECT MaGoiKH, MaKH, MaGoi, MaNV, SoGioBanDau, SoGioConLai, NgayMua, " +
                 "NgayHetHan, GiaMua, TrangThai " + "FROM goidichvu_khachhang WHERE MaGoiKH = ?";
 
         try {
-           Connection conn = DBConnection.getConnection();
+            Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, maGoiKH);
             ResultSet rs = ps.executeQuery();
@@ -143,6 +142,7 @@ public class GoiDichVuKhachHangDAO {
 
                 GoiDichVuKhachHang gdvkh = new GoiDichVuKhachHang(magoikh, makh, magoi, manv,
                         sogiobandau, sogioconlai, ngaymua, ngayhethan, giamua, trangthai);
+                goiKH = gdvkh;
             }
 
         } catch (SQLException e) {
@@ -154,6 +154,7 @@ public class GoiDichVuKhachHangDAO {
 
         return goiKH;
     }
+
     public boolean update(GoiDichVuKhachHang updateGDVKH) {
         String sql = "UPDATE goidichvu_khachhang SET SoGioConLai = ?" +
                 ", TrangThai = ? WHERE MaGoiKH = ?";
