@@ -266,11 +266,7 @@ public class NhanVienDAO {
     - QUANLY: Sửa được tất cả NV
     - NV khác: Chỉ sửa được thông tin của mình (trừ ChucVu)
      */
-<<<<<<< Updated upstream
     public boolean update(NhanVien nv, NhanVien nguoiThucHien){
-=======
-    public boolean update(NhanVien nv){
->>>>>>> Stashed changes
 
         NhanVien existing = getById(nv.getManv());
 
@@ -622,10 +618,4 @@ public class NhanVienDAO {
 
         return nv;
     }
-<<<<<<< Updated upstream
 }
-=======
-
-}
->>>>>>> Stashed changes
->>>>>>> Stashed changes
