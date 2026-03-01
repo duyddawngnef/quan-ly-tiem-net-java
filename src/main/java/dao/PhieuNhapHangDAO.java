@@ -151,4 +151,36 @@ public class PhieuNhapHangDAO {
 
         return "PN001";
     }
+
+    // Cập nhật trạng thái phiếu nhập
+    public boolean updateTrangThai(String maPhieuNhap, String trangThai) {
+        String sql = "UPDATE PhieuNhapHang SET trangThai = ? WHERE maPhieuNhap = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, trangThai);
+            pstmt.setString(2, maPhieuNhap);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Xóa phiếu nhập (dùng khi rollback)
+    public boolean delete(String maPhieuNhap) {
+        String sql = "DELETE FROM PhieuNhapHang WHERE maPhieuNhap = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, maPhieuNhap);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -93,4 +93,19 @@ public class ChiTietPhieuNhapDAO {
 
         return "CTPN001";
     }
+
+    // Xóa chi tiết phiếu nhập theo maCTPN
+    public boolean delete(String maCTPN) {
+        String sql = "DELETE FROM ChiTietPhieuNhap WHERE maCTPN = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, maCTPN);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
