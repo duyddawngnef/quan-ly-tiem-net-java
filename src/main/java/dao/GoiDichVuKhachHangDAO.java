@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PropertyPermission;
+import java.sql.SQLException;
 
 public class GoiDichVuKhachHangDAO {
 
@@ -34,10 +34,10 @@ public class GoiDichVuKhachHangDAO {
     // Đăng ký gói cho khách
     public boolean insert(GoiDichVuKhachHang g) {
         String sql = """
-            INSERT INTO goidichvu_khachhang
-            (MaGoiKH, MaKH, MaGoi, MaNV, SoGioBanDau, SoGioConLai, NgayMua, NgayHetHan, GiaMua, TrangThai)
-            VALUES (?,?,?,?,?,?,?,?,?,?)
-        """;
+                    INSERT INTO goidichvu_khachhang
+                    (MaGoiKH, MaKH, MaGoi, MaNV, SoGioBanDau, SoGioConLai, NgayMua, NgayHetHan, GiaMua, TrangThai)
+                    VALUES (?,?,?,?,?,?,?,?,?,?)
+                """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -82,8 +82,7 @@ public class GoiDichVuKhachHangDAO {
                         rs.getTimestamp("NgayMua").toLocalDateTime(),
                         rs.getTimestamp("NgayHetHan").toLocalDateTime(),
                         rs.getDouble("GiaMua"),
-                        rs.getString("TrangThai")
-                );
+                        rs.getString("TrangThai"));
                 list.add(g);
             }
         } catch (Exception e) {
@@ -113,8 +112,7 @@ public class GoiDichVuKhachHangDAO {
                         rs.getTimestamp("NgayMua").toLocalDateTime(),
                         rs.getTimestamp("NgayHetHan").toLocalDateTime(),
                         rs.getDouble("GiaMua"),
-                        rs.getString("TrangThai")
-                );
+                        rs.getString("TrangThai"));
                 list.add(g);
             }
         } catch (Exception e) {
@@ -122,13 +120,14 @@ public class GoiDichVuKhachHangDAO {
         }
         return list;
     }
+
     public GoiDichVuKhachHang getByMaGoiKhachHang(String maGoiKH) {
         GoiDichVuKhachHang goiKH = new GoiDichVuKhachHang();
         String sql = "SELECT MaGoiKH, MaKH, MaGoi, MaNV, SoGioBanDau, SoGioConLai, NgayMua, " +
                 "NgayHetHan, GiaMua, TrangThai " + "FROM goidichvu_khachhang WHERE MaGoiKH = ?";
 
         try {
-           Connection conn = DBConnection.getConnection();
+            Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, maGoiKH);
             ResultSet rs = ps.executeQuery();
@@ -145,7 +144,7 @@ public class GoiDichVuKhachHangDAO {
                 double giamua = rs.getDouble("GiaMua");
                 String trangthai = rs.getString("TrangThai");
 
-                GoiDichVuKhachHang gdvkh = new GoiDichVuKhachHang(magoikh, makh, magoi, manv,
+                goiKH = new GoiDichVuKhachHang(magoikh, makh, magoi, manv,
                         sogiobandau, sogioconlai, ngaymua, ngayhethan, giamua, trangthai);
             }
 
@@ -158,6 +157,7 @@ public class GoiDichVuKhachHangDAO {
 
         return goiKH;
     }
+
     public boolean update(GoiDichVuKhachHang updateGDVKH) {
         String sql = "UPDATE goidichvu_khachhang SET SoGioConLai = ?" +
                 ", TrangThai = ? WHERE MaGoiKH = ?";
