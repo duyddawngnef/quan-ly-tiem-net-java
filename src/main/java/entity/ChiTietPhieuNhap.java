@@ -1,16 +1,18 @@
 package entity;
 
 public class ChiTietPhieuNhap {
-    private String maCTPN;    // thêm mã chi tiết phiếu nhập
+    private String maCTPN;
     private String maPhieuNhap;
     private String maDV;
     private int soLuong;
     private double giaNhap;
     private double thanhTien;
 
-    public ChiTietPhieuNhap() {}
+    public ChiTietPhieuNhap() {
+    }
 
-    public ChiTietPhieuNhap(String maCTPN, String maPhieuNhap, String maDV, int soLuong, double giaNhap, double thanhTien) {
+    public ChiTietPhieuNhap(String maCTPN, String maPhieuNhap, String maDV, int soLuong, double giaNhap,
+            double thanhTien) {
         this.maCTPN = maCTPN;
         this.maPhieuNhap = maPhieuNhap;
         this.maDV = maDV;
@@ -63,6 +65,10 @@ public class ChiTietPhieuNhap {
     public void setGiaNhap(double giaNhap) {
         this.giaNhap = giaNhap;
         tinhThanhTien();
+    }
+
+    public void setThanhTien(double thanhTien) {
+        this.thanhTien = thanhTien;
     }
 
     public void tinhThanhTien() {
