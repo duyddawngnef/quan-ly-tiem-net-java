@@ -2,182 +2,235 @@ package bus;
 
 import dao.*;
 import entity.*;
+import untils.PermissionHelper;
 
-import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NhapHangBUS {
 
-    private PhieuNhapHangDAO phieuDAO = new PhieuNhapHangDAO();
-    private ChiTietPhieuNhapDAO ctDAO = new ChiTietPhieuNhapDAO();
-    private NhaCungCapDAO nccDAO = new NhaCungCapDAO();
-    private DichVuDAO dvDAO = new DichVuDAO();
+    private PhieuNhapHangDAO phieuNhapHangDAO;
+    private ChiTietPhieuNhapDAO chiTietPhieuNhapDAO;
+    private NhaCungCapDAO nhaCungCapDAO;
+    private DichVuDAO dichVuDAO;
 
-    // tạo phiếu nhập
-    public PhieuNhapHang taoPhieuNhap(String maNCC, String maNV, List<ChiTietPhieuNhap> chiTietList) throws Exception {
+    public NhapHangBUS() {
+        this.phieuNhapHangDAO = new PhieuNhapHangDAO();
+        this.chiTietPhieuNhapDAO = new ChiTietPhieuNhapDAO();
+        this.nhaCungCapDAO = new NhaCungCapDAO();
+        this.dichVuDAO = new DichVuDAO();
+    }
 
+    // 1. Tạo phiếu nhập
+    public PhieuNhapHang taoPhieuNhap(String maNCC, List<ChiTietPhieuNhap> chiTietList) throws Exception {
+
+        // Kiểm tra phân quyền
+        PermissionHelper.requireQuanLy();
+
+        // Lấy mã nhân viên hiện tại
+        String maNV = PermissionHelper.getCurrentMaNV();
+
+        // Kiểm tra NCC tồn tại và HOATDONG
+        NhaCungCap ncc = nhaCungCapDAO.getByID(maNCC);
+        if (ncc == null) {
+            throw new Exception("Nhà cung cấp không tồn tại!");
+        }
+        if (!ncc.isHoatDong()) {
+            throw new Exception("Nhà cung cấp đã ngừng hoạt động!");
+        }
+
+        // Kiểm tra danh sách chi tiết không rỗng
         if (chiTietList == null || chiTietList.isEmpty()) {
-            throw new Exception("Chi tiết phiếu nhập không được rỗng");
+            throw new Exception("Phiếu nhập phải có ít nhất một mặt hàng!");
         }
 
-        NhaCungCap ncc = nccDAO.getByID(maNCC);
-
-        if (ncc == null || !ncc.getTrangThai().equals("HOATDONG")) {
-            throw new Exception("Nhà cung cấp không hợp lệ");
-        }
-
-        double tongTien = 0;
-
+        // Validate từng chi tiết
         for (ChiTietPhieuNhap ct : chiTietList) {
-
-            if (ct.getSoLuong() <= 0 || ct.getGiaNhap() <= 0) {
-                throw new Exception("Số lượng và giá nhập phải > 0");
+            DichVu dv = dichVuDAO.getById(ct.getMaDV());
+            if (dv == null) {
+                throw new Exception("Dịch vụ/hàng hóa không tồn tại: " + ct.getMaDV());
             }
+            if (ct.getSoLuong() <= 0) {
+                throw new Exception("Số lượng phải lớn hơn 0: " + ct.getMaDV());
+            }
+            if (ct.getGiaNhap() <= 0) {
+                throw new Exception("Giá nhập phải lớn hơn 0: " + ct.getMaDV());
+            }
+        }
 
+        // Tính tổng tiền
+        double tongTien = 0;
+        for (ChiTietPhieuNhap ct : chiTietList) {
             tongTien += ct.getSoLuong() * ct.getGiaNhap();
         }
 
-        Connection conn = DBConnection.getConnection();
+        // Tạo PhieuNhapHang
+        String maPhieuNhap = phieuNhapHangDAO.generateMaPhieuNhap();
+        PhieuNhapHang phieu = new PhieuNhapHang(
+                maPhieuNhap,
+                maNCC,
+                maNV,
+                LocalDate.now(),
+                tongTien,
+                "CHODUYET");
 
-        try {
-            conn.setAutoCommit(false);
-
-            String maPhieu = generateId("PN");
-
-            PhieuNhapHang pnh = new PhieuNhapHang(
-                    maPhieu,
-                    maNCC,
-                    maNV,
-                    LocalDate.now(),
-                    tongTien,
-                    "CHODUYET");
-
-            // insert phiếu
-            String sql = "INSERT INTO PhieuNhapHang VALUES (?, ?, ?, ?, ?, ?)";
-            var pstmt = conn.prepareStatement(sql);
-
-            pstmt.setString(1, pnh.getMaPhieuNhap());
-            pstmt.setString(2, pnh.getMaNCC());
-            pstmt.setString(3, pnh.getMaNV());
-            pstmt.setDate(4, java.sql.Date.valueOf(pnh.getNgayNhap()));
-            pstmt.setDouble(5, pnh.getTongTien());
-            pstmt.setString(6, pnh.getTrangThai());
-
-            pstmt.executeUpdate();
-
-            // insert chi tiết
-            for (ChiTietPhieuNhap ct : chiTietList) {
-
-                ct.setMaCTPN(generateId("CTPN"));
-                ct.setMaPhieu(maPhieu);
-                ct.tinhThanhTien();
-
-                ctDAO.insert(ct);
-            }
-
-            conn.commit();
-
-            return pnh;
-
-        } catch (Exception e) {
-
-            conn.rollback();
-            throw e;
-
-        } finally {
-            conn.close();
+        // INSERT phiếu nhập
+        boolean insertPhieuOk = phieuNhapHangDAO.insert(phieu);
+        if (!insertPhieuOk) {
+            throw new Exception("Tạo phiếu nhập thất bại!");
         }
+
+        // INSERT từng chi tiết — compensate nếu lỗi
+        List<ChiTietPhieuNhap> inserted = new ArrayList<>();
+        try {
+            for (ChiTietPhieuNhap ct : chiTietList) {
+                String maCTPN = chiTietPhieuNhapDAO.generateMaCTPN();
+                ct.setMaCTPN(maCTPN);
+                ct.setMaPhieu(maPhieuNhap);
+                ct.setThanhTien(ct.getSoLuong() * ct.getGiaNhap());
+
+                boolean insertCtOk = chiTietPhieuNhapDAO.insert(ct);
+                if (!insertCtOk) {
+                    throw new Exception("Lưu chi tiết phiếu nhập thất bại: " + ct.getMaDV());
+                }
+                inserted.add(ct);
+            }
+        } catch (Exception e) {
+            // Compensate: xóa các chi tiết đã insert và xóa phiếu
+            for (ChiTietPhieuNhap ct : inserted) {
+                chiTietPhieuNhapDAO.delete(ct.getMaCTPN());
+            }
+            phieuNhapHangDAO.delete(maPhieuNhap);
+            throw new Exception("Tạo phiếu nhập thất bại: " + e.getMessage());
+        }
+
+        // Trả về phiếu vừa tạo
+        return phieu;
     }
 
+    // 2. Duyệt phiếu
     public boolean duyetPhieu(String maPhieu) throws Exception {
 
-        Connection conn = DBConnection.getConnection();
+        // Kiểm tra phân quyền
+        PermissionHelper.requireQuanLy();
 
-        try {
-            conn.setAutoCommit(false);
-
-            PhieuNhapHang phieu = phieuDAO.getByID(maPhieu);
-
-            if (phieu == null) {
-                throw new Exception("Phiếu không tồn tại");
-            }
-
-            if (!phieu.getTrangThai().equals("CHODUYET")) {
-                throw new Exception("Chỉ duyệt phiếu đang chờ");
-            }
-
-            ArrayList<ChiTietPhieuNhap> list = ctDAO.getByPhieu(maPhieu);
-
-            for (ChiTietPhieuNhap ct : list) {
-                dvDAO.updateSoLuongTon(conn, ct.getMaDV(), ct.getSoLuong());
-            }
-
-            String sql = "UPDATE PhieuNhapHang SET trangThai='DANHAP' WHERE maPhieuNhap=?";
-            var pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, maPhieu);
-            pstmt.executeUpdate();
-
-            conn.commit();
-            return true;
-
-        } catch (Exception e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.close();
+        // Lấy phiếu nhập từ DB
+        PhieuNhapHang phieu = phieuNhapHangDAO.getByID(maPhieu);
+        if (phieu == null) {
+            throw new Exception("Phiếu nhập không tồn tại!");
         }
-    }
 
-    // hủy phiếu
-    public boolean huyPhieu(String maPhieu) throws Exception {
+        // Kiểm tra trạng thái CHODUYET
+        if (!"CHODUYET".equals(phieu.getTrangThai())) {
+            throw new Exception("Chỉ có thể duyệt phiếu ở trạng thái CHỜ DUYỆT!");
+        }
 
-        Connection conn = DBConnection.getConnection();
+        // Lấy danh sách chi tiết
+        List<ChiTietPhieuNhap> chiTietList = chiTietPhieuNhapDAO.getByPhieu(maPhieu);
+        if (chiTietList == null || chiTietList.isEmpty()) {
+            throw new Exception("Phiếu nhập không có chi tiết!");
+        }
 
+        // Cộng tồn kho từng mặt hàng
+        List<String> updated = new ArrayList<>();
         try {
-            conn.setAutoCommit(false);
+            for (ChiTietPhieuNhap ct : chiTietList) {
+                boolean ok = dichVuDAO.updateSoLuong(ct.getMaDV(), ct.getSoLuong());
+                if (!ok) {
+                    throw new Exception("Cập nhật tồn kho thất bại: " + ct.getMaDV());
+                }
+                updated.add(ct.getMaDV());
 
-            PhieuNhapHang phieu = phieuDAO.getByID(maPhieu);
-
-            if (phieu == null) {
-                throw new Exception("Phiếu không tồn tại");
+                // Tự động cập nhật trạng thái dịch vụ = CONHANG
+                dichVuDAO.updateTrangThai(ct.getMaDV(), "CONHANG");
             }
-
-            if (phieu.getTrangThai().equals("DAHUY")) {
-                throw new Exception("Phiếu đã hủy");
-            }
-
-            ArrayList<ChiTietPhieuNhap> list = ctDAO.getByPhieu(maPhieu);
-
-            // nếu đã nhập → trừ tồn
-            if (phieu.getTrangThai().equals("DANHAP")) {
-                for (ChiTietPhieuNhap ct : list) {
-                    dvDAO.updateSoLuongTon(conn, ct.getMaDV(), -ct.getSoLuong());
+        } catch (Exception e) {
+            // Compensate: trừ lại tồn kho những mặt hàng đã cộng
+            for (String maDV : updated) {
+                ChiTietPhieuNhap ct = chiTietList.stream()
+                        .filter(c -> c.getMaDV().equals(maDV))
+                        .findFirst().orElse(null);
+                if (ct != null) {
+                    dichVuDAO.updateSoLuong(maDV, -ct.getSoLuong());
                 }
             }
-
-            String sql = "UPDATE PhieuNhapHang SET trangThai='DAHUY' WHERE maPhieuNhap=?";
-            var pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, maPhieu);
-            pstmt.executeUpdate();
-
-            conn.commit();
-            return true;
-
-        } catch (Exception e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.close();
+            throw new Exception("Duyệt phiếu thất bại: " + e.getMessage());
         }
+
+        // Cập nhật trạng thái phiếu = DANHAP
+        boolean updateOk = phieuNhapHangDAO.updateTrangThai(maPhieu, "DANHAP");
+        if (!updateOk) {
+            // Compensate: trừ lại toàn bộ tồn kho vừa cộng
+            for (ChiTietPhieuNhap ct : chiTietList) {
+                dichVuDAO.updateSoLuong(ct.getMaDV(), -ct.getSoLuong());
+            }
+            throw new Exception("Cập nhật trạng thái phiếu thất bại!");
+        }
+
+        return true;
     }
 
-    public ArrayList<PhieuNhapHang> getAllPhieuNhap() {
-        return phieuDAO.getAll();
+    // 3. Hủy phiếu
+    public boolean huyPhieu(String maPhieu) throws Exception {
+
+        // Kiểm tra phân quyền
+        PermissionHelper.requireQuanLy();
+
+        // Lấy phiếu nhập từ DB
+        PhieuNhapHang phieu = phieuNhapHangDAO.getByID(maPhieu);
+        if (phieu == null) {
+            throw new Exception("Phiếu nhập không tồn tại!");
+        }
+
+        // Kiểm tra trạng thái hợp lệ để hủy
+        String trangThai = phieu.getTrangThai();
+        if (!"CHODUYET".equals(trangThai) && !"DANHAP".equals(trangThai)) {
+            throw new Exception("Chỉ có thể hủy phiếu ở trạng thái CHỜ DUYỆT hoặc ĐÃ NHẬP!");
+        }
+
+        // Nếu đã nhập kho thì trừ lại tồn kho
+        if ("DANHAP".equals(trangThai)) {
+            List<ChiTietPhieuNhap> chiTietList = chiTietPhieuNhapDAO.getByPhieu(maPhieu);
+            if (chiTietList == null || chiTietList.isEmpty()) {
+                throw new Exception("Không tìm thấy chi tiết phiếu nhập!");
+            }
+
+            List<String> reverted = new ArrayList<>();
+            try {
+                for (ChiTietPhieuNhap ct : chiTietList) {
+                    boolean ok = dichVuDAO.updateSoLuong(ct.getMaDV(), -ct.getSoLuong());
+                    if (!ok) {
+                        throw new Exception("Trừ tồn kho thất bại: " + ct.getMaDV());
+                    }
+                    reverted.add(ct.getMaDV());
+                }
+            } catch (Exception e) {
+                // Compensate: cộng lại tồn kho những mặt hàng đã trừ
+                for (String maDV : reverted) {
+                    ChiTietPhieuNhap ct = chiTietList.stream()
+                            .filter(c -> c.getMaDV().equals(maDV))
+                            .findFirst().orElse(null);
+                    if (ct != null) {
+                        dichVuDAO.updateSoLuong(maDV, ct.getSoLuong());
+                    }
+                }
+                throw new Exception("Hủy phiếu thất bại: " + e.getMessage());
+            }
+        }
+
+        // Cập nhật trạng thái phiếu = DAHUY
+        boolean updateOk = phieuNhapHangDAO.updateTrangThai(maPhieu, "DAHUY");
+        if (!updateOk) {
+            throw new Exception("Cập nhật trạng thái phiếu thất bại!");
+        }
+
+        return true;
     }
 
-    private String generateId(String prefix) {
-        return prefix + System.currentTimeMillis();
+    // 4. Lấy tất cả phiếu nhập
+    public ArrayList<PhieuNhapHang> getAllPhieuNhap() throws Exception {
+        PermissionHelper.requireQuanLy();
+        return phieuNhapHangDAO.getAll();
     }
 }

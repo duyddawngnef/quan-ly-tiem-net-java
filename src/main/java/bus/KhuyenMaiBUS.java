@@ -3,7 +3,6 @@ package bus;
 import dao.ChuongTrinhKhuyenMaiDAO;
 import entity.ChuongTrinhKhuyenMai;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class KhuyenMaiBUS {
