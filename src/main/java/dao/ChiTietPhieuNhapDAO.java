@@ -73,4 +73,24 @@ public class ChiTietPhieuNhapDAO {
 
         return pstmt.executeUpdate() > 0;
     }
+
+    // Tạo mã ctpn tự động
+    public String generateMaCTPN() {
+        String sql = "SELECT maCTPN FROM ChiTietPhieuNhap ORDER BY maCTPN DESC LIMIT 1";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastId = rs.getString("maCTPN");
+                int num = Integer.parseInt(lastId.replace("CTPN", "")) + 1;
+                return String.format("CTPN%03d", num);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "CTPN001";
+    }
 }

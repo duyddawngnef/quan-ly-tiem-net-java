@@ -13,10 +13,10 @@ public class ChuongTrinhKhuyenMaiDAO {
         String sql = "SELECT * FROM ChuongTrinhKhuyenMai";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()){
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
-            while(rs.next()){
+            while (rs.next()) {
                 ChuongTrinhKhuyenMai ctkm = new ChuongTrinhKhuyenMai(
                         rs.getString("maCTKM"),
                         rs.getString("tenCT"),
@@ -25,8 +25,7 @@ public class ChuongTrinhKhuyenMaiDAO {
                         rs.getDouble("dieuKienToiThieu"),
                         rs.getDate("ngayBatDau").toLocalDate(),
                         rs.getDate("ngayKetThuc").toLocalDate(),
-                        rs.getString("trangThai")
-                );
+                        rs.getString("trangThai"));
                 danhSach.add(ctkm);
             }
         } catch (SQLException e) {
@@ -34,18 +33,19 @@ public class ChuongTrinhKhuyenMaiDAO {
         }
         return danhSach;
     }
+
     // phương thức getByID
-    public ChuongTrinhKhuyenMai getByID(String maCTKM){
+    public ChuongTrinhKhuyenMai getByID(String maCTKM) {
         ChuongTrinhKhuyenMai ctkm = null;
         String sql = "SELECT * FROM ChuongTrinhKhuyenMai WHERE maCTKM = ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, maCTKM);
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 ctkm = new ChuongTrinhKhuyenMai(
                         rs.getString("maCTKM"),
                         rs.getString("tenCT"),
@@ -54,8 +54,7 @@ public class ChuongTrinhKhuyenMaiDAO {
                         rs.getDouble("dieuKienToiThieu"),
                         rs.getDate("ngayBatDau").toLocalDate(),
                         rs.getDate("ngayKetThuc").toLocalDate(),
-                        rs.getString("trangThai")
-                );
+                        rs.getString("trangThai"));
             }
             rs.close();
         } catch (SQLException e) {
@@ -65,12 +64,12 @@ public class ChuongTrinhKhuyenMaiDAO {
     }
 
     // phương thức insert
-    public boolean insert(ChuongTrinhKhuyenMai ctkm){
+    public boolean insert(ChuongTrinhKhuyenMai ctkm) {
         String sql = "INSERT INTO ChuongTrinhKhuyenMai (maCTKM, tenCT, loaiKM, giaTriKM, dieuKienToiThieu, ngayBatDau, ngayKetThuc, trangThai) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ctkm.getMaCTKM());
             pstmt.setString(2, ctkm.getTenCT());
@@ -91,14 +90,13 @@ public class ChuongTrinhKhuyenMaiDAO {
     }
 
     // phương thức update
-    public boolean update(ChuongTrinhKhuyenMai ctkm){
+    public boolean update(ChuongTrinhKhuyenMai ctkm) {
         String sql = "UPDATE ChuongTrinhKhuyenMai "
                 + "SET tenCT = ?, loaiKM = ?, giaTriKM = ?, dieuKienToiThieu = ?, ngayBatDau = ?, ngayKetThuc = ?, trangThai = ? "
                 + "WHERE maCTKM = ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
-
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ctkm.getTenCT());
             pstmt.setString(2, ctkm.getLoaiKM());
@@ -117,11 +115,11 @@ public class ChuongTrinhKhuyenMaiDAO {
         }
     }
 
-    //phương thức delete
-    public boolean delete(String maCTKM){
+    // phương thức delete
+    public boolean delete(String maCTKM) {
         String sql = "DELETE FROM ChuongTrinhKhuyenMai WHERE maCTKM = ?";
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, maCTKM);
 
@@ -145,7 +143,7 @@ public class ChuongTrinhKhuyenMaiDAO {
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
-            while(rs.next()){
+            while (rs.next()) {
                 ChuongTrinhKhuyenMai ctkm = new ChuongTrinhKhuyenMai(
                         rs.getString("maCTKM"),
                         rs.getString("tenCT"),
@@ -154,8 +152,7 @@ public class ChuongTrinhKhuyenMaiDAO {
                         rs.getDouble("dieuKienToiThieu"),
                         rs.getDate("ngayBatDau").toLocalDate(),
                         rs.getDate("ngayKetThuc").toLocalDate(),
-                        rs.getString("trangThai")
-                );
+                        rs.getString("trangThai"));
                 danhSach.add(ctkm);
             }
 
@@ -163,5 +160,25 @@ public class ChuongTrinhKhuyenMaiDAO {
             e.printStackTrace();
         }
         return danhSach;
+    }
+
+    // Tạo mã ctkm tự động
+    public String generateMaCTKM() {
+        String sql = "SELECT maCTKM FROM ChuongTrinhKhuyenMai ORDER BY maCTKM DESC LIMIT 1";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastId = rs.getString("maCTKM");
+                int num = Integer.parseInt(lastId.replace("CTKM", "")) + 1;
+                return String.format("CTKM%03d", num);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "CTKM001";
     }
 }

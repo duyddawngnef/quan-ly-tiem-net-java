@@ -131,4 +131,24 @@ public class PhieuNhapHangDAO {
         }
         return false;
     }
+
+    // Tạo mã pnh tự động
+    public String generateMaPhieuNhap() {
+        String sql = "SELECT maPhieuNhap FROM PhieuNhapHang ORDER BY maPhieuNhap DESC LIMIT 1";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastId = rs.getString("maPhieuNhap");
+                int num = Integer.parseInt(lastId.replace("PN", "")) + 1;
+                return String.format("PN%03d", num);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "PN001";
+    }
 }
