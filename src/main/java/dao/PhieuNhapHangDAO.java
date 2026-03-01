@@ -7,15 +7,14 @@ import java.util.ArrayList;
 
 public class PhieuNhapHangDAO {
 
-    //phương thức getAll
+    // phương thức getAll
     public ArrayList<PhieuNhapHang> getAll() {
         ArrayList<PhieuNhapHang> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM PhieuNhapHang";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()){
-
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 PhieuNhapHang pnh = new PhieuNhapHang(
@@ -24,8 +23,7 @@ public class PhieuNhapHangDAO {
                         rs.getString("maNV"),
                         rs.getDate("ngayNhap").toLocalDate(),
                         rs.getDouble("tongTien"),
-                        rs.getString("trangThai")
-                );
+                        rs.getString("trangThai"));
                 danhSach.add(pnh);
             }
         } catch (SQLException e) {
@@ -35,25 +33,24 @@ public class PhieuNhapHangDAO {
     }
 
     // phương thức getByID
-    public PhieuNhapHang getByID(String maPhieuNhap){
+    public PhieuNhapHang getByID(String maPhieuNhap) {
         PhieuNhapHang pnh = null;
         String sql = "SELECT * FROM PhieuNhapHang WHERE maPhieuNhap = ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, maPhieuNhap);
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 pnh = new PhieuNhapHang(
                         rs.getString("maPhieuNhap"),
                         rs.getString("maNCC"),
                         rs.getString("maNV"),
                         rs.getDate("ngayNhap").toLocalDate(),
                         rs.getDouble("tongTien"),
-                        rs.getString("trangThai")
-                );
+                        rs.getString("trangThai"));
             }
             rs.close();
         } catch (SQLException e) {
@@ -63,25 +60,24 @@ public class PhieuNhapHangDAO {
     }
 
     // phương thức getByNCC
-    public ArrayList<PhieuNhapHang> getByNCC(String maNCC){
+    public ArrayList<PhieuNhapHang> getByNCC(String maNCC) {
         ArrayList<PhieuNhapHang> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM PhieuNhapHang WHERE maNCC = ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, maNCC);
             ResultSet rs = pstmt.executeQuery();
 
-            while (rs.next()){
+            while (rs.next()) {
                 PhieuNhapHang pnh = new PhieuNhapHang(
                         rs.getString("maPhieuNhap"),
                         rs.getString("maNCC"),
                         rs.getString("maNV"),
                         rs.getDate("ngayNhap").toLocalDate(),
                         rs.getDouble("tongTien"),
-                        rs.getString("trangThai")
-                );
+                        rs.getString("trangThai"));
                 danhSach.add(pnh);
             }
             rs.close();
@@ -92,12 +88,12 @@ public class PhieuNhapHangDAO {
     }
 
     // phương thức insert
-    public boolean insert(PhieuNhapHang pnh){
+    public boolean insert(PhieuNhapHang pnh) {
         String sql = "INSERT INTO PhieuNhapHang (maPhieuNhap, maNCC, maNV, ngayNhap, tongTien, trangThai) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, pnh.getMaPhieuNhap());
             pstmt.setString(2, pnh.getMaNCC());
@@ -113,5 +109,26 @@ public class PhieuNhapHangDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Kiểm tra phiếu nhập chờ duyệt
+    public boolean phieuNhapChoDuyet(String maNCC) {
+        String sql = "SELECT COUNT(*) FROM PhieuNhapHang WHERE maNCC = ? AND trangThai = 'CHODUYET'";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, maNCC);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
