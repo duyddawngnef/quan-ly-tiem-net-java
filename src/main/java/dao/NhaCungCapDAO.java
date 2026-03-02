@@ -11,16 +11,15 @@ import java.util.ArrayList;
 public class NhaCungCapDAO {
 
     // phương thức getAll
-    public ArrayList<NhaCungCap> getAll(){
+    public ArrayList<NhaCungCap> getAll() {
         ArrayList<NhaCungCap> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM NhaCungCap";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery()) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
-
-            while(rs.next()) {
+            while (rs.next()) {
                 NhaCungCap ncc = new NhaCungCap(
                         rs.getString("maNCC"),
                         rs.getString("tenNCC"),
@@ -28,28 +27,27 @@ public class NhaCungCapDAO {
                         rs.getString("email"),
                         rs.getString("diaChi"),
                         rs.getString("nguoiLienHe"),
-                        rs.getString("trangThai")
-                );
+                        rs.getString("trangThai"));
                 danhSach.add(ncc);
             }
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return danhSach;
     }
 
     // phương thức getByID
-    public NhaCungCap getByID(String maNCC){
+    public NhaCungCap getByID(String maNCC) {
         NhaCungCap ncc = null;
         String sql = "SELECT * FROM NhaCungCap WHERE maNCC = ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, maNCC);
             ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 ncc = new NhaCungCap(
                         rs.getString("maNCC"),
                         rs.getString("tenNCC"),
@@ -57,8 +55,7 @@ public class NhaCungCapDAO {
                         rs.getString("email"),
                         rs.getString("diaChi"),
                         rs.getString("nguoiLienHe"),
-                        rs.getString("trangThai")
-                );
+                        rs.getString("trangThai"));
             }
             rs.close();
         } catch (SQLException e) {
@@ -68,12 +65,12 @@ public class NhaCungCapDAO {
     }
 
     // phương thức insert
-    public boolean insert(NhaCungCap ncc){
+    public boolean insert(NhaCungCap ncc) {
         String sql = "INSERT INTO NhaCungCap (maNCC, tenNCC, soDienThoai, email, diaChi, nguoiLienHe, trangThai) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ncc.getMaNCC());
             pstmt.setString(2, ncc.getTenNCC());
@@ -93,13 +90,13 @@ public class NhaCungCapDAO {
     }
 
     // phương thức update
-    public boolean update(NhaCungCap ncc){
+    public boolean update(NhaCungCap ncc) {
         String sql = "UPDATE NhaCungCap "
                 + "SET tenNCC = ?, soDienThoai = ?, email = ?, diaChi = ?, nguoiLienHe = ?, trangThai = ? "
                 + "WHERE maNCC = ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, ncc.getTenNCC());
             pstmt.setString(2, ncc.getSoDienThoai());
@@ -112,26 +109,46 @@ public class NhaCungCapDAO {
             int rows = pstmt.executeUpdate();
 
             return rows > 0;
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
     // phương thức delete
-    public boolean delete(String maNCC){
+    public boolean delete(String maNCC) {
         String sql = "DELETE FROM NhaCungCap WHERE maNCC = ?";
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-           pstmt.setString(1, maNCC);
+            pstmt.setString(1, maNCC);
 
-           int rows = pstmt.executeUpdate();
+            int rows = pstmt.executeUpdate();
 
-           return rows > 0;
+            return rows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Tạo mã ncc tự động
+    public String generateMaNCC() {
+        String sql = "SELECT maNCC FROM NhaCungCap ORDER BY maNCC DESC LIMIT 1";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastId = rs.getString("maNCC");
+                int num = Integer.parseInt(lastId.replace("NCC", "")) + 1;
+                return String.format("NCC%03d", num);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "NCC001";
     }
 }

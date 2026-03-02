@@ -8,17 +8,17 @@ import java.util.ArrayList;
 public class LichSuNapTienDAO {
 
     // phương thức getByKhachHang
-    public ArrayList<LichSuNapTien> getByKhachHang(String maKH){
+    public ArrayList<LichSuNapTien> getByKhachHang(String maKH) {
         ArrayList<LichSuNapTien> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM LichSuNapTien WHERE maKH = ? ORDER BY ngayNap DESC";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, maKH);
             ResultSet rs = pstmt.executeQuery();
 
-            while (rs.next()){
+            while (rs.next()) {
                 LichSuNapTien lsnt = new LichSuNapTien(
                         rs.getString("maNap"),
                         rs.getString("maKH"),
@@ -31,8 +31,7 @@ public class LichSuNapTienDAO {
                         rs.getDouble("soDuSau"),
                         rs.getString("phuongThuc"),
                         rs.getString("maGiaoDich"),
-                        rs.getDate("ngayNap").toLocalDate()
-                );
+                        rs.getDate("ngayNap").toLocalDate());
                 danhSach.add(lsnt);
             }
             rs.close();
@@ -43,13 +42,12 @@ public class LichSuNapTienDAO {
     }
 
     // phương thức insert
-    public boolean insert(LichSuNapTien lsnt){
+    public boolean insert(LichSuNapTien lsnt) {
         String sql = "INSERT INTO LichSuNapTien (maNap, maKH, maNV, maCTKM, soTienNap, khuyenMai, tongTienCong, soDuTruoc, soDuSau, phuongThuc, maGiaoDich, ngayNap) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
-
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, lsnt.getMaNap());
             pstmt.setString(2, lsnt.getMaKH());
@@ -74,20 +72,19 @@ public class LichSuNapTienDAO {
     }
 
     // phương thức getByDateRange
-    public ArrayList<LichSuNapTien> getByDateRange(Date fromDate, Date toDate){
+    public ArrayList<LichSuNapTien> getByDateRange(Date fromDate, Date toDate) {
         ArrayList<LichSuNapTien> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM LichSuNapTien WHERE ngayNap BETWEEN ? AND ?";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);) {
-
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);) {
 
             pstmt.setDate(1, fromDate);
             pstmt.setDate(2, toDate);
 
             ResultSet rs = pstmt.executeQuery();
 
-            while (rs.next()){
+            while (rs.next()) {
                 LichSuNapTien lsnt = new LichSuNapTien(
                         rs.getString("maNap"),
                         rs.getString("maKH"),
@@ -100,8 +97,7 @@ public class LichSuNapTienDAO {
                         rs.getDouble("soDuSau"),
                         rs.getString("phuongThuc"),
                         rs.getString("maGiaoDich"),
-                        rs.getDate("ngayNap").toLocalDate()
-                );
+                        rs.getDate("ngayNap").toLocalDate());
                 danhSach.add(lsnt);
             }
             rs.close();
@@ -109,5 +105,24 @@ public class LichSuNapTienDAO {
             e.printStackTrace();
         }
         return danhSach;
+    }
+
+    // Tạo mã nạp tự động
+    public String generateMaNap() {
+        String sql = "SELECT MaNap FROM NapTien ORDER BY MaNap DESC LIMIT 1";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                String lastId = rs.getString("MaNap");
+                int num = Integer.parseInt(lastId.replace("NAP", "")) + 1;
+                return String.format("NAP%03d", num);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "NAP001";
     }
 }

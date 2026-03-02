@@ -2,220 +2,138 @@ package bus;
 
 import dao.*;
 import entity.*;
-import untils.SessionManager;
+import untils.PermissionHelper;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class NapTienBUS {
 
-    private LichSuNapTienDAO lichSuNapTienDAO;
     private KhachHangDAO khachHangDAO;
-    private ChuongTrinhKhuyenMaiDAO ctkm_DAO;
+    private LichSuNapTienDAO lichSuNapTienDAO;
+    private ChuongTrinhKhuyenMaiDAO chuongTrinhKhuyenMaiDAO;
 
     public NapTienBUS() {
-        this.lichSuNapTienDAO = new LichSuNapTienDAO();
         this.khachHangDAO = new KhachHangDAO();
-        this.ctkm_DAO = new ChuongTrinhKhuyenMaiDAO();
+        this.lichSuNapTienDAO = new LichSuNapTienDAO();
+        this.chuongTrinhKhuyenMaiDAO = new ChuongTrinhKhuyenMaiDAO();
     }
 
+    // phương thức nạp tiền
     public LichSuNapTien napTien(String maKH, double soTienNap, String maCTKM) throws Exception {
+
         // Kiểm tra phân quyền
-        NhanVien currentUser = SessionManager.getCurrentUser();
-        if (currentUser == null) {
-            throw new Exception("Chưa đăng nhập!");
-        }
+        PermissionHelper.requireNapTien();
+        String maNV = PermissionHelper.getCurrentMaNV();
 
-        String vaiTro = currentUser.getVaiTro();
-        if (!vaiTro.equals("QUANLY") && !vaiTro.equals("NHANVIEN")) {
-            throw new Exception("Không có quyền thực hiện chức năng này!");
-        }
-
-        // Kiểm tra số tiền nạp > 0
+        // Kiểm tra số tiền
         if (soTienNap <= 0) {
             throw new Exception("Số tiền nạp phải lớn hơn 0!");
         }
 
-        // Lấy khách hàng và kiểm tra trạng thái
-        KhachHang kh = khachHangDAO.getByMaKH(maKH);
+        // Lấy khách hàng, kiểm tra HOATDONG
+        KhachHang kh = khachHangDAO.getById(maKH);
         if (kh == null) {
-            throw new Exception("Không tìm thấy khách hàng!");
+            throw new Exception("Khách hàng không tồn tại!");
+        }
+        if (kh.isNgung()) {
+            throw new Exception("Khách hàng đã bị ngừng hoạt động!");
         }
 
-        if (!kh.getTrangThai().equals("HOATDONG")) {
-            throw new Exception("Khách hàng không hoạt động, không thể nạp tiền!");
-        }
-
-        // Lưu số dư trước
-        double soDuTruoc = kh.getSoDu();
+        // Số dư trước
+        double soDuTruoc = kh.getSodu();
 
         // Xử lý khuyến mãi
         double khuyenMai = 0;
+        String loaiKM = null;
         ChuongTrinhKhuyenMai ctkm = null;
-        boolean isTangGio = false;
 
         if (maCTKM != null && !maCTKM.trim().isEmpty()) {
-            ctkm = ctkm_DAO.getByMaCTKM(maCTKM);
 
+            ctkm = chuongTrinhKhuyenMaiDAO.getByID(maCTKM);
             if (ctkm == null) {
-                throw new Exception("Không tìm thấy chương trình khuyến mãi!");
+                throw new Exception("Chương trình khuyến mãi không tồn tại!");
             }
 
-            // Kiểm tra còn hiệu lực
-            LocalDate now = LocalDate.now();
-            if (now.isBefore(ctkm.getNgayBatDau()) || now.isAfter(ctkm.getNgayKetThuc())) {
+            LocalDate today = LocalDate.now();
+
+            if (!"HOATDONG".equals(ctkm.getTrangThai())
+                    || today.isBefore(ctkm.getNgayBatDau())
+                    || today.isAfter(ctkm.getNgayKetThuc())) {
                 throw new Exception("Chương trình khuyến mãi không còn hiệu lực!");
             }
 
-            if (!ctkm.getTrangThai().equals("HOATDONG")) {
-                throw new Exception("Chương trình khuyến mãi không hoạt động!");
+            if (soTienNap < ctkm.getDieuKienToiThieu()) {
+                throw new Exception("Không đủ điều kiện áp dụng khuyến mãi!");
             }
 
-            // Kiểm tra điều kiện tối thiểu
-            double dieuKienToiThieu = ctkm.getDieuKienToiThieu();
-            if (soTienNap < dieuKienToiThieu) {
-                throw new Exception("Số tiền nạp không đủ điều kiện khuyến mãi! Tối thiểu: "
-                        + dieuKienToiThieu + " VNĐ");
-            }
+            loaiKM = ctkm.getLoaiKM();
 
-            // Tính khuyến mãi theo loại
-            String loaiKM = ctkm.getLoaiKM();
-            double giaTriKM = ctkm.getGiaTriKM();
-
-            switch (loaiKM) {
-                case "PHANTRAM":
-                    khuyenMai = soTienNap * giaTriKM / 100;
-                    break;
-
-                case "SOTIEN":
-                    khuyenMai = giaTriKM;
-                    break;
-
-                case "TANGGIO":
-                    khuyenMai = 0; // Xử lý riêng sau
-                    isTangGio = true;
-                    break;
-
-                default:
-                    throw new Exception("Loại khuyến mãi không hợp lệ!");
+            if ("PHANTRAM".equals(loaiKM)) {
+                khuyenMai = soTienNap * ctkm.getGiaTriKM() / 100.0;
+            } else if ("SOTIEN".equals(loaiKM)) {
+                khuyenMai = ctkm.getGiaTriKM();
+            } else if ("TANGGIO".equals(loaiKM)) {
+                khuyenMai = 0;
+            } else {
+                throw new Exception("Loại khuyến mãi không hợp lệ!");
             }
         }
 
-        // Tính tổng tiền cộng
+        // Tổng tiền cộng
         double tongTienCong = soTienNap + khuyenMai;
         double soDuSau = soDuTruoc + tongTienCong;
 
-        // BEGIN TRANSACTION
-        Connection conn = null;
-        try {
-            conn = DBConnection.getConnection();
-            conn.setAutoCommit(false);
+        // Sinh mã nạp
+        String maNap = lichSuNapTienDAO.generateMaNap();
 
-            // Cập nhật số dư khách hàng
-            boolean updateSuccess = khachHangDAO.updateSoDu(maKH, tongTienCong);
-            if (!updateSuccess) {
-                throw new Exception("Cập nhật số dư khách hàng thất bại!");
-            }
+        // Tạo đối tượng lịch sử
+        LichSuNapTien lsnt = new LichSuNapTien(
+                maNap,
+                maKH,
+                maNV,
+                maCTKM,
+                soTienNap,
+                khuyenMai,
+                tongTienCong,
+                soDuTruoc,
+                soDuSau,
+                "TIENMAT",
+                null,
+                LocalDate.now());
 
-            // Tạo lịch sử nạp tiền
-            String maNap = generateMaNap();
-
-            LichSuNapTien lichSu = new LichSuNapTien(
-                    maNap,
-                    maKH,
-                    currentUser.getMaNV(),
-                    maCTKM,
-                    soTienNap,
-                    khuyenMai,
-                    tongTienCong,
-                    soDuTruoc,
-                    soDuSau,
-                    phuongThuc,
-                    maGiaoDich,
-                    LocalDate.now());
-
-            // Insert lịch sử nạp tiền
-            boolean insertSuccess = lichSuNapTienDAO.insert(lichSu);
-            if (!insertSuccess) {
-                throw new Exception("Lưu lịch sử nạp tiền thất bại!");
-            }
-
-            // Nếu là khuyến mãi tặng giờ, tạo gói tặng
-            if (isTangGio && ctkm != null) {
-                GoiTang goiTang = new GoiTang();
-                goiTang.setMaGoi(generateMaGoiTang());
-                goiTang.setMaKH(maKH);
-                goiTang.setMaCTKM(maCTKM);
-                goiTang.setTenGoi("Khuyến mãi nạp tiền - " + ctkm.getTenCTKM());
-                goiTang.setSoGioTang((int) ctkm.getGiaTriKM());
-                goiTang.setSoGioConLai((int) ctkm.getGiaTriKM());
-                goiTang.setNgayBatDau(LocalDate.now());
-                goiTang.setNgayHetHan(LocalDate.now().plusDays(30)); // Mặc định 30 ngày
-                goiTang.setTrangThai("HOATDONG");
-                goiTang.setMaNap(maNap);
-
-                boolean insertGoiTang = goiTangDAO.insert(goiTang);
-                if (!insertGoiTang) {
-                    throw new Exception("Tạo gói tặng giờ thất bại!");
-                }
-            }
-
-            // COMMIT
-            conn.commit();
-
-            return lichSu;
-
-        } catch (Exception e) {
-            // ROLLBACK nếu có lỗi
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            throw e;
-
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+        // Cập nhật số dư khách hàng
+        boolean updateOk = khachHangDAO.updateSoDu(maKH, soDuSau);
+        if (!updateOk) {
+            throw new Exception("Cập nhật số dư khách hàng thất bại!");
         }
+
+        // Insert lịch sử — nếu thất bại thì hoàn tiền lại (compensate)
+        boolean insertOk = lichSuNapTienDAO.insert(lsnt);
+        if (!insertOk) {
+            khachHangDAO.updateSoDu(maKH, soDuTruoc); // hoàn số dư về trạng thái ban đầu
+            throw new Exception("Lưu lịch sử nạp tiền thất bại, đã hoàn tiền!");
+        }
+
+        // Nếu TANGGIO thì tạo gói tặng giờ
+        if ("TANGGIO".equals(loaiKM) && ctkm != null) {
+        }
+
+        return lsnt;
     }
 
+    // 2. Lấy lịch sử nạp tiền
     public ArrayList<LichSuNapTien> getLichSuNapTien(String maKH) throws Exception {
-        // Kiểm tra phân quyền
-        NhanVien currentUser = SessionManager.getCurrentUser();
-        if (currentUser == null) {
-            throw new Exception("Chưa đăng nhập!");
+        PermissionHelper.requireNhanVien();
+        if (maKH == null || maKH.trim().isEmpty()) {
+            throw new Exception("Mã khách hàng không được để trống!");
         }
-
-        String vaiTro = currentUser.getVaiTro();
-        if (!vaiTro.equals("QUANLY") && !vaiTro.equals("NHANVIEN")) {
-            throw new Exception("Không có quyền truy cập!");
-        }
-
         return lichSuNapTienDAO.getByKhachHang(maKH);
     }
 
+    // 3. Tính tiền khuyến mãi
     public double tinhKhuyenMai(double soTien, String maCTKM) throws Exception {
-        // Kiểm tra phân quyền
-        NhanVien currentUser = SessionManager.getCurrentUser();
-        if (currentUser == null) {
-            throw new Exception("Chưa đăng nhập!");
-        }
-
-        String vaiTro = currentUser.getVaiTro();
-        if (!vaiTro.equals("QUANLY") && !vaiTro.equals("NHANVIEN")) {
-            throw new Exception("Không có quyền thực hiện!");
-        }
+        PermissionHelper.requireNhanVien();
 
         if (soTien <= 0) {
             throw new Exception("Số tiền phải lớn hơn 0!");
@@ -225,45 +143,33 @@ public class NapTienBUS {
             return 0;
         }
 
-        ChuongTrinhKhuyenMai ctkm = ctkm_DAO.getByMaCTKM(maCTKM);
+        ChuongTrinhKhuyenMai ctkm = chuongTrinhKhuyenMaiDAO.getByID(maCTKM);
         if (ctkm == null) {
-            throw new Exception("Không tìm thấy chương trình khuyến mãi!");
+            throw new Exception("Chương trình khuyến mãi không tồn tại!");
         }
 
-        // Kiểm tra điều kiện
-        double dieuKienToiThieu = ctkm.getDieuKienToiThieu();
-        if (soTien < dieuKienToiThieu) {
+        // Kiểm tra còn hiệu lực
+        LocalDate today = LocalDate.now();
+        if (!"HOATDONG".equals(ctkm.getTrangThai())
+                || today.isBefore(ctkm.getNgayBatDau())
+                || today.isAfter(ctkm.getNgayKetThuc())) {
+            throw new Exception("Chương trình khuyến mãi không còn hiệu lực!");
+        }
+
+        // Kiểm tra điều kiện tối thiểu
+        if (soTien < ctkm.getDieuKienToiThieu()) {
             return 0;
         }
 
-        // Tính khuyến mãi
-        String loaiKM = ctkm.getLoaiKM();
-        double giaTriKM = ctkm.getGiaTriKM();
-
-        switch (loaiKM) {
+        switch (ctkm.getLoaiKM()) {
             case "PHANTRAM":
-                return soTien * giaTriKM / 100;
-
+                return soTien * ctkm.getGiaTriKM() / 100.0;
             case "SOTIEN":
-                return giaTriKM;
-
+                return ctkm.getGiaTriKM();
             case "TANGGIO":
                 return 0;
-
             default:
-                throw new Exception("Loại khuyến mãi không hợp lệ!");
+                throw new Exception("Loại khuyến mãi không hợp lệ: " + ctkm.getLoaiKM());
         }
-    }
-
-    // Max nạp tiền tự động
-    private String generateMaNap() {
-        return "NAP" + System.currentTimeMillis();
-    }
-
-    /**
-     * Generate mã gói tặng tự động
-     */
-    private String generateMaGoiTang() {
-        return "GT" + System.currentTimeMillis();
     }
 }

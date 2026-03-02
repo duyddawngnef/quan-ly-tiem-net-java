@@ -58,7 +58,7 @@ public class NhaCungCapBUS {
         return nccDAO.update(ncc);
     }
 
-    // xóa NCC (soft delete)
+    // xóa NCC
     public boolean xoaNhaCungCap(String maNCC) throws Exception {
 
         NhaCungCap ncc = nccDAO.getByID(maNCC);
@@ -77,5 +77,4 @@ public class NhaCungCapBUS {
 
         return nccDAO.update(ncc);
     }
-
 }

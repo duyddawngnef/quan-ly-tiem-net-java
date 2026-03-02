@@ -9,12 +9,13 @@ public class NhaCungCap {
     private String nguoiLienHe;
     private String trangThai;
 
+    public NhaCungCap() {
+    }
 
-    public NhaCungCap() {}
-
-    public NhaCungCap(String maNCC, String tenNCC, String soDienThoai, String email, String diaChi, String nguoiLienHe, String trangThai) {
+    public NhaCungCap(String maNCC, String tenNCC, String soDienThoai, String email, String diaChi, String nguoiLienHe,
+            String trangThai) {
         this.maNCC = maNCC;
-        this.tenNCC =  tenNCC;
+        this.tenNCC = tenNCC;
         this.soDienThoai = soDienThoai;
         this.email = email;
         this.diaChi = diaChi;
@@ -89,6 +90,14 @@ public class NhaCungCap {
                 ", nguoiLienHe=" + nguoiLienHe +
                 ", trangThai=" + trangThai +
                 '}';
+    }
+
+    public boolean isHoatDong() {
+        return "HOATDONG".equals(trangThai);
+    }
+
+    public boolean isNgung() {
+        return "NGUNG".equals(trangThai);
     }
 
 }

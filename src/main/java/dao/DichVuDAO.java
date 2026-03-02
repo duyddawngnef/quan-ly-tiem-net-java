@@ -16,8 +16,8 @@ public class DichVuDAO {
         String sql = "SELECT * FROM dichvu";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 DichVu dv = new DichVu(
@@ -27,8 +27,7 @@ public class DichVuDAO {
                         rs.getDouble("DonGia"),
                         rs.getString("DonViTinh"),
                         rs.getInt("SoLuongTon"),
-                        rs.getString("TrangThai")
-                );
+                        rs.getString("TrangThai"));
                 list.add(dv);
             }
         } catch (Exception e) {
@@ -41,8 +40,8 @@ public class DichVuDAO {
     public String generateId() {
         String sql = "SELECT MaDV FROM dichvu ORDER BY MaDV DESC LIMIT 1";
         try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 String lastId = rs.getString("MaDV");
                 int num = Integer.parseInt(lastId.replace("DV", "")) + 1;
@@ -58,7 +57,7 @@ public class DichVuDAO {
     public DichVu getById(String maDV) {
         String sql = "SELECT * FROM dichvu WHERE MaDV = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maDV);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -69,8 +68,7 @@ public class DichVuDAO {
                         rs.getDouble("DonGia"),
                         rs.getString("DonViTinh"),
                         rs.getInt("SoLuongTon"),
-                        rs.getString("TrangThai")
-                );
+                        rs.getString("TrangThai"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,12 +78,12 @@ public class DichVuDAO {
 
     public boolean insert(DichVu dv) {
         String sql = """
-            INSERT INTO dichvu(MaDV, TenDV, LoaiDV, DonGia, DonViTinh, SoLuongTon, TrangThai)
-            VALUES (?,?,?,?,?,?,?)
-        """;
+                    INSERT INTO dichvu(MaDV, TenDV, LoaiDV, DonGia, DonViTinh, SoLuongTon, TrangThai)
+                    VALUES (?,?,?,?,?,?,?)
+                """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, dv.getMaDV());
             ps.setString(2, dv.getTenDV());
@@ -105,13 +103,13 @@ public class DichVuDAO {
     // Cập nhật dịch vụ
     public boolean update(DichVu dv) {
         String sql = """
-            UPDATE dichvu
-            SET TenDV = ?, LoaiDV = ?, DonGia = ?, DonViTinh = ?, SoLuongTon = ?, TrangThai = ?
-            WHERE MaDV = ?
-        """;
+                    UPDATE dichvu
+                    SET TenDV = ?, LoaiDV = ?, DonGia = ?, DonViTinh = ?, SoLuongTon = ?, TrangThai = ?
+                    WHERE MaDV = ?
+                """;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, dv.getTenDV());
             ps.setString(2, dv.getLoaiDV());
@@ -133,7 +131,7 @@ public class DichVuDAO {
         String sql = "DELETE FROM dichvu WHERE MaDV = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maDV);
             return ps.executeUpdate() > 0;
@@ -148,10 +146,27 @@ public class DichVuDAO {
         String sql = "UPDATE dichvu SET SoLuongTon = SoLuongTon + ? WHERE MaDV = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, soLuongThayDoi);
             ps.setString(2, maDV);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Cập nhật trạng thái dịch vụ
+    public boolean updateTrangThai(String maDV, String trangThai) {
+        String sql = "UPDATE dichvu SET TrangThai = ? WHERE MaDV = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, trangThai);
+            ps.setString(2, maDV);
+
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
