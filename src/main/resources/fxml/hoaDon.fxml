@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.controller.HoaDonController"
+      spacing="14" style="-fx-padding:20;">
+
+    <!-- Toolbar -->
+    <HBox styleClass="card" alignment="CENTER_LEFT" spacing="12"
+          style="-fx-padding:12 16;-fx-background-radius:8;">
+        <TextField fx:id="txtSearch" styleClass="search-field" promptText="🔍 Tìm mã HD, khách hàng..."/>
+        <DatePicker fx:id="dpTu" promptText="Từ ngày"/>
+        <DatePicker fx:id="dpDen" promptText="Đến ngày"/>
+        <ComboBox fx:id="cmbNhanVien" promptText="Nhân viên" style="-fx-min-width:150px;"/>
+        <Button text="Tìm" styleClass="btn-primary,btn-sm" onAction="#handleSearch"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="📤 Xuất PDF" styleClass="btn-secondary" onAction="#handleExportPDF"/>
+        <Button text="📊 Xuất Excel" styleClass="btn-secondary" onAction="#handleExportExcel"/>
+    </HBox>
+
+    <!-- MAIN-SUB: HoaDon → ChiTietHoaDon (Form main-sub theo yêu cầu) -->
+    <VBox spacing="14" VBox.vgrow="ALWAYS">
+
+        <!-- Master: Danh sách hóa đơn (click 1 row → hiện chi tiết) -->
+        <VBox styleClass="card" spacing="0" style="-fx-padding:0;-fx-background-radius:8;" prefHeight="350">
+            <HBox alignment="CENTER_LEFT" style="-fx-padding:12 16;">
+                <Label text="Danh Sách Hóa Đơn"
+                       style="-fx-font-size:14px;-fx-font-weight:bold;-fx-text-fill:#1E2A3A;" HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblTongHD" text="" style="-fx-font-size:12px;-fx-text-fill:#757575;"/>
+            </HBox>
+            <TableView fx:id="tableHoaDon" VBox.vgrow="ALWAYS" onMouseClicked="#handleHoaDonSelect">
+                <columns>
+                    <TableColumn fx:id="colMaHD" text="Mã HD" prefWidth="90"/>
+                    <TableColumn fx:id="colKhachHang" text="Khách Hàng" prefWidth="160"/>
+                    <TableColumn fx:id="colNhanVien" text="Nhân Viên" prefWidth="140"/>
+                    <TableColumn fx:id="colNgayLap" text="Ngày Lập" prefWidth="140"/>
+                    <TableColumn fx:id="colTongTien" text="Tổng Tiền (đ)" prefWidth="140"/>
+                    <TableColumn fx:id="colGiamGia" text="Giảm Giá (đ)" prefWidth="120"/>
+                    <TableColumn fx:id="colThanhToan" text="Thanh Toán (đ)" prefWidth="140"/>
+                    <TableColumn fx:id="colTrangThai" text="Trạng Thái" prefWidth="110"/>
+                </columns>
+            </TableView>
+        </VBox>
+
+        <!-- Sub: Chi tiết hóa đơn (hiện khi click 1 row HD) -->
+        <VBox fx:id="chiTietPane" styleClass="card" spacing="0" style="-fx-padding:0;-fx-background-radius:8;"
+              VBox.vgrow="ALWAYS" managed="true" visible="true">
+            <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding:12 16;">
+                <Label fx:id="lblChiTietTitle" text="Chi Tiết Hóa Đơn"
+                       style="-fx-font-size:14px;-fx-font-weight:bold;-fx-text-fill:#1E2A3A;" HBox.hgrow="ALWAYS"/>
+                <!-- Summary -->
+                <Label fx:id="lblTongTienCT" text=""
+                       style="-fx-font-size:13px;-fx-font-weight:bold;-fx-text-fill:#E53935;"/>
+            </HBox>
+            <TableView fx:id="tableChiTiet" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colSTT" text="STT" prefWidth="60"/>
+                    <TableColumn fx:id="colTenSP" text="Tên Dịch Vụ/Sản Phẩm" prefWidth="240"/>
+                    <TableColumn fx:id="colSoLuong" text="Số Lượng" prefWidth="100"/>
+                    <TableColumn fx:id="colDonGia" text="Đơn Giá (đ)" prefWidth="130"/>
+                    <TableColumn fx:id="colThanhTienCT" text="Thành Tiền (đ)" prefWidth="140"/>
+                    <TableColumn fx:id="colGhiChu" text="Ghi Chú" prefWidth="180"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </VBox>
+</VBox>

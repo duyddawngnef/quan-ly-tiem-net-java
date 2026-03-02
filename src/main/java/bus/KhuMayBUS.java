@@ -1,12 +1,11 @@
 package bus;
 
+import java.util.List;
+
 import dao.KhuMayDAO;
-import dao.MayTinhDAO;
 import entity.KhuMay;
 import entity.NhanVien;
 import untils.SessionManager;
-
-import java.util.List;
 
 public class KhuMayBUS
 {

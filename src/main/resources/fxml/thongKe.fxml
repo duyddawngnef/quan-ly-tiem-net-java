@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.controller.ThongKeController"
+      spacing="14" style="-fx-padding:20;">
+
+    <!-- Filter toolbar -->
+    <HBox styleClass="card" alignment="CENTER_LEFT" spacing="12"
+          style="-fx-padding:12 16;-fx-background-radius:8;">
+        <Label text="Thống kê theo:" styleClass="form-label"/>
+        <ToggleGroup fx:id="tgKieuThongKe"/>
+        <RadioButton text="Ngày" styleClass="form-radio" toggleGroup="$tgKieuThongKe" userData="NGAY"/>
+        <RadioButton text="Tháng" styleClass="form-radio" toggleGroup="$tgKieuThongKe" userData="THANG"/>
+        <RadioButton text="Quý" styleClass="form-radio" toggleGroup="$tgKieuThongKe" userData="QUY"/>
+        <RadioButton text="Năm" styleClass="form-radio" toggleGroup="$tgKieuThongKe" userData="NAM"/>
+        <Separator orientation="VERTICAL"/>
+        <DatePicker fx:id="dpTu" promptText="Từ ngày"/>
+        <Label text="→"/>
+        <DatePicker fx:id="dpDen" promptText="Đến ngày"/>
+        <Button text="📊 Xem Thống Kê" styleClass="btn-primary" onAction="#handleThongKe"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="📤 Xuất Excel" styleClass="btn-secondary" onAction="#handleExportExcel"/>
+        <Button text="🖨 In Báo Cáo" styleClass="btn-secondary" onAction="#handlePrint"/>
+    </HBox>
+
+    <!-- Summary cards -->
+    <HBox spacing="14">
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" spacing="6"
+              style="-fx-padding:18 20;-fx-background-radius:8;-fx-border-color:#90CAF9;-fx-border-width:0 0 0 4;">
+            <Label text="TỔNG THU" style="-fx-font-size:11px;-fx-font-weight:bold;-fx-text-fill:#757575;"/>
+            <Label fx:id="lblTongThu" text="0 đ" style="-fx-font-size:20px;-fx-font-weight:bold;-fx-text-fill:#1A73E8;"/>
+            <Label fx:id="lblSoHD" text="0 hóa đơn" style="-fx-font-size:12px;-fx-text-fill:#9E9E9E;"/>
+        </VBox>
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" spacing="6"
+              style="-fx-padding:18 20;-fx-background-radius:8;-fx-border-color:#EF9A9A;-fx-border-width:0 0 0 4;">
+            <Label text="TỔNG CHI" style="-fx-font-size:11px;-fx-font-weight:bold;-fx-text-fill:#757575;"/>
+            <Label fx:id="lblTongChi" text="0 đ" style="-fx-font-size:20px;-fx-font-weight:bold;-fx-text-fill:#E53935;"/>
+            <Label fx:id="lblSoPhieu" text="0 phiếu nhập" style="-fx-font-size:12px;-fx-text-fill:#9E9E9E;"/>
+        </VBox>
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" spacing="6"
+              style="-fx-padding:18 20;-fx-background-radius:8;-fx-border-color:#A5D6A7;-fx-border-width:0 0 0 4;">
+            <Label text="LỢI NHUẬN" style="-fx-font-size:11px;-fx-font-weight:bold;-fx-text-fill:#757575;"/>
+            <Label fx:id="lblLoiNhuan" text="0 đ" style="-fx-font-size:20px;-fx-font-weight:bold;-fx-text-fill:#43A047;"/>
+            <Label fx:id="lblTiLe" text="Tỉ lệ: 0%" style="-fx-font-size:12px;-fx-text-fill:#9E9E9E;"/>
+        </VBox>
+    </HBox>
+
+    <!-- TabPane thống kê chi tiết -->
+    <TabPane fx:id="tabThongKe" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
+
+        <!-- Tab 1: Theo nhân viên và quý -->
+        <Tab text="🧑‍💼 Theo Nhân Viên">
+            <VBox spacing="12" style="-fx-padding:14;">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="cmbNamNV" promptText="Chọn năm" style="-fx-min-width:120px;"/>
+                    <Button text="Xem" styleClass="btn-primary,btn-sm" onAction="#handleThongKeNV"/>
+                </HBox>
+                <TableView fx:id="tableThongKeNV" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colNhanVien" text="Nhân Viên" prefWidth="200"/>
+                        <TableColumn fx:id="colQ1NV" text="Quý 1 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ2NV" text="Quý 2 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ3NV" text="Quý 3 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ4NV" text="Quý 4 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colTCNV" text="Tổng Cộng (đ)" prefWidth="160"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- Tab 2: Theo khách hàng và quý -->
+        <Tab text="👤 Theo Khách Hàng">
+            <VBox spacing="12" style="-fx-padding:14;">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="cmbNamKH" promptText="Chọn năm" style="-fx-min-width:120px;"/>
+                    <Button text="Xem" styleClass="btn-primary,btn-sm" onAction="#handleThongKeKH"/>
+                </HBox>
+                <TableView fx:id="tableThongKeKH" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colKhachHangTK" text="Khách Hàng" prefWidth="200"/>
+                        <TableColumn fx:id="colQ1KH" text="Quý 1 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ2KH" text="Quý 2 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ3KH" text="Quý 3 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ4KH" text="Quý 4 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colTCKH" text="Tổng Cộng (đ)" prefWidth="160"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- Tab 3: Theo dịch vụ/sản phẩm -->
+        <Tab text="🛒 Theo Dịch Vụ">
+            <VBox spacing="12" style="-fx-padding:14;">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="cmbNamDV" promptText="Chọn năm" style="-fx-min-width:120px;"/>
+                    <Button text="Xem" styleClass="btn-primary,btn-sm" onAction="#handleThongKeDV"/>
+                </HBox>
+                <TableView fx:id="tableThongKeDV" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colDichVuTK" text="Dịch Vụ / Sản Phẩm" prefWidth="220"/>
+                        <TableColumn fx:id="colQ1DV" text="Quý 1 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ2DV" text="Quý 2 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ3DV" text="Quý 3 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colQ4DV" text="Quý 4 (đ)" prefWidth="150"/>
+                        <TableColumn fx:id="colTCDV" text="Tổng Cộng (đ)" prefWidth="160"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+    </TabPane>
+</VBox>

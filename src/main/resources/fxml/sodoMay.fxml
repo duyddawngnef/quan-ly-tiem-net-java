@@ -1,16 +1,73 @@
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.layout.GridPane?>
-<VBox spacing="10"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.SoDoMayController"
-      style="-fx-padding: 10;">
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
 
-<ComboBox fx:id="comboKhuMay" />
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.controller.SodoMayController"
+      spacing="16" style="-fx-padding:20;">
 
-<GridPane fx:id="gridMay"
-          hgap="10"
-          vgap="10"/>
+    <!-- Header card -->
+    <HBox styleClass="card" alignment="CENTER_LEFT" spacing="16"
+          style="-fx-padding:14 20;-fx-background-radius:8;">
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Sơ Đồ Máy Tính" style="-fx-font-size:16px;-fx-font-weight:bold;-fx-text-fill:#1E2A3A;"/>
+            <Label text="Trạng thái các máy trong tiệm theo thời gian thực" style="-fx-font-size:12px;-fx-text-fill:#757575;"/>
+        </VBox>
+        <!-- Legend -->
+        <HBox spacing="16" alignment="CENTER">
+            <HBox spacing="6" alignment="CENTER">
+                <Label style="-fx-min-width:14px;-fx-min-height:14px;-fx-background-color:#43A047;-fx-background-radius:3;"/>
+                <Label text="Trống" style="-fx-font-size:12px;"/>
+            </HBox>
+            <HBox spacing="6" alignment="CENTER">
+                <Label style="-fx-min-width:14px;-fx-min-height:14px;-fx-background-color:#E53935;-fx-background-radius:3;"/>
+                <Label text="Đang dùng" style="-fx-font-size:12px;"/>
+            </HBox>
+            <HBox spacing="6" alignment="CENTER">
+                <Label style="-fx-min-width:14px;-fx-min-height:14px;-fx-background-color:#FB8C00;-fx-background-radius:3;"/>
+                <Label text="Bảo trì" style="-fx-font-size:12px;"/>
+            </HBox>
+        </HBox>
+        <Button text="🔄 Làm mới" styleClass="btn-secondary" onAction="#handleRefresh"/>
+    </HBox>
+
+    <!-- Filter by khu -->
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <Label text="Khu máy:" styleClass="form-label"/>
+        <ComboBox fx:id="cmbKhuMay" promptText="Tất cả khu" style="-fx-min-width:180px;"/>
+        <Button text="Lọc" styleClass="btn-primary,btn-sm" onAction="#handleFilter"/>
+    </HBox>
+
+    <!-- Machine grid -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background:transparent;-fx-background-color:transparent;">
+        <FlowPane fx:id="machineGrid" hgap="14" vgap="14"
+                  style="-fx-padding:4;"/>
+    </ScrollPane>
+
+    <!-- Stats bar -->
+    <HBox styleClass="card" spacing="30" alignment="CENTER"
+          style="-fx-padding:12 20;-fx-background-radius:8;">
+        <VBox alignment="CENTER" spacing="2">
+            <Label fx:id="lblTong" text="0" style="-fx-font-size:22px;-fx-font-weight:bold;-fx-text-fill:#1A73E8;"/>
+            <Label text="Tổng máy" style="-fx-font-size:11px;-fx-text-fill:#757575;"/>
+        </VBox>
+        <Separator orientation="VERTICAL"/>
+        <VBox alignment="CENTER" spacing="2">
+            <Label fx:id="lblTrong" text="0" style="-fx-font-size:22px;-fx-font-weight:bold;-fx-text-fill:#43A047;"/>
+            <Label text="Đang trống" style="-fx-font-size:11px;-fx-text-fill:#757575;"/>
+        </VBox>
+        <Separator orientation="VERTICAL"/>
+        <VBox alignment="CENTER" spacing="2">
+            <Label fx:id="lblDangDung" text="0" style="-fx-font-size:22px;-fx-font-weight:bold;-fx-text-fill:#E53935;"/>
+            <Label text="Đang dùng" style="-fx-font-size:11px;-fx-text-fill:#757575;"/>
+        </VBox>
+        <Separator orientation="VERTICAL"/>
+        <VBox alignment="CENTER" spacing="2">
+            <Label fx:id="lblBaoTri" text="0" style="-fx-font-size:22px;-fx-font-weight:bold;-fx-text-fill:#FB8C00;"/>
+            <Label text="Bảo trì" style="-fx-font-size:11px;-fx-text-fill:#757575;"/>
+        </VBox>
+    </HBox>
 
 </VBox>
