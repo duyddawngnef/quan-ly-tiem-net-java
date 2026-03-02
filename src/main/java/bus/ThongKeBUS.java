@@ -75,23 +75,35 @@ public class ThongKeBUS {
         return thongKeDAO.topDichVu(tu, den, top);
     }
 
-    //thống kê tổng quan
+    // thống kê tổng quan
     public Map<String, Object> thongKeTongQuan(String vaiTro) throws Exception {
 
         checkQuanLyNhanVien(vaiTro);
 
         Map<String, Object> result = new HashMap<>();
 
-        int tongMay = mayTinhDAO.count();
-        int mayDangDung = mayTinhDAO.countByStatus("DANGDUNG");
-        int mayTrong = mayTinhDAO.countByStatus("TRONG");
+        int tongMay = mayTinhDAO.countByTrangThai("TRONG")
+                + mayTinhDAO.countByTrangThai("DANGDUNG")
+                + mayTinhDAO.countByTrangThai("NGUNG");
 
-        int tongKH = khachHangDAO.count();
-        int khHoatDong = khachHangDAO.countByStatus("HOATDONG");
+        int mayDangDung = mayTinhDAO.countByTrangThai("DANGDUNG");
+        int mayTrong = mayTinhDAO.countByTrangThai("TRONG");
 
-        int phienDangChoi = phienSuDungDAO.countDangChoi();
+        List<entity.KhachHang> danhSachKH = khachHangDAO.getAll();
+
+        int tongKH = danhSachKH.size();
+        int khHoatDong = 0;
+
+        for (entity.KhachHang kh : danhSachKH) {
+            if ("HOATDONG".equals(kh.getTrangthai())) {
+                khHoatDong++;
+            }
+        }
+
+        int phienDangChoi = phienSuDungDAO.countByTrangThai("DANGCHOI");
 
         double doanhThuHomNay = thongKeDAO.doanhThuHomNay();
+
         double doanhThuThang = thongKeDAO.doanhThuThang(
                 LocalDate.now().getMonthValue(),
                 LocalDate.now().getYear());
@@ -110,5 +122,4 @@ public class ThongKeBUS {
 
         return result;
     }
-
 }
