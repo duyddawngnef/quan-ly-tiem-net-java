@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.dialog.ThemNhanVienDialog"
+      stylesheets="@../../css/style.css,@../../css/button.css,@../../css/dialog.css"
+      spacing="0" style="-fx-min-width:500px;">
+
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT">
+        <Label fx:id="lblTitle" text="Thêm Nhân Viên" styleClass="dialog-title"/>
+    </HBox>
+
+    <VBox styleClass="dialog-body" spacing="12">
+        <GridPane hgap="14" vgap="12">
+            <columnConstraints>
+                <ColumnConstraints minWidth="110"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints minWidth="110"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+            <Label text="Mã NV:" styleClass="form-label" GridPane.rowIndex="0"/>
+            <TextField fx:id="txtMaNV" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Label text="Họ và tên *:" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtHoTen" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+            <Label text="Điện thoại:" styleClass="form-label" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtSdt" promptText="0xxxxxxxxx" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <Label text="Email:" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtEmail" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+            <Label text="Chức vụ *:" styleClass="form-label" GridPane.rowIndex="2"/>
+            <ComboBox fx:id="cmbChucVu" maxWidth="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Label text="Lương (đ):" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtLuong" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+
+            <Label text="Ngày vào làm:" styleClass="form-label" GridPane.rowIndex="3"/>
+            <DatePicker fx:id="dpNgayVaoLam" maxWidth="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <Label text="CCCD/CMND:" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtCCCD" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+
+            <Label text="Username:" styleClass="form-label" GridPane.rowIndex="4"/>
+            <TextField fx:id="txtUsername" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <Label text="Mật khẩu *:" styleClass="form-label" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+            <PasswordField fx:id="txtPassword" GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+
+            <Label text="Địa chỉ:" styleClass="form-label" GridPane.rowIndex="5"/>
+            <TextField fx:id="txtDiaChi" GridPane.rowIndex="5" GridPane.columnIndex="1"
+                       GridPane.columnSpan="3"/>
+        </GridPane>
+        <Label fx:id="lblError" style="-fx-text-fill:#E53935;-fx-font-weight:bold;" text="" wrapText="true"/>
+    </VBox>
+
+    <HBox styleClass="dialog-footer" spacing="10">
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Hủy" styleClass="btn-secondary" onAction="#handleCancel"/>
+        <Button text="💾 Lưu" styleClass="btn-primary" onAction="#handleSave" defaultButton="true"/>
+    </HBox>
+</VBox>

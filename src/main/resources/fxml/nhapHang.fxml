@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.controller.NhapHangController"
+      spacing="14" style="-fx-padding:20;">
+
+    <HBox styleClass="card" alignment="CENTER_LEFT" spacing="12"
+          style="-fx-padding:12 16;-fx-background-radius:8;">
+        <TextField fx:id="txtSearch" styleClass="search-field" promptText="🔍 Tìm mã phiếu, nhà cung cấp..."/>
+        <DatePicker fx:id="dpTu" promptText="Từ ngày"/>
+        <DatePicker fx:id="dpDen" promptText="Đến ngày"/>
+        <Button text="Tìm" styleClass="btn-primary,btn-sm" onAction="#handleSearch"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="+ Tạo Phiếu Nhập" styleClass="btn-success" onAction="#handleTaoPhieu"/>
+        <Button fx:id="btnXoa" text="✕ Xóa" styleClass="btn-danger" onAction="#handleXoa"/>
+    </HBox>
+
+    <!-- MAIN-SUB: PhieuNhap → ChiTietNhap -->
+    <VBox spacing="14" VBox.vgrow="ALWAYS">
+
+        <!-- Master -->
+        <VBox styleClass="card" spacing="0" style="-fx-padding:0;-fx-background-radius:8;" prefHeight="300">
+            <Label text="Danh Sách Phiếu Nhập Hàng"
+                   style="-fx-font-size:14px;-fx-font-weight:bold;-fx-text-fill:#1E2A3A;-fx-padding:12 16;"/>
+            <TableView fx:id="tablePhieu" VBox.vgrow="ALWAYS" onMouseClicked="#handlePhieuSelect">
+                <columns>
+                    <TableColumn fx:id="colMaPhieu" text="Mã Phiếu" prefWidth="110"/>
+                    <TableColumn fx:id="colNhaCungCap" text="Nhà Cung Cấp" prefWidth="200"/>
+                    <TableColumn fx:id="colNgayNhap" text="Ngày Nhập" prefWidth="140"/>
+                    <TableColumn fx:id="colNhanVien" text="Nhân Viên" prefWidth="140"/>
+                    <TableColumn fx:id="colTongTien" text="Tổng Tiền (đ)" prefWidth="140"/>
+                    <TableColumn fx:id="colGhiChu" text="Ghi Chú" prefWidth="200"/>
+                </columns>
+            </TableView>
+        </VBox>
+
+        <!-- Sub: Chi tiết phiếu nhập -->
+        <VBox styleClass="card" spacing="0" style="-fx-padding:0;-fx-background-radius:8;" VBox.vgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding:12 16;">
+                <Label fx:id="lblCTTitle" text="Chi Tiết Phiếu Nhập"
+                       style="-fx-font-size:14px;-fx-font-weight:bold;-fx-text-fill:#1E2A3A;" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnThemCT" text="+ Thêm Dòng" styleClass="btn-success,btn-sm" onAction="#handleThemChiTiet"/>
+                <Button fx:id="btnXoaCT" text="✕ Xóa Dòng" styleClass="btn-danger,btn-sm" onAction="#handleXoaChiTiet"/>
+            </HBox>
+            <TableView fx:id="tableChiTiet" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colSTT" text="STT" prefWidth="60"/>
+                    <TableColumn fx:id="colTenSP" text="Tên Sản Phẩm/DV" prefWidth="220"/>
+                    <TableColumn fx:id="colSoLuong" text="Số Lượng" prefWidth="110"/>
+                    <TableColumn fx:id="colDonGia" text="Đơn Giá (đ)" prefWidth="130"/>
+                    <TableColumn fx:id="colThanhTien" text="Thành Tiền (đ)" prefWidth="140"/>
+                    <TableColumn fx:id="colGhiChu" text="Ghi Chú" prefWidth="200"/>
+                </columns>
+            </TableView>
+
+            <!-- Footer tổng -->
+            <HBox alignment="CENTER_RIGHT" spacing="20"
+                  style="-fx-padding:10 16;-fx-border-color:#E0E0E0;-fx-border-width:1 0 0 0;">
+                <Label text="Tổng Tiền:" styleClass="form-label"/>
+                <Label fx:id="lblTongTien" text="0 đ"
+                       style="-fx-font-size:16px;-fx-font-weight:bold;-fx-text-fill:#E53935;"/>
+                <Button fx:id="btnLuuPhieu" text="💾 Lưu Phiếu" styleClass="btn-primary" onAction="#handleLuuPhieu"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</VBox>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="gui.controller.RegisterController"
+           styleClass="login-root"
+           stylesheets="@../css/style.css,@../css/login.css"
+           prefWidth="900" prefHeight="660">
+
+    <VBox alignment="CENTER">
+        <VBox styleClass="login-card" spacing="16"
+              style="-fx-min-width:460px;-fx-max-width:480px;-fx-padding:36 40;">
+
+            <Label text="📝 Đăng Ký Tài Khoản" styleClass="login-title"
+                   style="-fx-font-size:18px;"/>
+
+            <GridPane hgap="12" vgap="12">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="130" prefWidth="130"/>
+                    <ColumnConstraints hgrow="ALWAYS" prefWidth="250"/>
+                </columnConstraints>
+
+                <Label text="Họ và tên *" styleClass="login-label" GridPane.rowIndex="0"/>
+                <TextField fx:id="txtHoTen" styleClass="login-field"
+                           promptText="Nhập họ tên đầy đủ" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Số điện thoại *" styleClass="login-label" GridPane.rowIndex="1"/>
+                <TextField fx:id="txtSdt" styleClass="login-field"
+                           promptText="0xxxxxxxxx" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Email" styleClass="login-label" GridPane.rowIndex="2"/>
+                <TextField fx:id="txtEmail" styleClass="login-field"
+                           promptText="email@example.com" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Tên đăng nhập *" styleClass="login-label" GridPane.rowIndex="3"/>
+                <TextField fx:id="txtUsername" styleClass="login-field"
+                           promptText="username" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Mật khẩu *" styleClass="login-label" GridPane.rowIndex="4"/>
+                <PasswordField fx:id="txtPassword" styleClass="login-field"
+                               promptText="Tối thiểu 6 ký tự" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Xác nhận MK *" styleClass="login-label" GridPane.rowIndex="5"/>
+                <PasswordField fx:id="txtConfirmPwd" styleClass="login-field"
+                               GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <Label fx:id="lblError" styleClass="login-error" text="" wrapText="true"/>
+
+            <HBox spacing="12">
+                <Button text="← Quay lại" styleClass="btn-secondary,btn-sm"
+                        onAction="#handleBack" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Button text="Đăng Ký" styleClass="btn-primary,btn-sm"
+                        onAction="#handleRegister" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</StackPane>

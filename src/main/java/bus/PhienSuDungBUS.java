@@ -211,7 +211,7 @@ public class PhienSuDungBUS {
         HoaDon hd = taoHoaDon(phienSuDung, tienGioChoi, kh);
 
         // 11. Lưu hóa đơn
-        hoaDonDAO.insert(hd);
+        hoaDonDAO.them(hd);
 
         // 12. Log action
         PermissionHelper.logAction("KET_THUC_PHIEN",
