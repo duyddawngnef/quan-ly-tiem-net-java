@@ -5,7 +5,7 @@ import java.util.List;
 import dao.KhuMayDAO;
 import entity.KhuMay;
 import entity.NhanVien;
-import untils.SessionManager;
+import utils.SessionManager;
 
 public class KhuMayBUS
 {
