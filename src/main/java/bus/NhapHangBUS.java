@@ -1,12 +1,18 @@
 package bus;
 
-import dao.*;
-import entity.*;
-import untils.PermissionHelper;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import dao.ChiTietPhieuNhapDAO;
+import dao.DichVuDAO;
+import dao.NhaCungCapDAO;
+import dao.PhieuNhapHangDAO;
+import entity.ChiTietPhieuNhap;
+import entity.DichVu;
+import entity.NhaCungCap;
+import entity.PhieuNhapHang;
+import utils.PermissionHelper;
 
 public class NhapHangBUS {
 
@@ -232,5 +238,14 @@ public class NhapHangBUS {
     public ArrayList<PhieuNhapHang> getAllPhieuNhap() throws Exception {
         PermissionHelper.requireQuanLy();
         return phieuNhapHangDAO.getAll();
+    }
+
+    // 5. Lấy chi tiết phiếu nhập
+    public List<ChiTietPhieuNhap> getChiTiet(String maPhieu) throws Exception {
+        PermissionHelper.requireQuanLy();
+        if (maPhieu == null || maPhieu.trim().isEmpty()) {
+            throw new Exception("Mã phiếu không hợp lệ!");
+        }
+        return chiTietPhieuNhapDAO.getByPhieu(maPhieu);
     }
 }
