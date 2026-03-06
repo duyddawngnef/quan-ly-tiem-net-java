@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 
 import dao.KhachHangDAO;
 import entity.KhachHang;
-import untils.PasswordEncoder;
-import untils.PermissionHelper;
-import untils.SessionManager;
+import utils.PasswordEncoder;
+import utils.PermissionHelper;
+import utils.SessionManager;
 
 public class KhachHangBUS {
     private final KhachHangDAO khachHangDAO;
