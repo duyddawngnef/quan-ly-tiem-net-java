@@ -1,9 +1,7 @@
 package gui.controller;
 
-import bus.NhaCungCapBUS;
 import bus.NhapHangBUS;
 import entity.ChiTietPhieuNhap;
-import entity.NhaCungCap;
 import entity.PhieuNhapHang;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,12 +9,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import utils.ThongBaoDialogHelper;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -77,8 +74,9 @@ public class NhapHangController implements Initializable {
         if (colNCC      != null) colNCC.setCellValueFactory(new PropertyValueFactory<>("maNCC"));
         if (colNgayNhap != null) {
             colNgayNhap.setCellValueFactory(c -> {
-                LocalDateTime ngay = c.getValue().getNgayNhap();
-                String val = ngay != null ? ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "";
+                // ngayNhap là LocalDate — format không cần HH:mm
+                LocalDate ngay = c.getValue().getNgayNhap();
+                String val = ngay != null ? ngay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
                 return new javafx.beans.property.SimpleStringProperty(val);
             });
         }
@@ -91,13 +89,13 @@ public class NhapHangController implements Initializable {
                 }
             });
         }
-        if (colTrangThai!= null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
+        if (colTrangThai != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
 
         // Chi tiết phiếu
-        if (colCtMa       != null) colCtMa.setCellValueFactory(new PropertyValueFactory<>("maCTPN"));
-        if (colCtDV       != null) colCtDV.setCellValueFactory(new PropertyValueFactory<>("maDV"));
-        if (colCtSoLuong  != null) colCtSoLuong.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
-        if (colCtGiaNhap  != null) {
+        if (colCtMa      != null) colCtMa.setCellValueFactory(new PropertyValueFactory<>("maCTPN"));
+        if (colCtDV      != null) colCtDV.setCellValueFactory(new PropertyValueFactory<>("maDV"));
+        if (colCtSoLuong != null) colCtSoLuong.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
+        if (colCtGiaNhap != null) {
             colCtGiaNhap.setCellValueFactory(new PropertyValueFactory<>("giaNhap"));
             colCtGiaNhap.setCellFactory(col -> new TableCell<>() {
                 @Override protected void updateItem(Double v, boolean empty) {
@@ -106,7 +104,7 @@ public class NhapHangController implements Initializable {
                 }
             });
         }
-        if (colCtThanhTien!= null) {
+        if (colCtThanhTien != null) {
             colCtThanhTien.setCellValueFactory(new PropertyValueFactory<>("thanhTien"));
             colCtThanhTien.setCellFactory(col -> new TableCell<>() {
                 @Override protected void updateItem(Double v, boolean empty) {
@@ -142,21 +140,20 @@ public class NhapHangController implements Initializable {
             // Filter by status
             String tt = cboTrangThai != null ? cboTrangThai.getValue() : "Tất cả";
             if (tt != null && !"Tất cả".equals(tt)) {
-                list = list.stream().filter(p -> tt.equals(p.getTrangThai()))
-                           .collect(java.util.stream.Collectors.toList());
+                list = list.stream()
+                        .filter(p -> tt.equals(p.getTrangThai()))
+                        .collect(java.util.stream.Collectors.toList());
             }
 
-            // Filter by date range
+            // Filter by date range — dùng LocalDate trực tiếp vì ngayNhap là LocalDate
             LocalDate from = dateFrom != null ? dateFrom.getValue() : null;
-            LocalDate to   = dateTo   != null ? dateTo.getValue() : null;
+            LocalDate to   = dateTo   != null ? dateTo.getValue()   : null;
             if (from != null && to != null) {
-                LocalDateTime dtFrom = from.atStartOfDay();
-                LocalDateTime dtTo   = to.atTime(LocalTime.MAX);
                 list = list.stream()
-                    .filter(p -> p.getNgayNhap() != null
-                        && !p.getNgayNhap().isBefore(dtFrom)
-                        && !p.getNgayNhap().isAfter(dtTo))
-                    .collect(java.util.stream.Collectors.toList());
+                        .filter(p -> p.getNgayNhap() != null
+                                && !p.getNgayNhap().isBefore(from)   // >= from
+                                && !p.getNgayNhap().isAfter(to))     // <= to
+                        .collect(java.util.stream.Collectors.toList());
             }
 
             dataList.setAll(list);
@@ -174,7 +171,7 @@ public class NhapHangController implements Initializable {
     @FXML
     public void handleTaoPhieu() {
         ThongBaoDialogHelper.showInfo(
-            tablePhieu.getScene(), "Chức năng tạo phiếu nhập đang phát triển.");
+                tablePhieu.getScene(), "Chức năng tạo phiếu nhập đang phát triển.");
     }
 
     @FXML
@@ -182,7 +179,7 @@ public class NhapHangController implements Initializable {
         if (selected == null) return;
         Stage owner = (Stage) tablePhieu.getScene().getWindow();
         boolean confirmed = gui.dialog.XacNhanDialog.show(owner,
-            "Duyệt phiếu nhập", "Duyệt phiếu " + selected.getMaPhieuNhap() + "?");
+                "Duyệt phiếu nhập", "Duyệt phiếu " + selected.getMaPhieuNhap() + "?");
         if (!confirmed) return;
         try {
             nhapHangBUS.duyetPhieu(selected.getMaPhieuNhap());
@@ -198,8 +195,8 @@ public class NhapHangController implements Initializable {
         if (selected == null) return;
         Stage owner = (Stage) tablePhieu.getScene().getWindow();
         boolean confirmed = gui.dialog.XacNhanDialog.show(owner,
-            "Hủy phiếu nhập", "Hủy phiếu " + selected.getMaPhieuNhap() + "?",
-            "Hành động này không thể hoàn tác", gui.dialog.XacNhanDialog.Type.DELETE);
+                "Hủy phiếu nhập", "Hủy phiếu " + selected.getMaPhieuNhap() + "?",
+                "Hành động này không thể hoàn tác", gui.dialog.XacNhanDialog.Type.DELETE);
         if (!confirmed) return;
         try {
             nhapHangBUS.huyPhieu(selected.getMaPhieuNhap());
@@ -214,12 +211,12 @@ public class NhapHangController implements Initializable {
         if (lblDetMaPhieu != null) lblDetMaPhieu.setText(phieu.getMaPhieuNhap());
         if (lblDetNCC     != null) lblDetNCC.setText(phieu.getMaNCC() != null ? phieu.getMaNCC() : "-");
         if (lblDetNgay    != null) {
+            // ngayNhap là LocalDate — format dd/MM/yyyy
             String ngay = phieu.getNgayNhap() != null
-                ? phieu.getNgayNhap().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "-";
+                    ? phieu.getNgayNhap().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "-";
             lblDetNgay.setText(ngay);
         }
-        if (lblDetTongTien != null)
-            lblDetTongTien.setText(String.format("%,.0f ₫", phieu.getTongTien()));
+        if (lblDetTongTien   != null) lblDetTongTien.setText(String.format("%,.0f ₫", phieu.getTongTien()));
         if (lblTrangThaiPhieu != null) updateTrangThaiStyle(phieu.getTrangThai());
     }
 
@@ -237,7 +234,12 @@ public class NhapHangController implements Initializable {
 
     private void loadChiTiet(PhieuNhapHang phieu) {
         if (tableChiTiet == null) return;
-        List<ChiTietPhieuNhap> ctList = phieu.getChiTietList();
-        tableChiTiet.setItems(FXCollections.observableArrayList(ctList));
+        // Lấy chi tiết từ BUS theo maPhieuNhap thay vì getChiTietList() (không tồn tại trong entity)
+        try {
+            List<ChiTietPhieuNhap> ctList = nhapHangBUS.getChiTietByPhieu(phieu.getMaPhieuNhap());
+            tableChiTiet.setItems(FXCollections.observableArrayList(ctList));
+        } catch (Exception e) {
+            tableChiTiet.setItems(FXCollections.observableArrayList());
+        }
     }
 }
