@@ -233,4 +233,12 @@ public class NhapHangBUS {
         PermissionHelper.requireQuanLy();
         return phieuNhapHangDAO.getAll();
     }
+
+    // 5. Lấy chi tiết theo mã phiếu
+    public List<ChiTietPhieuNhap> getChiTietByPhieu(String maPhieu) throws Exception {
+        if (maPhieu == null || maPhieu.isBlank()) {
+            throw new Exception("Mã phiếu không hợp lệ!");
+        }
+        return chiTietPhieuNhapDAO.getByPhieu(maPhieu);
+    }
 }
