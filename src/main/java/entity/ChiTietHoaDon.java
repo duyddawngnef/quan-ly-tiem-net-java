@@ -27,7 +27,7 @@ public class ChiTietHoaDon {
     }
 
     public ChiTietHoaDon(String maCTHD, String maHD, String loaiChiTiet, String moTa,
-                         double soLuong, double donGia, double thanhTien) {
+            double soLuong, double donGia, double thanhTien) {
         this.maCTHD = maCTHD;
         this.maHD = maHD;
         this.loaiChiTiet = loaiChiTiet;
@@ -92,7 +92,6 @@ public class ChiTietHoaDon {
         return thanhTien;
     }
 
-<<<<<<< Updated upstream
     public void setThanhTien(double thanhTien) {
         this.thanhTien = thanhTien;
     }
@@ -135,8 +134,10 @@ public class ChiTietHoaDon {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ChiTietHoaDon that = (ChiTietHoaDon) o;
         return maCTHD != null && maCTHD.equals(that.maCTHD);
     }
@@ -146,6 +147,3 @@ public class ChiTietHoaDon {
         return maCTHD != null ? maCTHD.hashCode() : 0;
     }
 }
-=======
-}
->>>>>>> Stashed changes

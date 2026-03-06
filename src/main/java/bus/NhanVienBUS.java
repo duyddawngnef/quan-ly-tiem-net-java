@@ -2,7 +2,7 @@ package bus;
 
 import dao.NhanVienDAO;
 import entity.NhanVien;
-import java.util.PasswordUtils;
+import untils.SessionManager;
 
 import java.util.List;
 
@@ -14,19 +14,17 @@ public class NhanVienBUS {
         return nhanVienDAO.login(tenDN, matKhau);
     }
 
-    public List<NhanVien> getDanhSachSinhVien() {
+    public List<NhanVien> getDanhSachNhanVien() {
         return nhanVienDAO.getAll();
     }
 
     public boolean suaNhanVien(NhanVien nv) {
-        return nhanVienDAO.update(nv);
+        NhanVien nguoiThucHien = SessionManager.getCurrentNhanVien();
+        return nhanVienDAO.update(nv, nguoiThucHien);
     }
 
-    public boolean xoaNhanVien(int maNV) {
-        return nhanVienDAO.delete(maNV);
-    }
-
-    public boolean resetMatKhau(int maNV) {
-        return nhanVienDAO.resetPassword(maNV);
+    public boolean xoaNhanVien(String maNV) {
+        NhanVien nguoiThucHien = SessionManager.getCurrentNhanVien();
+        return nhanVienDAO.delete(maNV, nguoiThucHien);
     }
 }
