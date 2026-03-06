@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.controller.GoiDichVuController"
+      style="-fx-padding: 15;">
+
+    <!-- Tiêu đề -->
+    <Label text="QUẢN LÝ GÓI DỊCH VỤ" style="-fx-font-size: 18; -fx-font-weight: bold;" />
+
+    <!-- Thanh tìm kiếm + nút -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="txtTimKiem" promptText="Tìm kiếm theo tên gói..." prefWidth="250" />
+        <Button fx:id="btnTimKiem" text="Tìm kiếm" onAction="#handleTimKiem" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnThem" text="Thêm gói" onAction="#handleThem"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+        <Button fx:id="btnSua" text="Sửa gói" onAction="#handleSua"
+                style="-fx-background-color: #2196F3; -fx-text-fill: white;" />
+        <Button fx:id="btnXoa" text="Xóa gói" onAction="#handleXoa"
+                style="-fx-background-color: #F44336; -fx-text-fill: white;" />
+        <Button fx:id="btnLamMoi" text="Làm mới" onAction="#handleLamMoi" />
+    </HBox>
+
+    <!-- Bảng danh sách gói dịch vụ -->
+    <TableView fx:id="tableGoiDV" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colMaGoi" text="Mã gói" prefWidth="80" />
+            <TableColumn fx:id="colTenGoi" text="Tên gói" prefWidth="180" />
+            <TableColumn fx:id="colLoaiGoi" text="Loại gói" prefWidth="100" />
+            <TableColumn fx:id="colSoGio" text="Số giờ" prefWidth="80" />
+            <TableColumn fx:id="colSoNgayHL" text="Số ngày HL" prefWidth="90" />
+            <TableColumn fx:id="colGiaGoc" text="Giá gốc" prefWidth="100" />
+            <TableColumn fx:id="colGiaGoi" text="Giá gói" prefWidth="100" />
+            <TableColumn fx:id="colApDungKhu" text="Áp dụng khu" prefWidth="100" />
+            <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="100" />
+        </columns>
+    </TableView>
+
+    <!-- Form nhập liệu -->
+    <TitledPane text="Thông tin gói dịch vụ" expanded="true">
+        <GridPane hgap="10" vgap="10">
+            <padding><Insets top="10" bottom="10" left="10" right="10" /></padding>
+
+            <Label text="Mã gói:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <TextField fx:id="txtMaGoi" editable="false" promptText="Tự động"
+                       GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+            <Label text="Tên gói:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+            <TextField fx:id="txtTenGoi" promptText="Nhập tên gói"
+                       GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+            <Label text="Loại gói:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <ComboBox fx:id="cboLoaiGoi" promptText="Chọn loại gói"
+                      GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+            <Label text="Số giờ:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <TextField fx:id="txtSoGio" promptText="Nhập số giờ"
+                       GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+            <Label text="Số ngày hiệu lực:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextField fx:id="txtSoNgayHL" promptText="Nhập số ngày"
+                       GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+            <Label text="Giá gốc:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <TextField fx:id="txtGiaGoc" promptText="Nhập giá gốc"
+                       GridPane.columnIndex="3" GridPane.rowIndex="2" />
+
+            <Label text="Giá gói:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <TextField fx:id="txtGiaGoi" promptText="Nhập giá gói"
+                       GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+            <Label text="Áp dụng khu:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <ComboBox fx:id="cboApDungKhu" promptText="Chọn khu"
+                      GridPane.columnIndex="3" GridPane.rowIndex="3" />
+
+            <Label text="Trạng thái:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+            <ComboBox fx:id="cboTrangThai" promptText="Chọn trạng thái"
+                      GridPane.columnIndex="1" GridPane.rowIndex="4" />
+        </GridPane>
+    </TitledPane>
+
+    <!-- Label trạng thái -->
+    <Label fx:id="lblTrangThai" text="" style="-fx-text-fill: #666;" />
+</VBox>

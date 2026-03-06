@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="15"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.controller.MuaGoiController"
+      style="-fx-padding: 15;">
+
+    <!-- Tiêu đề -->
+    <Label text="MUA GÓI DỊCH VỤ CHO KHÁCH HÀNG" style="-fx-font-size: 18; -fx-font-weight: bold;" />
+
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+        <!-- Cột trái: Chọn khách hàng + Danh sách gói -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+
+            <!-- Chọn khách hàng -->
+            <TitledPane text="Thông tin khách hàng" expanded="true" collapsible="false">
+                <VBox spacing="8">
+                    <padding><Insets top="8" bottom="8" left="8" right="8" /></padding>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Mã KH:" prefWidth="70" />
+                        <TextField fx:id="txtMaKH" promptText="Nhập mã KH..." prefWidth="150" />
+                        <Button fx:id="btnTimKH" text="Tìm" onAction="#handleTimKH" />
+                    </HBox>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Họ tên:" prefWidth="70" />
+                        <Label fx:id="lblTenKH" text="—" style="-fx-font-weight: bold;" />
+                    </HBox>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Số dư:" prefWidth="70" />
+                        <Label fx:id="lblSoDu" text="—" style="-fx-font-weight: bold; -fx-text-fill: #2196F3;" />
+                    </HBox>
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="SĐT:" prefWidth="70" />
+                        <Label fx:id="lblSDT" text="—" />
+                    </HBox>
+                </VBox>
+            </TitledPane>
+
+            <!-- Bảng danh sách gói dịch vụ -->
+            <Label text="Danh sách gói dịch vụ có sẵn:" style="-fx-font-weight: bold;" />
+            <TableView fx:id="tableGoiDV" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colMaGoi" text="Mã gói" prefWidth="70" />
+                    <TableColumn fx:id="colTenGoi" text="Tên gói" prefWidth="160" />
+                    <TableColumn fx:id="colLoaiGoi" text="Loại" prefWidth="70" />
+                    <TableColumn fx:id="colSoGio" text="Số giờ" prefWidth="60" />
+                    <TableColumn fx:id="colSoNgayHL" text="Ngày HL" prefWidth="65" />
+                    <TableColumn fx:id="colGiaGoi" text="Giá gói" prefWidth="100" />
+                    <TableColumn fx:id="colApDungKhu" text="Khu" prefWidth="60" />
+                    <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="80" />
+                </columns>
+            </TableView>
+        </VBox>
+
+        <!-- Cột phải: Thông tin gói đã chọn + Nút mua -->
+        <VBox spacing="10" prefWidth="300">
+
+            <!-- Chi tiết gói được chọn -->
+            <TitledPane text="Chi tiết gói được chọn" expanded="true" collapsible="false">
+                <VBox spacing="8">
+                    <padding><Insets top="8" bottom="8" left="8" right="8" /></padding>
+
+                    <HBox spacing="8">
+                        <Label text="Mã gói:" prefWidth="90" />
+                        <Label fx:id="lblMaGoi" text="—" style="-fx-font-weight: bold;" />
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Tên gói:" prefWidth="90" />
+                        <Label fx:id="lblTenGoi" text="—" style="-fx-font-weight: bold;" />
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Loại gói:" prefWidth="90" />
+                        <Label fx:id="lblLoaiGoi" text="—" />
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Số giờ:" prefWidth="90" />
+                        <Label fx:id="lblSoGio" text="—" />
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Hiệu lực:" prefWidth="90" />
+                        <Label fx:id="lblHieuLuc" text="—" />
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Giá gốc:" prefWidth="90" />
+                        <Label fx:id="lblGiaGoc" text="—" style="-fx-text-fill: #999; -fx-strikethrough: true;" />
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Giá gói:" prefWidth="90" />
+                        <Label fx:id="lblGiaGoi" text="—"
+                               style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #E91E63;" />
+                    </HBox>
+
+                    <Separator />
+
+                    <HBox spacing="8">
+                        <Label text="Số dư sau:" prefWidth="90" />
+                        <Label fx:id="lblSoDuSauMua" text="—"
+                               style="-fx-font-weight: bold; -fx-text-fill: #4CAF50;" />
+                    </HBox>
+                </VBox>
+            </TitledPane>
+
+            <!-- Danh sách gói KH đã mua -->
+            <TitledPane text="Gói đã mua (còn hiệu lực)" expanded="true">
+                <TableView fx:id="tableGoiKH" prefHeight="200">
+                    <columns>
+                        <TableColumn fx:id="colGoiKH_Ma" text="Mã" prefWidth="70" />
+                        <TableColumn fx:id="colGoiKH_TenGoi" text="Gói" prefWidth="80" />
+                        <TableColumn fx:id="colGoiKH_GioConLai" text="Giờ còn" prefWidth="60" />
+                        <TableColumn fx:id="colGoiKH_HetHan" text="Hết hạn" prefWidth="80" />
+                    </columns>
+                </TableView>
+            </TitledPane>
+
+            <!-- Nút mua -->
+            <Button fx:id="btnMuaGoi" text="MUA GÓI" onAction="#handleMuaGoi"
+                    maxWidth="Infinity" prefHeight="45"
+                    style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;" />
+        </VBox>
+    </HBox>
+
+    <!-- Label trạng thái -->
+    <Label fx:id="lblTrangThai" text="" style="-fx-text-fill: #666;" />
+</VBox>
