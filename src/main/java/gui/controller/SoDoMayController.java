@@ -3,6 +3,7 @@ package gui.controller;
 import bus.MayTinhBUS;
 import bus.KhuMayBUS;
 import bus.PhienSuDungBUS;
+import dao.*;
 import entity.MayTinh;
 import entity.KhuMay;
 import javafx.animation.KeyFrame;
@@ -36,7 +37,9 @@ public class SoDoMayController implements Initializable {
 
     private final MayTinhBUS mayTinhBUS = new MayTinhBUS();
     private final KhuMayBUS khuMayBUS = new KhuMayBUS();
-    private final PhienSuDungBUS phienBUS = new PhienSuDungBUS();
+    private final PhienSuDungBUS phienBUS = new PhienSuDungBUS(
+            new PhienSuDungDAO(), new MayTinhDAO(), new KhachHangDAO(),
+            new GoiDichVuKhachHangDAO(), new SuDungDichVuDAO(), new HoaDonDAO());
     private MayTinh selectedMay = null;
     private Timeline autoRefresh;
     private int refreshCountdown = 30;
@@ -53,7 +56,7 @@ public class SoDoMayController implements Initializable {
             List<KhuMay> khuList = khuMayBUS.getAllKhuMay();
             cboKhu.getItems().clear();
             cboKhu.getItems().add("Tất cả");
-            khuList.forEach(k -> cboKhu.getItems().add(k.getTenkhu()));
+            khuList.forEach(k -> cboKhu.getItems().add(k.getTenKhu()));
             cboKhu.setValue("Tất cả");
         } catch (Exception e) {
             cboKhu.getItems().setAll("Tất cả");
@@ -75,9 +78,9 @@ public class SoDoMayController implements Initializable {
     }
 
     private void updateStats(List<MayTinh> list) {
-        long trong    = list.stream().filter(m -> "TRONG".equals(m.getTrangThai())).count();
-        long dangDung = list.stream().filter(m -> "DANGDUNG".equals(m.getTrangThai())).count();
-        long baoTri   = list.stream().filter(m -> "BAOTRI".equals(m.getTrangThai())).count();
+        long trong    = list.stream().filter(m -> "TRONG".equals(m.getTrangthai())).count();
+        long dangDung = list.stream().filter(m -> "DANGDUNG".equals(m.getTrangthai())).count();
+        long baoTri   = list.stream().filter(m -> "BAOTRI".equals(m.getTrangthai())).count();
         lblMayTrong.setText(String.valueOf(trong));
         lblMayDangDung.setText(String.valueOf(dangDung));
         lblMayBaoTri.setText(String.valueOf(baoTri));
@@ -93,15 +96,15 @@ public class SoDoMayController implements Initializable {
             .collect(Collectors.groupingBy(m -> m.getMakhu() == null ? "none" : m.getMakhu()));
 
         for (KhuMay khu : allKhu) {
-            if (!"Tất cả".equals(filterKhu) && !khu.getTenkhu().equals(filterKhu)) continue;
+            if (!"Tất cả".equals(filterKhu) && !khu.getTenKhu().equals(filterKhu)) continue;
 
-            List<MayTinh> mayInKhu = grouped.getOrDefault(khu.getMakhu(), List.of());
+            List<MayTinh> mayInKhu = grouped.getOrDefault(khu.getMaKhu(), List.of());
 
             VBox khuBox = new VBox(10);
             khuBox.setStyle("-fx-background-color:#FFFFFF; -fx-background-radius:10; -fx-padding:16;" +
                             "-fx-effect: dropshadow(gaussian,rgba(0,0,0,0.06),6,0,0,2);");
 
-            Label khuLabel = new Label("📍 " + khu.getTenkhu() +
+            Label khuLabel = new Label("📍 " + khu.getTenKhu() +
                     "  (" + mayInKhu.size() + " máy)");
             khuLabel.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:#1565C0;");
             khuBox.getChildren().add(khuLabel);
@@ -127,7 +130,7 @@ public class SoDoMayController implements Initializable {
         card.setPrefHeight(95);
         card.setCursor(javafx.scene.Cursor.HAND);
 
-        String styleClass = switch (may.getTrangThai()) {
+        String styleClass = switch (may.getTrangthai()) {
             case "TRONG"    -> "machine-free";
             case "DANGDUNG" -> "machine-using";
             case "BAOTRI"   -> "machine-maintain";
@@ -135,7 +138,7 @@ public class SoDoMayController implements Initializable {
         };
         card.getStyleClass().addAll("machine-card", styleClass);
 
-        String icon = switch (may.getTrangThai()) {
+        String icon = switch (may.getTrangthai()) {
             case "TRONG"    -> "💚";
             case "DANGDUNG" -> "💙";
             case "BAOTRI"   -> "🔧";
@@ -146,7 +149,7 @@ public class SoDoMayController implements Initializable {
         iconLbl.setStyle("-fx-font-size:22px;");
         Label nameLbl = new Label(may.getTenmay());
         nameLbl.getStyleClass().add("machine-name");
-        Label statusLbl = new Label(may.getTrangThai());
+        Label statusLbl = new Label(may.getTrangthai());
         statusLbl.getStyleClass().add("machine-status-label");
         statusLbl.setStyle("-fx-font-size:10px; -fx-text-fill:#555555;");
 
@@ -158,10 +161,10 @@ public class SoDoMayController implements Initializable {
 
     private void handleMachineClick(MayTinh may, VBox card) {
         selectedMay = may;
-        lblSelectedMay.setText("Đã chọn: " + may.getTenmay() + " | Trạng thái: " + may.getTrangThai());
+        lblSelectedMay.setText("Đã chọn: " + may.getTenmay() + " | Trạng thái: " + may.getTrangthai());
 
-        boolean isTrong    = "TRONG".equals(may.getTrangThai());
-        boolean isDangDung = "DANGDUNG".equals(may.getTrangThai());
+        boolean isTrong    = "TRONG".equals(may.getTrangthai());
+        boolean isDangDung = "DANGDUNG".equals(may.getTrangthai());
         btnMoPhien.setDisable(!isTrong);
         btnKetThuc.setDisable(!isDangDung);
     }
