@@ -41,7 +41,7 @@ public class ThemMayTinhDialog implements Initializable {
         if (cboMaKhu != null) {
             try {
                 List<KhuMay> khuList = khuMayBUS.getAllKhuMay();
-                khuList.forEach(k -> cboMaKhu.getItems().add(k.getMakhu()));
+                khuList.forEach(k -> cboMaKhu.getItems().add(k.getMaKhu()));
             } catch (Exception ignored) {}
         }
     }
@@ -70,8 +70,8 @@ public class ThemMayTinhDialog implements Initializable {
         if (txtTenMay   != null) txtTenMay.setText(m.getTenmay());
         if (cboMaKhu    != null) cboMaKhu.setValue(m.getMakhu());
         if (txtCauHinh  != null) txtCauHinh.setText(m.getCauhinh());
-        if (txtGiaMoiGio!= null && m.getGiamoigio() != null)
-            txtGiaMoiGio.setText(String.valueOf(m.getGiamoigio().longValue()));
+        if (txtGiaMoiGio!= null && m.getGiamoigio() >= 0)
+            txtGiaMoiGio.setText(String.valueOf((long) m.getGiamoigio()));
         if (cboTrangThai!= null) cboTrangThai.setValue(m.getTrangthai());
     }
 
