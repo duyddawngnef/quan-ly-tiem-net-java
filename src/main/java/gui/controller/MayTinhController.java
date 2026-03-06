@@ -67,7 +67,7 @@ public class MayTinhController implements Initializable {
             List<KhuMay> khuList = khuMayBUS.getAllKhuMay();
             cboKhu.getItems().clear();
             cboKhu.getItems().add("Tất cả");
-            khuList.forEach(k -> cboKhu.getItems().add(k.getMakhu()));
+            khuList.forEach(k -> cboKhu.getItems().add(k.getMaKhu()));
             cboKhu.setValue("Tất cả");
             cboKhu.setOnAction(e -> applyFilter());
         } catch (Exception ignored) {}

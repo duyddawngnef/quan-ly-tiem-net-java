@@ -41,7 +41,7 @@ public class ThemMayTinhDialog implements Initializable {
         if (cboMaKhu != null) {
             try {
                 List<KhuMay> khuList = khuMayBUS.getAllKhuMay();
-                khuList.forEach(k -> cboMaKhu.getItems().add(k.getMakhu()));
+                khuList.forEach(k -> cboMaKhu.getItems().add(k.getMaKhu()));
             } catch (Exception ignored) {}
         }
     }
