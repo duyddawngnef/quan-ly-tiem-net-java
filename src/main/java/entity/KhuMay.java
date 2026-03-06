@@ -4,13 +4,13 @@ public  class KhuMay
 {
     String makhu;
     String tenkhu;
-    Double giacoso;
+    double giacoso;
     int somaytoida;
     String trangthai;
 
     public KhuMay() {}
 
-    public  KhuMay(String makhu, String tenkhu, Double giacoso, int somaytoida, String trangthai)
+    public  KhuMay(String makhu, String tenkhu, double giacoso, int somaytoida, String trangthai)
     {
         this.makhu = makhu;
         this.tenkhu = tenkhu;
@@ -35,11 +35,11 @@ public  class KhuMay
         this.tenkhu = tenkhu;
     }
 
-    public Double getGiacoso() {
+    public double getGiacoso() {
         return giacoso;
     }
 
-    public void setGiacoso(Double giacoso) {
+    public void setGiacoso(double giacoso) {
         this.giacoso = giacoso;
     }
 

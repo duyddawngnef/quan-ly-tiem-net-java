@@ -8,12 +8,12 @@ public class MayTinh
     String tenmay;
     String makhu;
     String cauhinh;
-    Double giamoigio;
+    double giamoigio;
     String trangthai;
 
     public MayTinh() {}
 
-    public MayTinh(String mamay, String tenmay, String makhu, String cauhinh, Double giamoigio, String trangthai)
+    public MayTinh(String mamay, String tenmay, String makhu, String cauhinh, double giamoigio, String trangthai)
     {
         this.mamay = mamay;
         this.tenmay = tenmay;
@@ -55,11 +55,11 @@ public class MayTinh
         this.cauhinh = cauhinh;
     }
 
-    public Double getGiamoigio() {
+    public double getGiamoigio() {
         return giamoigio;
     }
 
-    public void setGiamoigio(Double giamoigio) {
+    public void setGiamoigio(double giamoigio) {
         this.giamoigio = giamoigio;
     }
 
