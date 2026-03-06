@@ -136,7 +136,7 @@ public class KhuyenMaiController implements Initializable {
         Stage owner = (Stage) tableView.getScene().getWindow();
         if (!gui.dialog.XacNhanDialog.showDelete(owner, selectedItem.getTenCT())) return;
         try {
-            khuyenMaiBUS.xoaChuongTrinh(selectedItem.getMaCTKM());
+            khuyenMaiBUS.xoaKhuyenMai(selectedItem.getMaCTKM());
             ThongBaoDialogHelper.showSuccess(tableView.getScene(), "Đã xóa chương trình khuyến mãi!");
             loadData();
         } catch (Exception e) {

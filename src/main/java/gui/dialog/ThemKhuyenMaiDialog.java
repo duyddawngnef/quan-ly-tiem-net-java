@@ -8,7 +8,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class ThemKhuyenMaiDialog implements Initializable {
@@ -38,7 +38,6 @@ public class ThemKhuyenMaiDialog implements Initializable {
         if (cboTrangThai != null)
             cboTrangThai.getItems().setAll("HOATDONG", "NGUNG");
 
-        // Giải thích loại KM khi thay đổi
         if (cboLoaiKM != null) {
             cboLoaiKM.setOnAction(e -> updateGiaTriHint());
         }
@@ -72,10 +71,10 @@ public class ThemKhuyenMaiDialog implements Initializable {
             currentEntity = null;
             isEditMode = false;
             if (lblDialogTitle != null) lblDialogTitle.setText("Thêm chương trình khuyến mãi");
-            if (cboLoaiKM   != null) cboLoaiKM.setValue("PHANTRAM");
-            if (cboTrangThai!= null) cboTrangThai.setValue("HOATDONG");
-            if (dateNgayBatDau != null) dateNgayBatDau.setValue(java.time.LocalDate.now());
-            if (dateNgayKetThuc!= null) dateNgayKetThuc.setValue(java.time.LocalDate.now().plusDays(30));
+            if (cboLoaiKM    != null) cboLoaiKM.setValue("PHANTRAM");
+            if (cboTrangThai != null) cboTrangThai.setValue("HOATDONG");
+            if (dateNgayBatDau  != null) dateNgayBatDau.setValue(LocalDate.now());
+            if (dateNgayKetThuc != null) dateNgayKetThuc.setValue(LocalDate.now().plusDays(30));
         }
     }
 
@@ -84,16 +83,16 @@ public class ThemKhuyenMaiDialog implements Initializable {
     }
 
     private void populateFields(ChuongTrinhKhuyenMai km) {
-        if (txtMaCTKM          != null) txtMaCTKM.setText(km.getMaCTKM());
-        if (txtTenCT           != null) txtTenCT.setText(km.getTenCT());
-        if (cboLoaiKM          != null) cboLoaiKM.setValue(km.getLoaiKM());
-        if (txtGiaTriKM        != null) txtGiaTriKM.setText(String.valueOf(km.getGiaTriKM()));
-        if (txtDieuKienToiThieu!= null) txtDieuKienToiThieu.setText(String.valueOf((long) km.getDieuKienToiThieu()));
-        if (dateNgayBatDau     != null && km.getNgayBatDau() != null)
-            dateNgayBatDau.setValue(km.getNgayBatDau().toLocalDate());
-        if (dateNgayKetThuc    != null && km.getNgayKetThuc() != null)
-            dateNgayKetThuc.setValue(km.getNgayKetThuc().toLocalDate());
-        if (cboTrangThai       != null) cboTrangThai.setValue(km.getTrangThai());
+        if (txtMaCTKM           != null) txtMaCTKM.setText(km.getMaCTKM());
+        if (txtTenCT            != null) txtTenCT.setText(km.getTenCT());
+        if (cboLoaiKM           != null) cboLoaiKM.setValue(km.getLoaiKM());
+        if (txtGiaTriKM         != null) txtGiaTriKM.setText(String.valueOf(km.getGiaTriKM()));
+        if (txtDieuKienToiThieu != null) txtDieuKienToiThieu.setText(String.valueOf((long) km.getDieuKienToiThieu()));
+        if (dateNgayBatDau  != null && km.getNgayBatDau()  != null)
+            dateNgayBatDau.setValue(km.getNgayBatDau());
+        if (dateNgayKetThuc != null && km.getNgayKetThuc() != null)
+            dateNgayKetThuc.setValue(km.getNgayKetThuc());
+        if (cboTrangThai != null) cboTrangThai.setValue(km.getTrangThai());
     }
 
     @FXML
@@ -102,8 +101,11 @@ public class ThemKhuyenMaiDialog implements Initializable {
         if (!validateFields()) return;
         try {
             ChuongTrinhKhuyenMai km = buildEntity();
-            if (isEditMode) khuyenMaiBUS.capNhatChuongTrinh(km);
-            else            khuyenMaiBUS.themChuongTrinh(km);
+            if (isEditMode) {
+                khuyenMaiBUS.suaKhuyenMai(km);
+            } else {
+                khuyenMaiBUS.themKhuyenMai(km);
+            }
             if (onSaveCallback != null) onSaveCallback.run();
             closeDialog();
         } catch (Exception e) {
@@ -113,36 +115,55 @@ public class ThemKhuyenMaiDialog implements Initializable {
 
     private ChuongTrinhKhuyenMai buildEntity() {
         ChuongTrinhKhuyenMai km = isEditMode ? currentEntity : new ChuongTrinhKhuyenMai();
-        if (txtMaCTKM    != null) km.setMaCTKM(txtMaCTKM.getText().trim());
-        if (txtTenCT     != null) km.setTenCT(txtTenCT.getText().trim());
-        if (cboLoaiKM    != null) km.setLoaiKM(cboLoaiKM.getValue());
-        if (txtGiaTriKM  != null) {
-            try { km.setGiaTriKM(Double.parseDouble(txtGiaTriKM.getText().trim())); } catch (Exception ignored) {}
+        if (txtMaCTKM != null) km.setMaCTKM(txtMaCTKM.getText().trim());
+        if (txtTenCT  != null) km.setTenCT(txtTenCT.getText().trim());
+        if (cboLoaiKM != null) km.setLoaiKM(cboLoaiKM.getValue());
+        if (txtGiaTriKM != null) {
+            try { km.setGiaTriKM(Double.parseDouble(txtGiaTriKM.getText().trim())); }
+            catch (NumberFormatException ignored) {}
         }
         if (txtDieuKienToiThieu != null) {
-            try { km.setDieuKienToiThieu(Double.parseDouble(txtDieuKienToiThieu.getText().replace(",","").trim())); }
-            catch (Exception ignored) {}
+            try { km.setDieuKienToiThieu(Double.parseDouble(txtDieuKienToiThieu.getText().replace(",", "").trim())); }
+            catch (NumberFormatException ignored) {}
         }
-        if (dateNgayBatDau  != null && dateNgayBatDau.getValue() != null)
-            km.setNgayBatDau(dateNgayBatDau.getValue().atStartOfDay());
+        if (dateNgayBatDau  != null && dateNgayBatDau.getValue()  != null)
+            km.setNgayBatDau(dateNgayBatDau.getValue());
         if (dateNgayKetThuc != null && dateNgayKetThuc.getValue() != null)
-            km.setNgayKetThuc(dateNgayKetThuc.getValue().atTime(23, 59, 59));
+            km.setNgayKetThuc(dateNgayKetThuc.getValue());
         if (cboTrangThai != null) km.setTrangThai(cboTrangThai.getValue());
         return km;
     }
 
     private boolean validateFields() {
-        if (txtMaCTKM != null && txtMaCTKM.getText().trim().isEmpty()) { showError("Vui lòng nhập mã CTKM"); return false; }
-        if (txtTenCT  != null && txtTenCT.getText().trim().isEmpty())  { showError("Vui lòng nhập tên CTKM"); return false; }
+        if (txtMaCTKM != null && txtMaCTKM.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập mã CTKM"); return false;
+        }
+        if (txtTenCT != null && txtTenCT.getText().trim().isEmpty()) {
+            showError("Vui lòng nhập tên CTKM"); return false;
+        }
+        if (cboLoaiKM != null && cboLoaiKM.getValue() == null) {
+            showError("Vui lòng chọn loại khuyến mãi"); return false;
+        }
         if (txtGiaTriKM != null) {
-            try { Double.parseDouble(txtGiaTriKM.getText().trim()); }
-            catch (NumberFormatException e) { showError("Giá trị KM không hợp lệ"); return false; }
+            try {
+                double val = Double.parseDouble(txtGiaTriKM.getText().trim());
+                if (val <= 0) { showError("Giá trị KM phải lớn hơn 0"); return false; }
+            } catch (NumberFormatException e) {
+                showError("Giá trị KM không hợp lệ"); return false;
+            }
+        }
+        if (txtDieuKienToiThieu != null && !txtDieuKienToiThieu.getText().trim().isEmpty()) {
+            try {
+                double val = Double.parseDouble(txtDieuKienToiThieu.getText().replace(",", "").trim());
+                if (val < 0) { showError("Điều kiện tối thiểu phải >= 0"); return false; }
+            } catch (NumberFormatException e) {
+                showError("Điều kiện tối thiểu không hợp lệ"); return false;
+            }
         }
         if (dateNgayBatDau != null && dateNgayKetThuc != null
                 && dateNgayBatDau.getValue() != null && dateNgayKetThuc.getValue() != null
-                && dateNgayBatDau.getValue().isAfter(dateNgayKetThuc.getValue())) {
-            showError("Ngày bắt đầu phải trước ngày kết thúc");
-            return false;
+                && !dateNgayKetThuc.getValue().isAfter(dateNgayBatDau.getValue())) {
+            showError("Ngày kết thúc phải sau ngày bắt đầu"); return false;
         }
         return true;
     }
