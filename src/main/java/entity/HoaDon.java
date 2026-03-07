@@ -211,4 +211,16 @@ public class HoaDon {
     public int hashCode() {
         return maHD != null ? maHD.hashCode() : 0;
     }
+    public String getNgayLapFormatted() {
+        return ngayLap != null ? java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(ngayLap) : "";
+    }
+    public String getTongTienFormatted() {
+        return String.format("%,.0f ₫", tongTien);
+    }
+    public String getThanhToanFormatted() {
+        return String.format("%,.0f ₫", thanhToan);
+    }
+    public String getTienGioChoiFormatted() {
+        return String.format("%,.0f ₫", tienGioChoi);
+    }
 }
