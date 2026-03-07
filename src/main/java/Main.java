@@ -1,4 +1,5 @@
 
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -29,8 +30,8 @@ public class Main extends Application {
         try {
             Parent root = FXMLLoader.load(
                     Objects.requireNonNull(
-                            getClass().getResource("/fxml/login.fxml"),
-                            "Không tìm thấy /fxml/login.fxml"
+                            getClass().getResource("/fxml/dichVu.fxml"),
+                            "Không tìm thấy /fxml/dichvu.fxml"
                     )
             );
 
@@ -41,6 +42,11 @@ public class Main extends Application {
             primaryStage.setResizable(false);
             primaryStage.centerOnScreen();
 
+            // Load icon nếu có (src/main/resources/images/icon.png)
+            try {
+                InputStream icon = getClass().getResourceAsStream("/images/icon.png");
+                if (icon != null) primaryStage.getIcons().add(new Image(icon));
+            } catch (Exception ignored) {}
 
             // Đăng xuất session khi đóng cửa sổ
             primaryStage.setOnCloseRequest(e -> SessionManager.clearSession());
