@@ -1,5 +1,8 @@
 package gui.controller;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import bus.KhachHangBUS;
 import bus.NhanVienBUS;
 import entity.KhachHang;
@@ -9,10 +12,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.stage.Stage;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
 
@@ -72,11 +78,11 @@ public class LoginController implements Initializable {
         try {
             if (isNhanVienMode) {
                 NhanVien nv = nhanVienBUS.dangNhap(username, password);
-                utils.SessionManager.setNhanVien(nv);
+                utils.SessionManager.setCurrentUser(nv);
                 openMain();
             } else {
                 KhachHang kh = khachHangBUS.dangNhap(username, password);
-                utils.SessionManager.setKhachHang(kh);
+                utils.SessionManager.setCurrentUser(kh);
                 openMain();
             }
         } catch (Exception e) {
