@@ -12,18 +12,30 @@ import java.util.ResourceBundle;
 
 public class ThemDichVuDialog implements Initializable {
 
-    @FXML private Label lblDialogTitle;
-    @FXML private Label lblError;
-    @FXML private Button btnSave;
+    @FXML
+    private Label lblDialogTitle;
+    @FXML
+    private Label lblError;
+    @FXML
+    private Button btnSave;
 
-    // Form fields
-    @FXML private TextField txtMaDV;
-    @FXML private TextField txtTenDV;
-    @FXML private ComboBox<String> cboLoaiDV;
-    @FXML private TextField txtDonGia;
-    @FXML private TextField txtDonViTinh;
-    @FXML private TextField txtSoLuongTon;
-    @FXML private ComboBox<String> cboTrangThai;
+    // Form fields — aligned with FXML fx:id names
+    @FXML
+    private TextField txtMaDV;
+    @FXML
+    private TextField txtTenDV;
+    @FXML
+    private ComboBox<String> cboLoaiDV;
+    @FXML
+    private TextField txtGia;
+    @FXML
+    private TextField txtDonVi;
+    @FXML
+    private TextField txtTonKho;
+    @FXML
+    private ComboBox<String> cboTrangThai;
+    @FXML
+    private TextArea txtMoTa;
 
     private final DichVuBUS dichVuBUS = new DichVuBUS();
     private boolean isEditMode = false;
@@ -38,22 +50,28 @@ public class ThemDichVuDialog implements Initializable {
             cboTrangThai.getItems().setAll("DANGBAN", "NGUNGBAN");
 
         // Chỉ cho sửa mã khi thêm mới
-        if (txtMaDV != null) txtMaDV.setEditable(true);
+        if (txtMaDV != null)
+            txtMaDV.setEditable(true);
     }
 
     public void setEntity(Object entity) {
         if (entity instanceof DichVu) {
             currentEntity = (DichVu) entity;
             isEditMode = true;
-            if (lblDialogTitle != null) lblDialogTitle.setText("Cập nhật dịch vụ");
-            if (txtMaDV != null) txtMaDV.setEditable(false);
+            if (lblDialogTitle != null)
+                lblDialogTitle.setText("Cập nhật dịch vụ");
+            if (txtMaDV != null)
+                txtMaDV.setEditable(false);
             populateFields(currentEntity);
         } else {
             currentEntity = null;
             isEditMode = false;
-            if (lblDialogTitle != null) lblDialogTitle.setText("Thêm dịch vụ mới");
-            if (cboTrangThai != null) cboTrangThai.setValue("DANGBAN");
-            if (txtSoLuongTon != null) txtSoLuongTon.setText("0");
+            if (lblDialogTitle != null)
+                lblDialogTitle.setText("Thêm dịch vụ mới");
+            if (cboTrangThai != null)
+                cboTrangThai.setValue("DANGBAN");
+            if (txtTonKho != null)
+                txtTonKho.setText("0");
         }
     }
 
@@ -62,19 +80,27 @@ public class ThemDichVuDialog implements Initializable {
     }
 
     private void populateFields(DichVu dv) {
-        if (txtMaDV      != null) txtMaDV.setText(dv.getMadv());
-        if (txtTenDV     != null) txtTenDV.setText(dv.getTendv());
-        if (cboLoaiDV    != null) cboLoaiDV.setValue(dv.getLoaidv());
-        if (txtDonGia    != null) txtDonGia.setText(String.valueOf((long) dv.getDongia()));
-        if (txtDonViTinh != null) txtDonViTinh.setText(dv.getDonvitinh());
-        if (txtSoLuongTon!= null) txtSoLuongTon.setText(String.valueOf(dv.getSoluongton()));
-        if (cboTrangThai != null) cboTrangThai.setValue(dv.getTrangthai());
+        if (txtMaDV != null)
+            txtMaDV.setText(dv.getMaDV());
+        if (txtTenDV != null)
+            txtTenDV.setText(dv.getTenDV());
+        if (cboLoaiDV != null)
+            cboLoaiDV.setValue(dv.getLoaiDV());
+        if (txtGia != null)
+            txtGia.setText(String.valueOf((long) dv.getDonGia()));
+        if (txtDonVi != null)
+            txtDonVi.setText(dv.getDonViTinh());
+        if (txtTonKho != null)
+            txtTonKho.setText(String.valueOf(dv.getSoLuongTon()));
+        if (cboTrangThai != null)
+            cboTrangThai.setValue(dv.getTrangThai());
     }
 
     @FXML
     public void handleSave() {
         clearError();
-        if (!validateFields()) return;
+        if (!validateFields())
+            return;
 
         try {
             DichVu dv = buildEntity();
@@ -83,7 +109,8 @@ public class ThemDichVuDialog implements Initializable {
             } else {
                 dichVuBUS.themDichVu(dv);
             }
-            if (onSaveCallback != null) onSaveCallback.run();
+            if (onSaveCallback != null)
+                onSaveCallback.run();
             closeDialog();
         } catch (Exception e) {
             showError(e.getMessage());
@@ -91,52 +118,70 @@ public class ThemDichVuDialog implements Initializable {
     }
 
     private DichVu buildEntity() {
-        String ma     = txtMaDV      != null ? txtMaDV.getText().trim()      : "";
-        String ten    = txtTenDV     != null ? txtTenDV.getText().trim()      : "";
-        String loai   = cboLoaiDV   != null ? cboLoaiDV.getValue()           : "";
-        double donGia = txtDonGia   != null ? Double.parseDouble(txtDonGia.getText().replace(",","").trim()) : 0;
-        String dvt    = txtDonViTinh!= null ? txtDonViTinh.getText().trim()  : "";
-        int soLuong   = txtSoLuongTon!= null ? Integer.parseInt(txtSoLuongTon.getText().trim()) : 0;
-        String tt     = cboTrangThai != null ? cboTrangThai.getValue()        : "DANGBAN";
+        String ma = txtMaDV != null ? txtMaDV.getText().trim() : "";
+        String ten = txtTenDV != null ? txtTenDV.getText().trim() : "";
+        String loai = cboLoaiDV != null ? cboLoaiDV.getValue() : "";
+        double donGia = txtGia != null ? Double.parseDouble(txtGia.getText().replace(",", "").trim()) : 0;
+        String dvt = txtDonVi != null ? txtDonVi.getText().trim() : "";
+        int soLuong = txtTonKho != null ? Integer.parseInt(txtTonKho.getText().trim()) : 0;
+        String tt = cboTrangThai != null ? cboTrangThai.getValue() : "DANGBAN";
 
         DichVu dv = isEditMode ? currentEntity : new DichVu();
-        dv.setMadv(ma);
-        dv.setTendv(ten);
-        dv.setLoaidv(loai);
-        dv.setDongia(donGia);
-        dv.setDonvitinh(dvt);
-        dv.setSoluongton(soLuong);
-        dv.setTrangthai(tt);
+        dv.setMaDV(ma);
+        dv.setTenDV(ten);
+        dv.setLoaiDV(loai);
+        dv.setDonGia(donGia);
+        dv.setDonViTinh(dvt);
+        dv.setSoLuongTon(soLuong);
+        dv.setTrangThai(tt);
         return dv;
     }
 
     private boolean validateFields() {
         if (txtMaDV != null && txtMaDV.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập mã dịch vụ"); return false;
+            showError("Vui lòng nhập mã dịch vụ");
+            return false;
         }
         if (txtTenDV != null && txtTenDV.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên dịch vụ"); return false;
+            showError("Vui lòng nhập tên dịch vụ");
+            return false;
         }
-        if (txtDonGia != null) {
-            try { Double.parseDouble(txtDonGia.getText().replace(",","").trim()); }
-            catch (NumberFormatException e) { showError("Đơn giá không hợp lệ"); return false; }
+        if (txtGia != null) {
+            try {
+                Double.parseDouble(txtGia.getText().replace(",", "").trim());
+            } catch (NumberFormatException e) {
+                showError("Đơn giá không hợp lệ");
+                return false;
+            }
         }
-        if (txtSoLuongTon != null) {
-            try { Integer.parseInt(txtSoLuongTon.getText().trim()); }
-            catch (NumberFormatException e) { showError("Số lượng tồn phải là số nguyên"); return false; }
+        if (txtTonKho != null) {
+            try {
+                Integer.parseInt(txtTonKho.getText().trim());
+            } catch (NumberFormatException e) {
+                showError("Số lượng tồn phải là số nguyên");
+                return false;
+            }
         }
         return true;
     }
 
     @FXML
-    public void handleCancel() { closeDialog(); }
+    public void handleCancel() {
+        closeDialog();
+    }
 
     private void showError(String msg) {
-        if (lblError != null) { lblError.setText(msg); lblError.setVisible(true); }
+        if (lblError != null) {
+            lblError.setText(msg);
+            lblError.setVisible(true);
+        }
     }
 
     private void clearError() {
-        if (lblError != null) { lblError.setText(""); lblError.setVisible(false); }
+        if (lblError != null) {
+            lblError.setText("");
+            lblError.setVisible(false);
+        }
     }
 
     private void closeDialog() {

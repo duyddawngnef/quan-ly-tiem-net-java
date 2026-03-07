@@ -24,22 +24,37 @@ import java.util.ResourceBundle;
 
 public class GoiDichVuController implements Initializable {
 
-    @FXML private TableView<GoiDichVu> tableView;
-    @FXML private TableColumn<GoiDichVu, String> colMa;
-    @FXML private TableColumn<GoiDichVu, String> colTen;
-    @FXML private TableColumn<GoiDichVu, String> colLoai;
-    @FXML private TableColumn<GoiDichVu, Double> colSoGio;
-    @FXML private TableColumn<GoiDichVu, Integer> colNgayHL;
-    @FXML private TableColumn<GoiDichVu, Double> colGiaGoc;
-    @FXML private TableColumn<GoiDichVu, Double> colGiaGoi;
-    @FXML private TableColumn<GoiDichVu, String> colKhu;
-    @FXML private TableColumn<GoiDichVu, String> colTrangThai;
+    @FXML
+    private TableView<GoiDichVu> tableView;
+    @FXML
+    private TableColumn<GoiDichVu, String> colMaGoi;
+    @FXML
+    private TableColumn<GoiDichVu, String> colTenGoi;
+    @FXML
+    private TableColumn<GoiDichVu, String> colLoaiGoi;
+    @FXML
+    private TableColumn<GoiDichVu, Double> colSoGio;
+    @FXML
+    private TableColumn<GoiDichVu, Integer> colNgayHL;
+    @FXML
+    private TableColumn<GoiDichVu, Double> colGiaGoc;
+    @FXML
+    private TableColumn<GoiDichVu, Double> colGiaGoi;
+    @FXML
+    private TableColumn<GoiDichVu, String> colKhu;
+    @FXML
+    private TableColumn<GoiDichVu, String> colTrangThai;
 
-    @FXML private TextField txtSearch;
-    @FXML private Label lblSubtitle;
-    @FXML private Label lblTotal;
-    @FXML private Button btnSua;
-    @FXML private Button btnXoa;
+    @FXML
+    private TextField txtSearch;
+    @FXML
+    private Label lblSubtitle;
+    @FXML
+    private Label lblTotal;
+    @FXML
+    private Button btnSua;
+    @FXML
+    private Button btnXoa;
 
     private final GoiDichVuBUS goiDichVuBUS = new GoiDichVuBUS();
     private ObservableList<GoiDichVu> dataList = FXCollections.observableArrayList();
@@ -54,51 +69,65 @@ public class GoiDichVuController implements Initializable {
     }
 
     private void setupTableColumns() {
-        if (colMa       != null) colMa.setCellValueFactory(new PropertyValueFactory<>("magoi"));
-        if (colTen      != null) colTen.setCellValueFactory(new PropertyValueFactory<>("tengoi"));
-        if (colLoai     != null) colLoai.setCellValueFactory(new PropertyValueFactory<>("loaigoi"));
-        if (colSoGio    != null) colSoGio.setCellValueFactory(new PropertyValueFactory<>("sogio"));
-        if (colNgayHL   != null) colNgayHL.setCellValueFactory(new PropertyValueFactory<>("songayhieuluc"));
-        if (colGiaGoc   != null) {
-            colGiaGoc.setCellValueFactory(new PropertyValueFactory<>("giagoc"));
+        if (colMaGoi != null)
+            colMaGoi.setCellValueFactory(new PropertyValueFactory<>("maGoi"));
+        if (colTenGoi != null)
+            colTenGoi.setCellValueFactory(new PropertyValueFactory<>("tenGoi"));
+        if (colLoaiGoi != null)
+            colLoaiGoi.setCellValueFactory(new PropertyValueFactory<>("loaiGoi"));
+        if (colSoGio != null)
+            colSoGio.setCellValueFactory(new PropertyValueFactory<>("soGio"));
+        if (colNgayHL != null)
+            colNgayHL.setCellValueFactory(new PropertyValueFactory<>("soNgayHieuLuc"));
+        if (colGiaGoc != null) {
+            colGiaGoc.setCellValueFactory(new PropertyValueFactory<>("giaGoc"));
             colGiaGoc.setCellFactory(col -> new TableCell<>() {
-                @Override protected void updateItem(Double v, boolean empty) {
+                @Override
+                protected void updateItem(Double v, boolean empty) {
                     super.updateItem(v, empty);
                     setText(empty || v == null ? null : String.format("%,.0f ₫", v));
                 }
             });
         }
-        if (colGiaGoi   != null) {
-            colGiaGoi.setCellValueFactory(new PropertyValueFactory<>("giagoi"));
+        if (colGiaGoi != null) {
+            colGiaGoi.setCellValueFactory(new PropertyValueFactory<>("giaGoi"));
             colGiaGoi.setCellFactory(col -> new TableCell<>() {
-                @Override protected void updateItem(Double v, boolean empty) {
+                @Override
+                protected void updateItem(Double v, boolean empty) {
                     super.updateItem(v, empty);
                     setText(empty || v == null ? null : String.format("%,.0f ₫", v));
                 }
             });
         }
-        if (colKhu      != null) colKhu.setCellValueFactory(new PropertyValueFactory<>("apdungchokhu"));
-        if (colTrangThai!= null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
+        if (colKhu != null)
+            colKhu.setCellValueFactory(new PropertyValueFactory<>("apDungChoKhu"));
+        if (colTrangThai != null)
+            colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
     }
 
     private void setupTableSelection() {
         tableView.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             selectedItem = n;
             boolean has = n != null;
-            if (btnSua != null) btnSua.setDisable(!has);
-            if (btnXoa != null) btnXoa.setDisable(!has);
+            if (btnSua != null)
+                btnSua.setDisable(!has);
+            if (btnXoa != null)
+                btnXoa.setDisable(!has);
         });
-        if (btnSua != null) btnSua.setDisable(true);
-        if (btnXoa != null) btnXoa.setDisable(true);
+        if (btnSua != null)
+            btnSua.setDisable(true);
+        if (btnXoa != null)
+            btnXoa.setDisable(true);
     }
 
     public void loadData() {
         try {
-            List<GoiDichVu> list = goiDichVuBUS.getAll();
+            List<GoiDichVu> list = goiDichVuBUS.getDanhSachGoiDV();
             dataList.setAll(list);
             filteredList = new FilteredList<>(dataList, p -> true);
             tableView.setItems(filteredList);
-            updateSubtitle();        } catch (Exception e) {
+            updateSubtitle();
+        } catch (Exception e) {
             ThongBaoDialogHelper.showError(tableView.getScene(), "Lỗi tải dữ liệu: " + e.getMessage());
         }
     }
@@ -106,29 +135,35 @@ public class GoiDichVuController implements Initializable {
     @FXML
     public void handleSearch() {
         String keyword = txtSearch != null ? txtSearch.getText().toLowerCase().trim() : "";
-        if (filteredList == null) return;
+        if (filteredList == null)
+            return;
         filteredList.setPredicate(item -> keyword.isEmpty()
-            || item.getMagoi().toLowerCase().contains(keyword)
-            || item.getTengoi().toLowerCase().contains(keyword));
+                || item.getMaGoi().toLowerCase().contains(keyword)
+                || item.getTenGoi().toLowerCase().contains(keyword));
         updateSubtitle();
     }
 
     @FXML
-    public void handleThem() { openDialog(null); }
+    public void handleThem() {
+        openDialog(null);
+    }
 
     @FXML
     public void handleSua() {
-        if (selectedItem == null) return;
+        if (selectedItem == null)
+            return;
         openDialog(selectedItem);
     }
 
     @FXML
     public void handleXoa() {
-        if (selectedItem == null) return;
+        if (selectedItem == null)
+            return;
         Stage owner = (Stage) tableView.getScene().getWindow();
-        if (!gui.dialog.XacNhanDialog.showDelete(owner, selectedItem.getTengoi())) return;
+        if (!gui.dialog.XacNhanDialog.showDelete(owner, selectedItem.getTenGoi()))
+            return;
         try {
-            goiDichVuBUS.xoaGoiDichVu(selectedItem.getMagoi());
+            goiDichVuBUS.xoaGoiDichVu(selectedItem.getMaGoi());
             ThongBaoDialogHelper.showSuccess(tableView.getScene(), "Đã xóa gói dịch vụ!");
             loadData();
         } catch (Exception e) {
@@ -138,7 +173,8 @@ public class GoiDichVuController implements Initializable {
 
     @FXML
     public void handleLamMoi() {
-        if (txtSearch != null) txtSearch.clear();
+        if (txtSearch != null)
+            txtSearch.clear();
         loadData();
     }
 
@@ -162,7 +198,9 @@ public class GoiDichVuController implements Initializable {
 
     private void updateSubtitle() {
         int total = filteredList != null ? filteredList.size() : 0;
-        if (lblSubtitle != null) lblSubtitle.setText("Tổng: " + total + " bản ghi");
-        if (lblTotal    != null) lblTotal.setText("Tổng: " + total + " bản ghi");
+        if (lblSubtitle != null)
+            lblSubtitle.setText("Tổng: " + total + " bản ghi");
+        if (lblTotal != null)
+            lblTotal.setText("Tổng: " + total + " bản ghi");
     }
 }
