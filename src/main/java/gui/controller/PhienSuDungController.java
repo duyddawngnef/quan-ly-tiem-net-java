@@ -1,10 +1,19 @@
 package gui.controller;
 
-import bus.KhachHangBUS;
-import bus.MayTinhBUS;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
 import bus.PhienSuDungBUS;
-import entity.KhachHang;
-import entity.MayTinh;
+import dao.GoiDichVuKhachHangDAO;
+import dao.HoaDonDAO;
+import dao.KhachHangDAO;
+import dao.MayTinhDAO;
+import dao.PhienSuDungDAO;
+import dao.SuDungDichVuDAO;
 import entity.PhienSuDung;
 import gui.dialog.ChonDichVuDialog;
 import javafx.animation.KeyFrame;
@@ -17,21 +26,19 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import utils.ThongBaoDialogHelper;
-import utils.SessionManager;
-
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
 
 public class PhienSuDungController implements Initializable {
 
@@ -55,7 +62,9 @@ public class PhienSuDungController implements Initializable {
     @FXML private Button btnKetThuc;
     @FXML private Button btnOrderDV;
 
-    private final PhienSuDungBUS phienBUS = new PhienSuDungBUS();
+    private final PhienSuDungBUS phienBUS = new PhienSuDungBUS(
+        new PhienSuDungDAO(), new MayTinhDAO(), new KhachHangDAO(),
+        new GoiDichVuKhachHangDAO(), new SuDungDichVuDAO(), new HoaDonDAO());
     private ObservableList<PhienSuDung> dataList = FXCollections.observableArrayList();
     private FilteredList<PhienSuDung> filteredList;
     private PhienSuDung selectedPhien;

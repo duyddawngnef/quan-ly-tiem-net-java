@@ -1,6 +1,10 @@
 package gui.controller;
 
-import utils.SessionManager;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
@@ -9,14 +13,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ResourceBundle;
+import utils.SessionManager;
 
 public class MainController implements Initializable {
 
@@ -59,11 +63,11 @@ public class MainController implements Initializable {
         try {
             // SessionManager.getCurrentUser() returns NhanVien or KhachHang
             // Adjust based on your SessionManager implementation
-            Object user = SessionManager.getCurrentUser();
+            Object user = SessionManager.getCurrentNhanVien() != null ? SessionManager.getCurrentNhanVien() : SessionManager.getCurrentKhachHang();
             if (user != null) {
                 // Example - customize based on actual entity methods
                 hoTen = SessionManager.getCurrentUserName();
-                role = SessionManager.getCurrentUserRole();
+                role = SessionManager.getLoaiTaiKhoan();
             }
         } catch (Exception ignored) {}
         lblUserName.setText(hoTen);
