@@ -4,122 +4,151 @@ import dao.KhachHangDAO;
 import dao.MayTinhDAO;
 import dao.PhienSuDungDAO;
 import dao.ThongKeDAO;
+import entity.KhachHang;
+import entity.ThongKeDoanhThu;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.List;
 
 public class ThongKeBUS {
 
-    private ThongKeDAO thongKeDAO = new ThongKeDAO();
-    private MayTinhDAO mayTinhDAO = new MayTinhDAO();
-    private KhachHangDAO khachHangDAO = new KhachHangDAO();
-    private PhienSuDungDAO phienSuDungDAO = new PhienSuDungDAO();
+    private final ThongKeDAO thongKeDAO = new ThongKeDAO();
+    private final MayTinhDAO mayTinhDAO = new MayTinhDAO();
+    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
+    private final PhienSuDungDAO phienSuDungDAO = new PhienSuDungDAO();
 
-    // check quyền
+    // Kiểm tra quyền
     private void checkQuanLy(String vaiTro) throws Exception {
-        if (!vaiTro.equals("QUANLY")) {
+        if (!"QUANLY".equals(vaiTro))
             throw new Exception("Không có quyền truy cập");
-        }
     }
 
     private void checkQuanLyNhanVien(String vaiTro) throws Exception {
-        if (!vaiTro.equals("QUANLY") && !vaiTro.equals("NHANVIEN")) {
+        if (!"QUANLY".equals(vaiTro) && !"NHANVIEN".equals(vaiTro))
             throw new Exception("Không có quyền truy cập");
-        }
     }
 
-    // thống kê doanh thu
-    public Map<String, Object> thongKeDoanhThu(
-            LocalDate tuNgay,
+    // Summary Cards (ThongKeController.loadSummaryCards)
+    public ThongKeDoanhThu getSummary(LocalDate from, LocalDate to) throws Exception {
+        LocalDateTime tu = from.atStartOfDay();
+        LocalDateTime den = to.plusDays(1).atStartOfDay();
+        return thongKeDAO.getSummary(tu, den);
+    }
+
+    // Tab 1 — Doanh thu (handleThongKe)
+    public List<ThongKeDoanhThu> thongKe(String loai, LocalDate from, LocalDate to) throws Exception {
+        if (from == null || to == null)
+            throw new Exception("Vui lòng chọn ngày");
+        if (from.isAfter(to))
+            throw new Exception("Từ ngày phải ≤ đến ngày");
+
+        LocalDateTime tu = from.atStartOfDay();
+        LocalDateTime den = to.plusDays(1).atStartOfDay();
+
+        if ("Theo tháng".equals(loai))
+            return thongKeDAO.thongKeTheoThang(tu, den);
+
+        return thongKeDAO.thongKeTheoNgay(tu, den);
+    }
+
+    // Tab 2 — Thu Chi (handleThongKeThuChi)
+    public List<ThongKeDoanhThu> thongKeThuChi(String period,
+            LocalDate from,
+            LocalDate to) throws Exception {
+        LocalDate[] range = resolvePeriod(period, from, to);
+        LocalDateTime tu = range[0].atStartOfDay();
+        LocalDateTime den = range[1].plusDays(1).atStartOfDay();
+        return thongKeDAO.thongKeThuChi(tu, den);
+    }
+
+    // Tab 3 — Top Khách Hàng (handleThongKeTop)
+    public List<Object[]> topKhachHang(int nam, int n) throws Exception {
+        if (n <= 0)
+            throw new Exception("Số lượng top phải > 0");
+        return thongKeDAO.topKhachHang(nam, n);
+    }
+
+    // Thống kê doanh thu (có kiểm tra quyền)
+    public ThongKeDoanhThu thongKeDoanhThu(LocalDate tuNgay,
             LocalDate denNgay,
             String vaiTro) throws Exception {
-
         checkQuanLy(vaiTro);
-
-        if (tuNgay.isAfter(denNgay)) {
+        if (tuNgay.isAfter(denNgay))
             throw new Exception("Từ ngày phải <= đến ngày");
-        }
 
         LocalDateTime tu = tuNgay.atStartOfDay();
         LocalDateTime den = denNgay.plusDays(1).atStartOfDay();
-
-        Map<String, Object> result = thongKeDAO.thongKeDoanhThu(tu, den);
-
-        long soNgay = ChronoUnit.DAYS.between(tuNgay, denNgay) + 1;
-
-        double tongDoanhThu = (double) result.get("TongDoanhThu");
-
-        double doanhThuTrungBinh = soNgay == 0
-                ? 0
-                : tongDoanhThu / soNgay;
-
-        result.put("DoanhThuTrungBinh", doanhThuTrungBinh);
-
-        return result;
+        return thongKeDAO.getSummary(tu, den);
     }
 
-    // thống kê dịch vụ bán chạy
-    public List<Map<String, Object>> thongKeDichVuBanChay(
-            LocalDate tuNgay,
+    // Thống kê dịch vụ bán chạy (có kiểm tra quyền)
+    // Object[]: [0]=MaDV, [1]=TenDV, [2]=TongSoLuong, [3]=TongDoanhThu
+    public List<Object[]> thongKeDichVuBanChay(LocalDate tuNgay,
             LocalDate denNgay,
             int top,
             String vaiTro) throws Exception {
-
         checkQuanLy(vaiTro);
-
         LocalDateTime tu = tuNgay.atStartOfDay();
         LocalDateTime den = denNgay.plusDays(1).atStartOfDay();
-
         return thongKeDAO.topDichVu(tu, den, top);
     }
 
-    // thống kê tổng quan
-    public Map<String, Object> thongKeTongQuan(String vaiTro) throws Exception {
-
+    // Thống kê tổng quan (có kiểm tra quyền)
+    public ThongKeDoanhThu thongKeTongQuan(String vaiTro) throws Exception {
         checkQuanLyNhanVien(vaiTro);
-
-        Map<String, Object> result = new HashMap<>();
 
         int tongMay = mayTinhDAO.countByTrangThai("TRONG")
                 + mayTinhDAO.countByTrangThai("DANGDUNG")
                 + mayTinhDAO.countByTrangThai("NGUNG");
-
         int mayDangDung = mayTinhDAO.countByTrangThai("DANGDUNG");
         int mayTrong = mayTinhDAO.countByTrangThai("TRONG");
 
-        List<entity.KhachHang> danhSachKH = khachHangDAO.getAll();
-
+        List<KhachHang> danhSachKH = khachHangDAO.getAll();
         int tongKH = danhSachKH.size();
         int khHoatDong = 0;
-
-        for (entity.KhachHang kh : danhSachKH) {
-            if ("HOATDONG".equals(kh.getTrangthai())) {
+        for (KhachHang kh : danhSachKH) {
+            if ("HOATDONG".equals(kh.getTrangthai()))
                 khHoatDong++;
-            }
         }
 
         int phienDangChoi = phienSuDungDAO.countByTrangThai("DANGCHOI");
-
         double doanhThuHomNay = thongKeDAO.doanhThuHomNay();
-
         double doanhThuThang = thongKeDAO.doanhThuThang(
                 LocalDate.now().getMonthValue(),
                 LocalDate.now().getYear());
 
-        result.put("TongMay", tongMay);
-        result.put("MayDangDung", mayDangDung);
-        result.put("MayTrong", mayTrong);
+        // Đóng gói vào ThongKeDoanhThu (dùng constructor Summary)
+        ThongKeDoanhThu tk = new ThongKeDoanhThu(doanhThuHomNay, doanhThuThang, phienDangChoi);
+        tk.setThoiGian("Tổng quan");
+        return tk;
+    }
 
-        result.put("TongKhachHang", tongKH);
-        result.put("KhachHangHoatDong", khHoatDong);
+    // Helper — period string → [from, to]
+    private LocalDate[] resolvePeriod(String period, LocalDate from, LocalDate to) {
+        LocalDate today = LocalDate.now();
 
-        result.put("PhienDangChoi", phienDangChoi);
+        if (period == null || "Tùy chỉnh".equals(period)) {
+            return new LocalDate[] {
+                    from != null ? from : today.withDayOfMonth(1),
+                    to != null ? to : today
+            };
+        }
 
-        result.put("DoanhThuHomNay", doanhThuHomNay);
-        result.put("DoanhThuThang", doanhThuThang);
-
-        return result;
+        return switch (period) {
+            case "Hôm nay" -> new LocalDate[] { today, today };
+            case "Tuần này" -> new LocalDate[] { today.with(DayOfWeek.MONDAY), today };
+            case "Tháng này" -> new LocalDate[] { today.withDayOfMonth(1), today };
+            case "Quý này" -> {
+                int thangDauQuy = ((today.getMonthValue() - 1) / 3) * 3 + 1;
+                yield new LocalDate[] { today.withMonth(thangDauQuy).withDayOfMonth(1), today };
+            }
+            case "Năm nay" -> new LocalDate[] { today.withDayOfYear(1), today };
+            default -> new LocalDate[] {
+                    from != null ? from : today.withDayOfMonth(1),
+                    to != null ? to : today
+            };
+        };
     }
 }
