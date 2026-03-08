@@ -35,7 +35,7 @@ public class ThemMayTinhDialog implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (cboTrangThai != null)
-            cboTrangThai.getItems().setAll("TRONG", "BAOTRI", "TATMAY");
+            cboTrangThai.getItems().setAll("TRONG", "BAOTRI", "NGUNG");
 
         // Load khu máy combo
         if (cboMaKhu != null) {
