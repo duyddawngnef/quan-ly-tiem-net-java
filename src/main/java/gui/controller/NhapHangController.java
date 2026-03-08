@@ -234,7 +234,6 @@ public class NhapHangController implements Initializable {
 
     private void loadChiTiet(PhieuNhapHang phieu) {
         if (tableChiTiet == null) return;
-        // Lấy chi tiết từ BUS theo maPhieuNhap thay vì getChiTietList() (không tồn tại trong entity)
         try {
             List<ChiTietPhieuNhap> ctList = nhapHangBUS.getChiTietByPhieu(phieu.getMaPhieuNhap());
             tableChiTiet.setItems(FXCollections.observableArrayList(ctList));

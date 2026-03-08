@@ -196,6 +196,10 @@ public class ThongKeController implements Initializable {
         }
     }
 
+    @FXML public void handleLoaiTKChanged() {
+        handleThongKe();
+    }
+
     @FXML public void handleThongKeThuChi() {
         try {
             String period = cboThoiGian != null ? cboThoiGian.getValue() : null;
