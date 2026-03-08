@@ -43,12 +43,14 @@
     <VBox VBox.vgrow="ALWAYS" styleClass="page-card" spacing="0" style="-fx-padding: 0;">
         <TableView fx:id="tableView" VBox.vgrow="ALWAYS"
                    style="-fx-background-radius: 8;">
-            <TableColumn fx:id="colMaMay" text="Mã máy" prefWidth="80"/>
-            <TableColumn fx:id="colTenMay" text="Tên máy" prefWidth="150"/>
-            <TableColumn fx:id="colCauHinh" text="Cấu hình" prefWidth="200"/>
-            <TableColumn fx:id="colKhu" text="Khu" prefWidth="100"/>
-            <TableColumn fx:id="colGia" text="Giá/giờ" prefWidth="100"/>
-            <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="120"/>
+            <columns>
+                <TableColumn fx:id="colMaMay" text="Mã máy" prefWidth="80"/>
+                <TableColumn fx:id="colTenMay" text="Tên máy" prefWidth="150"/>
+                <TableColumn fx:id="colCauHinh" text="Cấu hình" prefWidth="200"/>
+                <TableColumn fx:id="colKhu" text="Khu" prefWidth="100"/>
+                <TableColumn fx:id="colGiaMoiGio" text="Giá/giờ" prefWidth="100"/>
+                <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="120"/>
+            </columns>
         </TableView>
 
         <!-- Footer -->

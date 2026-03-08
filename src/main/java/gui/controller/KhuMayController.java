@@ -24,8 +24,8 @@ import java.util.ResourceBundle;
 public class KhuMayController implements Initializable {
 
     @FXML private TableView<KhuMay> tableView;
-    @FXML private TableColumn<KhuMay, String>  colMa;
-    @FXML private TableColumn<KhuMay, String>  colTen;
+    @FXML private TableColumn<KhuMay, String>  colMaKhu;
+    @FXML private TableColumn<KhuMay, String>  colTenKhu;
     @FXML private TableColumn<KhuMay, Double>  colGiaCoso;
     @FXML private TableColumn<KhuMay, Integer> colSoMayToiDa;
     @FXML private TableColumn<KhuMay, String>  colTrangThai;
@@ -49,8 +49,8 @@ public class KhuMayController implements Initializable {
     }
 
     private void setupTableColumns() {
-        if (colMa         != null) colMa.setCellValueFactory(new PropertyValueFactory<>("makhu"));
-        if (colTen        != null) colTen.setCellValueFactory(new PropertyValueFactory<>("tenkhu"));
+        if (colMaKhu         != null) colMaKhu.setCellValueFactory(new PropertyValueFactory<>("maKhu"));
+        if (colTenKhu        != null) colTenKhu.setCellValueFactory(new PropertyValueFactory<>("tenKhu"));
         if (colGiaCoso    != null) {
             colGiaCoso.setCellValueFactory(new PropertyValueFactory<>("giacoso"));
             colGiaCoso.setCellFactory(col -> new TableCell<>() {

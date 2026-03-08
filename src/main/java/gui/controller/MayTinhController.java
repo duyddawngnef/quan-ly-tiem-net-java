@@ -27,8 +27,8 @@ import java.util.ResourceBundle;
 public class MayTinhController implements Initializable {
 
     @FXML private TableView<MayTinh> tableView;
-    @FXML private TableColumn<MayTinh, String> colMa;
-    @FXML private TableColumn<MayTinh, String> colTen;
+    @FXML private TableColumn<MayTinh, String> colMaMay;
+    @FXML private TableColumn<MayTinh, String> colTenMay;
     @FXML private TableColumn<MayTinh, String> colKhu;
     @FXML private TableColumn<MayTinh, String> colCauHinh;
     @FXML private TableColumn<MayTinh, Double> colGiaMoiGio;
@@ -53,7 +53,7 @@ public class MayTinhController implements Initializable {
         setupTableColumns();
         setupTableSelection();
         if (cboTrangThai != null) {
-            cboTrangThai.getItems().setAll("Tất cả", "TRONG", "DANGDUNG", "BAOTRI", "TATMAY");
+            cboTrangThai.getItems().setAll("Tất cả", "TRONG", "DANGDUNG", "BAOTRI", "NGUNG");
             cboTrangThai.setValue("Tất cả");
             cboTrangThai.setOnAction(e -> applyFilter());
         }
@@ -74,8 +74,8 @@ public class MayTinhController implements Initializable {
     }
 
     private void setupTableColumns() {
-        if (colMa       != null) colMa.setCellValueFactory(new PropertyValueFactory<>("mamay"));
-        if (colTen      != null) colTen.setCellValueFactory(new PropertyValueFactory<>("tenmay"));
+        if (colMaMay       != null) colMaMay.setCellValueFactory(new PropertyValueFactory<>("mamay"));
+        if (colTenMay      != null) colTenMay.setCellValueFactory(new PropertyValueFactory<>("tenmay"));
         if (colKhu      != null) colKhu.setCellValueFactory(new PropertyValueFactory<>("makhu"));
         if (colCauHinh  != null) colCauHinh.setCellValueFactory(new PropertyValueFactory<>("cauhinh"));
         if (colGiaMoiGio!= null) {
