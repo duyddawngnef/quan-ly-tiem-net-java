@@ -1,9 +1,11 @@
 package bus;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import dao.DBConnection;
 import dao.NhanVienDAO;
 import entity.NhanVien;
 import utils.PasswordEncoder;
@@ -17,6 +19,29 @@ public class NhanVienBUS {
         this.nhanVienDAO = new NhanVienDAO();
     }
 
+    // ============================================================
+    // PHƯƠNG THỨC KIỂM TRA KẾT NỐI DATABASE (dùng cho LoginController)
+    // Controller chỉ cần gọi NhanVienBUS.kiemTraKetNoi() — không cần import dao
+    // ============================================================
+
+    /**
+     * Kiểm tra kết nối database.
+     * @return true nếu kết nối thành công, false nếu thất bại
+     */
+    public boolean kiemTraKetNoi() {
+        try {
+            Connection conn = DBConnection.getConnection();
+            return conn != null && !conn.isClosed();
+        } catch (Exception e) {
+            System.err.println("[NhanVienBUS] Lỗi kiemTraKetNoi: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // ============================================================
+    // ĐĂNG NHẬP
+    // ============================================================
+
     public NhanVien dangNhap(String tenDangNhap, String matKhau) throws Exception {
         if (tenDangNhap == null || tenDangNhap.trim().isEmpty()) {
             throw new Exception("Vui lòng nhập tên đăng nhập!");
@@ -25,7 +50,12 @@ public class NhanVienBUS {
             throw new Exception("Vui lòng nhập mật khẩu!");
         }
 
-        NhanVien nv = nhanVienDAO.getByTenDangNhap(tenDangNhap);
+        // Kiểm tra DB trước khi thao tác
+        if (!kiemTraKetNoi()) {
+            throw new Exception("Không thể kết nối database. Vui lòng kiểm tra lại MySQL!");
+        }
+
+        NhanVien nv = nhanVienDAO.getByTenDangNhap(tenDangNhap.trim());
 
         if (nv == null) {
             throw new Exception("Tên đăng nhập không tồn tại trong hệ thống!");
@@ -41,6 +71,10 @@ public class NhanVienBUS {
         SessionManager.setCurrentUser(nv);
         return nv;
     }
+
+    // ============================================================
+    // CÁC PHƯƠNG THỨC QUẢN LÝ NHÂN VIÊN
+    // ============================================================
 
     public boolean doiMatKhau(String maNV, String mkCu, String mkMoi) throws Exception {
         PermissionHelper.canEditNhanVien(maNV);
@@ -225,6 +259,10 @@ public class NhanVienBUS {
         return csv.toString();
     }
 
+    // ============================================================
+    // VALIDATION
+    // ============================================================
+
     private void validateNhanVienToanDien(NhanVien nv, boolean isInsert) throws Exception {
         validateHoTen(nv.getHo(), nv.getTen());
         validateChucVu(nv.getChucvu());
@@ -279,26 +317,16 @@ public class NhanVienBUS {
     }
 
     private void chuanHoaDuLieuNhanVien(NhanVien nv) {
-        if (nv.getHo() != null) {
-            nv.setHo(chuanHoaChuoi(nv.getHo()));
-        }
-        if (nv.getTen() != null) {
-            nv.setTen(chuanHoaChuoi(nv.getTen()));
-        }
-        if (nv.getTendangnhap() != null) {
-            nv.setTendangnhap(nv.getTendangnhap().trim().toLowerCase());
-        }
-        if (nv.getChucvu() != null) {
-            nv.setChucvu(nv.getChucvu().trim().toUpperCase());
-        }
+        if (nv.getHo() != null) nv.setHo(chuanHoaChuoi(nv.getHo()));
+        if (nv.getTen() != null) nv.setTen(chuanHoaChuoi(nv.getTen()));
+        if (nv.getTendangnhap() != null) nv.setTendangnhap(nv.getTendangnhap().trim().toLowerCase());
+        if (nv.getChucvu() != null) nv.setChucvu(nv.getChucvu().trim().toUpperCase());
     }
 
     private String chuanHoaChuoi(String input) {
         if (input == null || input.trim().isEmpty()) return "";
-
         String[] words = input.trim().replaceAll("\\s+", " ").split(" ");
         StringBuilder result = new StringBuilder();
-
         for (String word : words) {
             result.append(Character.toUpperCase(word.charAt(0)))
                     .append(word.substring(1).toLowerCase())
