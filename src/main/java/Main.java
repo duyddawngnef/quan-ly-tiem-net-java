@@ -30,7 +30,7 @@ public class Main extends Application {
         try {
             Parent root = FXMLLoader.load(
                     Objects.requireNonNull(
-                            getClass().getResource("/fxml/dichVu.fxml"),
+                            getClass().getResource("/fxml/login.fxml"),
                             "Không tìm thấy /fxml/dichvu.fxml"
                     )
             );
