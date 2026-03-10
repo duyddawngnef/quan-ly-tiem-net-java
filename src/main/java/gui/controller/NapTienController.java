@@ -38,11 +38,13 @@ public class NapTienController implements Initializable {
     @FXML private Button btnNapTien;
 
     @FXML private TableView<LichSuNapTien> tableHistory;
-    @FXML private TableColumn<LichSuNapTien, String> colNgayNap;
+    @FXML private TableColumn<LichSuNapTien, String> colMaNap;
+    @FXML private TableColumn<LichSuNapTien, String> colMaKH;
     @FXML private TableColumn<LichSuNapTien, String> colSoTienNap;
-    @FXML private TableColumn<LichSuNapTien, String> colKhuyenMaiHist;
-    @FXML private TableColumn<LichSuNapTien, String> colTongCongHist;
-    @FXML private TableColumn<LichSuNapTien, String> colPhuongThuc;
+    @FXML private TableColumn<LichSuNapTien, String> colKhuyenMai;
+    @FXML private TableColumn<LichSuNapTien, String> colTongTienCong;
+    @FXML private TableColumn<LichSuNapTien, String> colMaNV;
+    @FXML private TableColumn<LichSuNapTien, String> colNgayNap;
 
     private final NapTienBUS   napTienBUS   = new NapTienBUS();
     private final KhachHangBUS khachHangBUS = new KhachHangBUS();
@@ -106,22 +108,39 @@ public class NapTienController implements Initializable {
 
     private void setupTableHistory() {
         if (tableHistory == null) return;
-        if (colNgayNap != null) colNgayNap.setCellValueFactory(c -> {
-            java.time.LocalDate d = c.getValue().getNgayNap();
-            String val = d != null ? d.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "";
-            return new javafx.beans.property.SimpleStringProperty(val);
-        });
-        if (colSoTienNap     != null) colSoTienNap.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(
-                        String.format("%,.0f ₫", c.getValue().getSoTienNap())));
-        if (colKhuyenMaiHist != null) colKhuyenMaiHist.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(
-                        String.format("%,.0f ₫", c.getValue().getKhuyenMai())));
-        if (colTongCongHist  != null) colTongCongHist.setCellValueFactory(c ->
-                new javafx.beans.property.SimpleStringProperty(
-                        String.format("%,.0f ₫", c.getValue().getTongTienCong())));
-        if (colPhuongThuc    != null) colPhuongThuc.setCellValueFactory(
-                new PropertyValueFactory<>("phuongThuc"));
+
+        if (colMaNap != null)
+            colMaNap.setCellValueFactory(new PropertyValueFactory<>("maNap"));
+
+        if (colMaKH != null)
+            colMaKH.setCellValueFactory(new PropertyValueFactory<>("maKH"));
+
+        if (colSoTienNap != null)
+            colSoTienNap.setCellValueFactory(c ->
+                    new javafx.beans.property.SimpleStringProperty(
+                            String.format("%,.0f ₫", c.getValue().getSoTienNap())));
+
+        if (colKhuyenMai != null)
+            colKhuyenMai.setCellValueFactory(c ->
+                    new javafx.beans.property.SimpleStringProperty(
+                            String.format("%,.0f ₫", c.getValue().getKhuyenMai())));
+
+        if (colTongTienCong != null)
+            colTongTienCong.setCellValueFactory(c ->
+                    new javafx.beans.property.SimpleStringProperty(
+                            String.format("%,.0f ₫", c.getValue().getTongTienCong())));
+
+        if (colMaNV != null)
+            colMaNV.setCellValueFactory(new PropertyValueFactory<>("maNV"));
+
+        if (colNgayNap != null)
+            colNgayNap.setCellValueFactory(c -> {
+                java.time.LocalDate d = c.getValue().getNgayNap();
+                String val = d != null
+                        ? d.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        : "";
+                return new javafx.beans.property.SimpleStringProperty(val);
+            });
     }
 
     // ===== TÌM KHÁCH HÀNG =====
@@ -257,11 +276,17 @@ public class NapTienController implements Initializable {
         try {
             List<LichSuNapTien> list = currentKH != null
                     ? napTienBUS.getLichSuNapTien(currentKH.getMakh())
-                    : new java.util.ArrayList<>();
+                    : napTienBUS.getAllLichSu();
             tableHistory.setItems(FXCollections.observableArrayList(list));
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void showError(String msg) { if (lblError != null) lblError.setText(msg); }
-    private void clearError()          { if (lblError != null) lblError.setText(""); }
+    private void showError(String msg) {
+        if (lblError != null) lblError.setText(msg);
+    }
+    private void clearError() {
+        if (lblError != null) lblError.setText("");
+    }
 }

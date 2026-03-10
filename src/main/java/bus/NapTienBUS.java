@@ -19,6 +19,11 @@ public class NapTienBUS {
         this.chuongTrinhKhuyenMaiDAO = new ChuongTrinhKhuyenMaiDAO();
     }
 
+    public ArrayList<LichSuNapTien> getAllLichSu() throws Exception {
+        PermissionHelper.requireNhanVien();
+        return lichSuNapTienDAO.getAll();
+    }
+
     // phương thức nạp tiền
     public LichSuNapTien napTien(String maKH, double soTienNap, String maCTKM) throws Exception {
 
