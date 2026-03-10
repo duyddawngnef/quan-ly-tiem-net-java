@@ -25,13 +25,13 @@ import java.util.ResourceBundle;
 public class KhuyenMaiController implements Initializable {
 
     @FXML private TableView<ChuongTrinhKhuyenMai> tableView;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colMa;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTen;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colLoai;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colGiaTri;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colDieuKien;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colNgayBD;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colNgayKT;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colMaCTKM;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTenCT;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colLoaiKM;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colGiaTriKM;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colDieuKienToiThieu;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colNgayBatDau;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colNgayKetThuc;
     @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTrangThai;
 
     @FXML private TextField txtSearch;
@@ -59,25 +59,25 @@ public class KhuyenMaiController implements Initializable {
     }
 
     private void setupTableColumns() {
-        if (colMa       != null) colMa.setCellValueFactory(new PropertyValueFactory<>("maCTKM"));
-        if (colTen      != null) colTen.setCellValueFactory(new PropertyValueFactory<>("tenCT"));
-        if (colLoai     != null) {
-            colLoai.setCellValueFactory(new PropertyValueFactory<>("tenLoaiKM"));
+        if (colMaCTKM != null) colMaCTKM.setCellValueFactory(new PropertyValueFactory<>("maCTKM"));
+        if (colTenCT != null) colTenCT.setCellValueFactory(new PropertyValueFactory<>("tenCT"));
+        if (colLoaiKM != null) {
+            colLoaiKM.setCellValueFactory(new PropertyValueFactory<>("loaiKM"));
         }
-        if (colGiaTri   != null) {
-            colGiaTri.setCellValueFactory(new PropertyValueFactory<>("giaTriKMFormatted"));
+        if (colGiaTriKM != null) {
+            colGiaTriKM.setCellValueFactory(new PropertyValueFactory<>("giaTriKM"));
         }
-        if (colDieuKien != null) {
-            colDieuKien.setCellValueFactory(new PropertyValueFactory<>("dieuKienToiThieuFormatted"));
+        if (colDieuKienToiThieu != null) {
+            colDieuKienToiThieu.setCellValueFactory(new PropertyValueFactory<>("dieuKienToiThieu"));
         }
-        if (colNgayBD   != null) {
-            colNgayBD.setCellValueFactory(new PropertyValueFactory<>("ngayBatDauFormatted"));
+        if (colNgayBatDau!= null) {
+            colNgayBatDau.setCellValueFactory(new PropertyValueFactory<>("ngayBatDau"));
         }
-        if (colNgayKT   != null) {
-            colNgayKT.setCellValueFactory(new PropertyValueFactory<>("ngayKetThucFormatted"));
+        if (colNgayKetThuc != null) {
+            colNgayKetThuc.setCellValueFactory(new PropertyValueFactory<>("ngayKetThuc"));
         }
         if (colTrangThai!= null) {
-            colTrangThai.setCellValueFactory(new PropertyValueFactory<>("tenTrangThai"));
+            colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
         }
     }
 
