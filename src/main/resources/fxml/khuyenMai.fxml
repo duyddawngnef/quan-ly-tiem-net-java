@@ -41,13 +41,15 @@
     <VBox VBox.vgrow="ALWAYS" styleClass="page-card" spacing="0" style="-fx-padding: 0;">
         <TableView fx:id="tableView" VBox.vgrow="ALWAYS"
                    style="-fx-background-radius: 8;">
-            <TableColumn fx:id="colMaKM" text="Mã KM" prefWidth="80"/>
-            <TableColumn fx:id="colTenKM" text="Tên CTKM" prefWidth="200"/>
-            <TableColumn fx:id="colLoai" text="Loại" prefWidth="120"/>
-            <TableColumn fx:id="colGiaTri" text="Giá trị" prefWidth="100"/>
-            <TableColumn fx:id="colTuNgay" text="Từ ngày" prefWidth="120"/>
-            <TableColumn fx:id="colDenNgay" text="Đến ngày" prefWidth="120"/>
-            <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="100"/>
+            <columns>
+                <TableColumn fx:id="colMaCTKM" text="Mã CTKM" prefWidth="80"/>
+                <TableColumn fx:id="colTenCT" text="Tên CTKM" prefWidth="200"/>
+                <TableColumn fx:id="colLoaiKM" text="Loại" prefWidth="120"/>
+                <TableColumn fx:id="colGiaTriKM" text="Giá trị" prefWidth="100"/>
+                <TableColumn fx:id="colNgayBatDau" text="Từ ngày" prefWidth="120"/>
+                <TableColumn fx:id="colNgayKetThuc" text="Đến ngày" prefWidth="120"/>
+                <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="100"/>
+            </columns>
         </TableView>
 
         <!-- Footer -->

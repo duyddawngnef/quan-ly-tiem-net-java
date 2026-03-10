@@ -129,13 +129,15 @@
                 <Button text="🔍  Lọc" styleClass="btn btn-outline" onAction="#handleFilterHistory"/>
             </HBox>
             <TableView fx:id="tableHistory" VBox.vgrow="ALWAYS" style="-fx-background-radius:0;">
-                <TableColumn fx:id="colMaNT" text="Mã NT" prefWidth="80"/>
-                <TableColumn fx:id="colKHHist" text="Khách hàng" prefWidth="160"/>
-                <TableColumn fx:id="colSoTienHist" text="Số tiền" prefWidth="110"/>
-                <TableColumn fx:id="colKMHist" text="KM" prefWidth="80"/>
-                <TableColumn fx:id="colTongHist" text="Tổng nhận" prefWidth="110"/>
-                <TableColumn fx:id="colNVHist" text="Nhân viên" prefWidth="130"/>
-                <TableColumn fx:id="colNgayHist" text="Ngày nạp" prefWidth="130"/>
+                <columns>
+                    <TableColumn fx:id="colMaNap" text="Mã nạp" prefWidth="80"/>
+                    <TableColumn fx:id="colMaKH" text="Khách hàng" prefWidth="160"/>
+                    <TableColumn fx:id="colSoTienNap" text="Số tiền" prefWidth="110"/>
+                    <TableColumn fx:id="colKhuyenMai" text="Khuyến mãi" prefWidth="80"/>
+                    <TableColumn fx:id="colTongTienCong" text="Tổng nhận" prefWidth="110"/>
+                    <TableColumn fx:id="colMaNV" text="Nhân viên" prefWidth="130"/>
+                    <TableColumn fx:id="colNgayNap" text="Ngày nạp" prefWidth="130"/>
+                </columns>
             </TableView>
         </VBox>
     </HBox>

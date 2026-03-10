@@ -7,6 +7,33 @@ import java.util.ArrayList;
 
 public class LichSuNapTienDAO {
 
+    public ArrayList<LichSuNapTien> getAll() {
+        ArrayList<LichSuNapTien> danhSach = new ArrayList<>();
+        String sql = "SELECT * FROM LichSuNapTien ORDER BY ngayNap DESC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                danhSach.add(new LichSuNapTien(
+                        rs.getString("maNap"),
+                        rs.getString("maKH"),
+                        rs.getString("maNV"),
+                        rs.getString("maCTKM"),
+                        rs.getDouble("soTienNap"),
+                        rs.getDouble("khuyenMai"),
+                        rs.getDouble("tongTienCong"),
+                        rs.getDouble("soDuTruoc"),
+                        rs.getDouble("soDuSau"),
+                        rs.getString("phuongThuc"),
+                        rs.getString("maGiaoDich"),
+                        rs.getDate("ngayNap").toLocalDate()));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return danhSach;
+    }
+
     // phương thức getByKhachHang
     public ArrayList<LichSuNapTien> getByKhachHang(String maKH) {
         ArrayList<LichSuNapTien> danhSach = new ArrayList<>();
@@ -109,7 +136,7 @@ public class LichSuNapTienDAO {
 
     // Tạo mã nạp tự động
     public String generateMaNap() {
-        String sql = "SELECT MaNap FROM NapTien ORDER BY MaNap DESC LIMIT 1";
+        String sql = "SELECT MaNap FROM LichSuNapTien ORDER BY MaNap DESC LIMIT 1";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
