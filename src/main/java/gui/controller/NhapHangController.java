@@ -21,18 +21,19 @@ import java.util.ResourceBundle;
 public class NhapHangController implements Initializable {
 
     @FXML private TableView<PhieuNhapHang> tablePhieu;
-    @FXML private TableColumn<PhieuNhapHang, String> colMaPhieu;
-    @FXML private TableColumn<PhieuNhapHang, String> colNCC;
+    @FXML private TableColumn<PhieuNhapHang, String> colMaPhieuNhap;
+    @FXML private TableColumn<PhieuNhapHang, String> colMaNCC;
+    @FXML private TableColumn<PhieuNhapHang, String> colMaNV;
     @FXML private TableColumn<PhieuNhapHang, String> colNgayNhap;
     @FXML private TableColumn<PhieuNhapHang, Double> colTongTien;
     @FXML private TableColumn<PhieuNhapHang, String> colTrangThai;
 
     @FXML private TableView<ChiTietPhieuNhap> tableChiTiet;
-    @FXML private TableColumn<ChiTietPhieuNhap, String> colCtMa;
-    @FXML private TableColumn<ChiTietPhieuNhap, String> colCtDV;
-    @FXML private TableColumn<ChiTietPhieuNhap, Integer> colCtSoLuong;
-    @FXML private TableColumn<ChiTietPhieuNhap, Double> colCtGiaNhap;
-    @FXML private TableColumn<ChiTietPhieuNhap, Double> colCtThanhTien;
+    @FXML private TableColumn<ChiTietPhieuNhap, String> colMaCTPN;
+    @FXML private TableColumn<ChiTietPhieuNhap, String> colMaDV;
+    @FXML private TableColumn<ChiTietPhieuNhap, Integer> colSoLuong;
+    @FXML private TableColumn<ChiTietPhieuNhap, Double> colGiaNhap;
+    @FXML private TableColumn<ChiTietPhieuNhap, Double> colThanhTien;
 
     @FXML private TextField txtSearch;
     @FXML private ComboBox<String> cboTrangThai;
@@ -60,7 +61,7 @@ public class NhapHangController implements Initializable {
             cboTrangThai.setValue("Tất cả");
             cboTrangThai.setOnAction(e -> loadData());
         }
-        if (dateFrom != null) dateFrom.setValue(LocalDate.now().withDayOfMonth(1));
+        if (dateFrom != null) dateFrom.setValue(LocalDate.now().withDayOfYear(1));
         if (dateTo   != null) dateTo.setValue(LocalDate.now());
 
         setupTableColumns();
@@ -70,8 +71,9 @@ public class NhapHangController implements Initializable {
 
     private void setupTableColumns() {
         // Phiếu nhập
-        if (colMaPhieu  != null) colMaPhieu.setCellValueFactory(new PropertyValueFactory<>("maPhieuNhap"));
-        if (colNCC      != null) colNCC.setCellValueFactory(new PropertyValueFactory<>("maNCC"));
+        if (colMaPhieuNhap != null) colMaPhieuNhap.setCellValueFactory(new PropertyValueFactory<>("maPhieuNhap"));
+        if (colMaNCC != null) colMaNCC.setCellValueFactory(new PropertyValueFactory<>("maNCC"));
+        if (colMaNV != null) colMaNV.setCellValueFactory(new PropertyValueFactory<>("maNV"));
         if (colNgayNhap != null) {
             colNgayNhap.setCellValueFactory(c -> {
                 // ngayNhap là LocalDate — format không cần HH:mm
@@ -92,21 +94,21 @@ public class NhapHangController implements Initializable {
         if (colTrangThai != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
 
         // Chi tiết phiếu
-        if (colCtMa      != null) colCtMa.setCellValueFactory(new PropertyValueFactory<>("maCTPN"));
-        if (colCtDV      != null) colCtDV.setCellValueFactory(new PropertyValueFactory<>("maDV"));
-        if (colCtSoLuong != null) colCtSoLuong.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
-        if (colCtGiaNhap != null) {
-            colCtGiaNhap.setCellValueFactory(new PropertyValueFactory<>("giaNhap"));
-            colCtGiaNhap.setCellFactory(col -> new TableCell<>() {
+        if (colMaCTPN != null) colMaCTPN.setCellValueFactory(new PropertyValueFactory<>("maCTPN"));
+        if (colMaDV != null) colMaDV.setCellValueFactory(new PropertyValueFactory<>("maDV"));
+        if (colSoLuong != null) colSoLuong.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
+        if (colGiaNhap != null) {
+            colGiaNhap.setCellValueFactory(new PropertyValueFactory<>("giaNhap"));
+            colGiaNhap.setCellFactory(col -> new TableCell<>() {
                 @Override protected void updateItem(Double v, boolean empty) {
                     super.updateItem(v, empty);
                     setText(empty || v == null ? null : String.format("%,.0f ₫", v));
                 }
             });
         }
-        if (colCtThanhTien != null) {
-            colCtThanhTien.setCellValueFactory(new PropertyValueFactory<>("thanhTien"));
-            colCtThanhTien.setCellFactory(col -> new TableCell<>() {
+        if (colThanhTien != null) {
+            colThanhTien.setCellValueFactory(new PropertyValueFactory<>("thanhTien"));
+            colThanhTien.setCellFactory(col -> new TableCell<>() {
                 @Override protected void updateItem(Double v, boolean empty) {
                     super.updateItem(v, empty);
                     setText(empty || v == null ? null : String.format("%,.0f ₫", v));
@@ -136,7 +138,6 @@ public class NhapHangController implements Initializable {
     public void loadData() {
         try {
             List<PhieuNhapHang> list = nhapHangBUS.getAllPhieuNhap();
-
             // Filter by status
             String tt = cboTrangThai != null ? cboTrangThai.getValue() : "Tất cả";
             if (tt != null && !"Tất cả".equals(tt)) {
