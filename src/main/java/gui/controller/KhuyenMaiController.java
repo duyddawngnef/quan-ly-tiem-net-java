@@ -94,6 +94,7 @@ public class KhuyenMaiController implements Initializable {
 
     public void loadData() {
         try {
+            khuyenMaiBUS.tuDongCapNhatHetHan();
             List<ChuongTrinhKhuyenMai> list = khuyenMaiBUS.getAllKhuyenMai();
             dataList.setAll(list);
             filteredList = new FilteredList<>(dataList, p -> true);
