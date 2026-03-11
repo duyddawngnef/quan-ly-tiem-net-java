@@ -34,17 +34,13 @@ public class LichSuNapTienDAO {
         return danhSach;
     }
 
-    // phương thức getByKhachHang
     public ArrayList<LichSuNapTien> getByKhachHang(String maKH) {
         ArrayList<LichSuNapTien> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM LichSuNapTien WHERE maKH = ? ORDER BY ngayNap DESC";
-
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setString(1, maKH);
             ResultSet rs = pstmt.executeQuery();
-
             while (rs.next()) {
                 LichSuNapTien lsnt = new LichSuNapTien(
                         rs.getString("maNap"),
@@ -68,14 +64,11 @@ public class LichSuNapTienDAO {
         return danhSach;
     }
 
-    // phương thức insert
     public boolean insert(LichSuNapTien lsnt) {
         String sql = "INSERT INTO LichSuNapTien (maNap, maKH, maNV, maCTKM, soTienNap, khuyenMai, tongTienCong, soDuTruoc, soDuSau, phuongThuc, maGiaoDich, ngayNap) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setString(1, lsnt.getMaNap());
             pstmt.setString(2, lsnt.getMaKH());
             pstmt.setString(3, lsnt.getMaNV());
@@ -94,23 +87,19 @@ public class LichSuNapTienDAO {
             return rows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     // phương thức getByDateRange
-    public ArrayList<LichSuNapTien> getByDateRange(Date fromDate, Date toDate) {
+    public ArrayList<LichSuNapTien> getByDateRange(Date tuNgay, Date denNgay) {
         ArrayList<LichSuNapTien> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM LichSuNapTien WHERE ngayNap BETWEEN ? AND ?";
-
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql);) {
-
-            pstmt.setDate(1, fromDate);
-            pstmt.setDate(2, toDate);
-
+            pstmt.setDate(1, tuNgay);
+            pstmt.setDate(2, denNgay);
             ResultSet rs = pstmt.executeQuery();
-
             while (rs.next()) {
                 LichSuNapTien lsnt = new LichSuNapTien(
                         rs.getString("maNap"),
@@ -134,14 +123,11 @@ public class LichSuNapTienDAO {
         return danhSach;
     }
 
-    // Tạo mã nạp tự động
     public String generateMaNap() {
         String sql = "SELECT MaNap FROM LichSuNapTien ORDER BY MaNap DESC LIMIT 1";
-
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 ResultSet rs = pstmt.executeQuery()) {
-
             if (rs.next()) {
                 String lastId = rs.getString("MaNap");
                 int num = Integer.parseInt(lastId.replace("NAP", "")) + 1;
