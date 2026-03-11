@@ -25,7 +25,7 @@ public class LichSuNapTien {
         this.maCTKM = maCTKM;
         this.soTienNap = soTienNap;
         this.khuyenMai = khuyenMai;
-        this.tongTienCong = soTienNap + khuyenMai;
+        this.tongTienCong = tongTienCong;
         this.soDuTruoc = soDuTruoc;
         this.soDuSau = soDuSau;
         this.phuongThuc= phuongThuc;

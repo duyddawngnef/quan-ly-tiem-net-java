@@ -15,6 +15,8 @@ import javafx.scene.layout.VBox;
 import utils.ThongBaoDialogHelper;
 
 import java.net.URL;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -36,6 +38,7 @@ public class NapTienController implements Initializable {
     @FXML private Label lblTongCong;
     @FXML private Label lblError;
     @FXML private Button btnNapTien;
+    @FXML private Label lblCTKMDebug;
 
     @FXML private TableView<LichSuNapTien> tableHistory;
     @FXML private TableColumn<LichSuNapTien, String> colMaNap;
@@ -45,6 +48,8 @@ public class NapTienController implements Initializable {
     @FXML private TableColumn<LichSuNapTien, String> colTongTienCong;
     @FXML private TableColumn<LichSuNapTien, String> colMaNV;
     @FXML private TableColumn<LichSuNapTien, String> colNgayNap;
+
+    @FXML private DatePicker dateFilter;
 
     private final NapTienBUS   napTienBUS   = new NapTienBUS();
     private final KhachHangBUS khachHangBUS = new KhachHangBUS();
@@ -88,22 +93,41 @@ public class NapTienController implements Initializable {
             List<ChuongTrinhKhuyenMai> list = khuyenMaiBUS.getKhuyenMaiConHieuLuc();
             cboCTKM.getItems().clear();
             cboCTKM.getItems().add(null); // Không áp dụng
-            cboCTKM.getItems().addAll(list);
+            if(list != null) cboCTKM.getItems().addAll(list);
             cboCTKM.setCellFactory(lv -> new ListCell<>() {
                 @Override protected void updateItem(ChuongTrinhKhuyenMai item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty ? null : (item == null
+                    if (empty) {
+                        setText(null);
+                        return;
+                    }
+                    setText(item == null
                             ? "-- Không áp dụng --"
-                            : item.getTenCT() + " (" + formatGiaTriKM(item) + ")"));  // ✔ không dùng getGiaTriKMFormatted()
+                            : item.getTenCT() + " (" + formatGiaTriKM(item) + ")");
                 }
             });
             cboCTKM.setButtonCell(new ListCell<>() {
                 @Override protected void updateItem(ChuongTrinhKhuyenMai item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty ? null : (item == null ? "-- Không áp dụng --" : item.getTenCT()));
+                    if (empty || (item == null && cboCTKM.getValue() == null)) {
+                        setText("-- Không áp dụng --");
+                    } else {
+                        setText(item == null ? "-- Không áp dụng --" : item.getTenCT());
+                    }
                 }
             });
-        } catch (Exception ignored) {}
+            // Chọn mặc định là null (không áp dụng)
+            cboCTKM.setValue(null);
+
+            int count = list != null ? list.size() : 0;
+            if (lblCTKMDebug != null)
+                lblCTKMDebug.setText(count == 0 ? "⚠ Không có CTKM đang hoạt động" : count + " CTKM đang hoạt động");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (lblCTKMDebug != null)
+                lblCTKMDebug.setText("⚠ Lỗi load CTKM: " + e.getMessage());
+        }
     }
 
     private void setupTableHistory() {
@@ -269,7 +293,25 @@ public class NapTienController implements Initializable {
     }
 
     @FXML
-    public void handleFilterHistory() { loadHistory(); }
+    public void handleFilterHistory() {
+        if (tableHistory == null) return;
+        try {
+            LocalDate from = (dateFilter != null) ? dateFilter.getValue() : null;
+            List<LichSuNapTien> list;
+
+            if (from != null) {
+                // Lọc từ ngày được chọn đến hôm nay
+                list = napTienBUS.getByDateRange(from, LocalDate.now());
+            } else if (currentKH != null) {
+                list = napTienBUS.getLichSuNapTien(currentKH.getMakh());
+            } else {
+                list = napTienBUS.getAllLichSu();
+            }
+            tableHistory.setItems(FXCollections.observableArrayList(list));
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
+    }
 
     private void loadHistory() {
         if (tableHistory == null) return;

@@ -71,6 +71,10 @@ public class ThemKhuyenMaiDialog implements Initializable {
             currentEntity = null;
             isEditMode = false;
             if (lblDialogTitle != null) lblDialogTitle.setText("Thêm chương trình khuyến mãi");
+            if (txtMaCTKM       != null) {
+                txtMaCTKM.setText(khuyenMaiBUS.generateMaCTKM());
+                txtMaCTKM.setEditable(false);
+            }
             if (cboLoaiKM    != null) cboLoaiKM.setValue("PHANTRAM");
             if (cboTrangThai != null) cboTrangThai.setValue("HOATDONG");
             if (dateNgayBatDau  != null) dateNgayBatDau.setValue(LocalDate.now());
