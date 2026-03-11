@@ -111,7 +111,7 @@ public class ChuongTrinhKhuyenMaiDAO {
     public ArrayList<ChuongTrinhKhuyenMai> getConHieuLuc() {
         ArrayList<ChuongTrinhKhuyenMai> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM ChuongTrinhKhuyenMai "
-                + "WHERE trangThai = 'Hoạt động' "
+                + "WHERE trangThai ='HOATDONG' "
                 + "AND CURDATE() BETWEEN ngayBatDau AND ngayKetThuc";
         try {
             Connection conn = DBConnection.getConnection();
