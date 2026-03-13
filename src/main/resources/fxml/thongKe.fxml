@@ -2,7 +2,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
-<?import javafx.collections.*?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -48,37 +47,32 @@
         <!-- Tab 1: Doanh thu -->
         <Tab text="📈  Doanh thu">
             <VBox spacing="12" style="-fx-padding:16;">
-                <!-- Filter bar -->
                 <HBox spacing="10" alignment="CENTER_LEFT" styleClass="toolbar">
                     <Label text="Loại:" style="-fx-text-fill:#555555;"/>
                     <ComboBox fx:id="cboLoaiTK" styleClass="combo-box" prefWidth="160"
-                              onAction="#handleLoaiTKChanged">
-                    </ComboBox>
+                              onAction="#handleLoaiTKChanged"/>
                     <DatePicker fx:id="dateFrom" promptText="Từ ngày" prefWidth="130"/>
-                    <DatePicker fx:id="dateTo" promptText="Đến ngày" prefWidth="130"/>
-                    <Button text="📊  Thống kê" styleClass="btn btn-primary"
-                            onAction="#handleThongKe"/>
+                    <DatePicker fx:id="dateTo"   promptText="Đến ngày" prefWidth="130"/>
+                    <Button text="📊  Thống kê" styleClass="btn btn-primary" onAction="#handleThongKe"/>
                     <Pane HBox.hgrow="ALWAYS"/>
-                    <Button text="📊  Xuất Excel" styleClass="btn btn-success"
-                            onAction="#handleXuatExcel"/>
+                    <Button text="📥  Xuất Excel" styleClass="btn btn-success" onAction="#handleXuatExcel"/>
                 </HBox>
 
                 <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
-                    <!-- Table -->
                     <VBox styleClass="page-card" spacing="0" style="-fx-padding:0;">
                         <Label text="Bảng dữ liệu"
                                style="-fx-padding:12 16; -fx-font-weight:bold; -fx-text-fill:#1565C0;"/>
                         <TableView fx:id="tableThongKe" VBox.vgrow="ALWAYS">
-                            <TableColumn fx:id="colTKNhom" text="Nhóm" prefWidth="200"/>
-                            <TableColumn fx:id="colTKQ1" text="Q1" prefWidth="90"/>
-                            <TableColumn fx:id="colTKQ2" text="Q2" prefWidth="90"/>
-                            <TableColumn fx:id="colTKQ3" text="Q3" prefWidth="90"/>
-                            <TableColumn fx:id="colTKQ4" text="Q4" prefWidth="90"/>
-                            <TableColumn fx:id="colTKTC" text="Tổng cộng" prefWidth="110"/>
+                            <columns>
+                                <TableColumn fx:id="colThoiGian"    text="Thời gian"     prefWidth="150"/>
+                                <TableColumn fx:id="colDoanhThu"    text="Doanh thu (₫)" prefWidth="160"/>
+                                <TableColumn fx:id="colNhapHang"    text="Nhập hàng (₫)" prefWidth="160"/>
+                                <TableColumn fx:id="colLoiNhuanCol" text="Lợi nhuận (₫)" prefWidth="160"/>
+                            </columns>
                         </TableView>
                     </VBox>
 
-                    <!-- Chart placeholder -->
+                    <!-- Biểu đồ -->
                     <VBox styleClass="page-card" alignment="CENTER" spacing="10">
                         <Label text="📊" style="-fx-font-size:48px;"/>
                         <Label fx:id="lblChartPlaceholder"
@@ -90,49 +84,52 @@
             </VBox>
         </Tab>
 
-        <!-- Tab 2: Thu Chi Loi Nhuan -->
+        <!-- Tab 2: Thu Chi -->
         <Tab text="💰  Thu - Chi - Lợi nhuận">
             <VBox spacing="12" style="-fx-padding:16;">
                 <HBox spacing="10" alignment="CENTER_LEFT" styleClass="toolbar">
                     <Label text="Khoảng thời gian:" style="-fx-text-fill:#555555;"/>
-                    <ComboBox fx:id="cboThoiGian" styleClass="combo-box" prefWidth="160">
-                    </ComboBox>
+                    <ComboBox fx:id="cboThoiGian" styleClass="combo-box" prefWidth="160"/>
                     <DatePicker fx:id="dateTCFrom" promptText="Từ ngày" prefWidth="130"/>
-                    <DatePicker fx:id="dateTCTo" promptText="Đến ngày" prefWidth="130"/>
+                    <DatePicker fx:id="dateTCTo"   promptText="Đến ngày" prefWidth="130"/>
                     <Button text="📊  Xem" styleClass="btn btn-primary" onAction="#handleThongKeThuChi"/>
                 </HBox>
 
-                <TableView fx:id="tableThuChi" VBox.vgrow="ALWAYS" styleClass="page-card" style="-fx-padding:0;">
-                    <TableColumn fx:id="colTCThang" text="Tháng/Kỳ" prefWidth="150"/>
-                    <TableColumn fx:id="colTCThu" text="Tổng thu (₫)" prefWidth="160"/>
-                    <TableColumn fx:id="colTCChi" text="Tổng chi (₫)" prefWidth="160"/>
-                    <TableColumn fx:id="colTCLoiNhuan" text="Lợi nhuận (₫)" prefWidth="160"/>
-                    <TableColumn fx:id="colTCTyLe" text="Tỷ lệ (%)" prefWidth="110"/>
+                <TableView fx:id="tableThuChi" VBox.vgrow="ALWAYS" styleClass="page-card"
+                           style="-fx-padding:0;">
+                    <columns>
+                        <TableColumn fx:id="colTCThoiGian"  text="Ngày"           prefWidth="150"/>
+                        <TableColumn fx:id="colTCThu"       text="Tổng thu (₫)"   prefWidth="180"/>
+                        <TableColumn fx:id="colTCChi"       text="Tổng chi (₫)"   prefWidth="180"/>
+                        <TableColumn fx:id="colTCLoiNhuan"  text="Lợi nhuận (₫)"  prefWidth="180"/>
+                    </columns>
                 </TableView>
             </VBox>
         </Tab>
 
-        <!-- Tab 3: Top KH / NV -->
+        <!-- Tab 3: Top KH -->
         <Tab text="🏆  Top khách hàng">
             <VBox spacing="12" style="-fx-padding:16;">
                 <HBox spacing="10" alignment="CENTER_LEFT" styleClass="toolbar">
                     <Label text="Năm:" style="-fx-text-fill:#555555;"/>
                     <ComboBox fx:id="cboNamTop" styleClass="combo-box" prefWidth="100"/>
                     <Label text="Hiển thị top:" style="-fx-text-fill:#555555;"/>
-                    <ComboBox fx:id="cboTopN" styleClass="combo-box" prefWidth="100">
-                    </ComboBox>
+                    <ComboBox fx:id="cboTopN"   styleClass="combo-box" prefWidth="100"/>
                     <Button text="📊  Xem" styleClass="btn btn-primary" onAction="#handleThongKeTop"/>
                 </HBox>
-                <TableView fx:id="tableTop" VBox.vgrow="ALWAYS" styleClass="page-card" style="-fx-padding:0;">
-                    <TableColumn fx:id="colTopSTT" text="STT" prefWidth="60"/>
-                    <TableColumn fx:id="colTopTen" text="Khách hàng" prefWidth="200"/>
-                    <TableColumn fx:id="colTopSoPhien" text="Số phiên" prefWidth="100"/>
-                    <TableColumn fx:id="colTopThoiGian" text="Tổng giờ" prefWidth="110"/>
-                    <TableColumn fx:id="colTopTongTien" text="Tổng chi tiêu (₫)" prefWidth="160"/>
+
+                <TableView fx:id="tableTop" VBox.vgrow="ALWAYS" styleClass="page-card"
+                           style="-fx-padding:0;">
+                    <columns>
+                        <TableColumn fx:id="colTopSTT"      text="STT"               prefWidth="55"/>
+                        <TableColumn fx:id="colTopMaKH"     text="Mã KH"             prefWidth="90"/>
+                        <TableColumn fx:id="colTopTen"      text="Khách hàng"        prefWidth="180"/>
+                        <TableColumn fx:id="colTopSoPhien"  text="Số phiên"          prefWidth="100"/>
+                        <TableColumn fx:id="colTopTongTien" text="Tổng chi tiêu (₫)" prefWidth="160"/>
+                    </columns>
                 </TableView>
             </VBox>
         </Tab>
 
     </TabPane>
-
 </VBox>

@@ -1,32 +1,26 @@
 package entity;
 
-public class ThongKeDoanhThu {
-
-    // Dùng cho TableView (Tab 1 & Tab 2)
+public class ThongKe {
     private String thoiGian;
     private double tongDoanhThu;
     private double tongNhapHang;
     private double loiNhuan;
-
-    // Dùng cho Summary Cards
     private double thu;
     private double chi;
     private double loiNhuanSummary;
     private int soPhien;
 
-    public ThongKeDoanhThu() {
+    public ThongKe() {
     }
 
-    // Constructor cho TableView
-    public ThongKeDoanhThu(String thoiGian, double tongDoanhThu, double tongNhapHang) {
+    public ThongKe(String thoiGian, double tongDoanhThu, double tongNhapHang) {
         this.thoiGian = thoiGian;
         this.tongDoanhThu = tongDoanhThu;
         this.tongNhapHang = tongNhapHang;
         this.loiNhuan = tongDoanhThu - tongNhapHang;
     }
 
-    // Constructor cho Summary Cards
-    public ThongKeDoanhThu(double thu, double chi, int soPhien) {
+    public ThongKe(double thu, double chi, int soPhien) {
         this.thu = thu;
         this.chi = chi;
         this.soPhien = soPhien;

@@ -5,7 +5,7 @@ import dao.MayTinhDAO;
 import dao.PhienSuDungDAO;
 import dao.ThongKeDAO;
 import entity.KhachHang;
-import entity.ThongKeDoanhThu;
+import entity.ThongKe;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -31,14 +31,14 @@ public class ThongKeBUS {
     }
 
     // Summary Cards (ThongKeController.loadSummaryCards)
-    public ThongKeDoanhThu getSummary(LocalDate from, LocalDate to) throws Exception {
+    public ThongKe getSummary(LocalDate from, LocalDate to) throws Exception {
         LocalDateTime tu = from.atStartOfDay();
         LocalDateTime den = to.plusDays(1).atStartOfDay();
         return thongKeDAO.getSummary(tu, den);
     }
 
     // Tab 1 — Doanh thu (handleThongKe)
-    public List<ThongKeDoanhThu> thongKe(String loai, LocalDate from, LocalDate to) throws Exception {
+    public List<ThongKe> thongKe(String loai, LocalDate from, LocalDate to) throws Exception {
         if (from == null || to == null)
             throw new Exception("Vui lòng chọn ngày");
         if (from.isAfter(to))
@@ -54,9 +54,9 @@ public class ThongKeBUS {
     }
 
     // Tab 2 — Thu Chi (handleThongKeThuChi)
-    public List<ThongKeDoanhThu> thongKeThuChi(String period,
-            LocalDate from,
-            LocalDate to) throws Exception {
+    public List<ThongKe> thongKeThuChi(String period,
+                                       LocalDate from,
+                                       LocalDate to) throws Exception {
         LocalDate[] range = resolvePeriod(period, from, to);
         LocalDateTime tu = range[0].atStartOfDay();
         LocalDateTime den = range[1].plusDays(1).atStartOfDay();
@@ -71,9 +71,9 @@ public class ThongKeBUS {
     }
 
     // Thống kê doanh thu (có kiểm tra quyền)
-    public ThongKeDoanhThu thongKeDoanhThu(LocalDate tuNgay,
-            LocalDate denNgay,
-            String vaiTro) throws Exception {
+    public ThongKe thongKeDoanhThu(LocalDate tuNgay,
+                                   LocalDate denNgay,
+                                   String vaiTro) throws Exception {
         checkQuanLy(vaiTro);
         if (tuNgay.isAfter(denNgay))
             throw new Exception("Từ ngày phải <= đến ngày");
@@ -96,7 +96,7 @@ public class ThongKeBUS {
     }
 
     // Thống kê tổng quan (có kiểm tra quyền)
-    public ThongKeDoanhThu thongKeTongQuan(String vaiTro) throws Exception {
+    public ThongKe thongKeTongQuan(String vaiTro) throws Exception {
         checkQuanLyNhanVien(vaiTro);
 
         int tongMay = mayTinhDAO.countByTrangThai("TRONG")
@@ -120,7 +120,7 @@ public class ThongKeBUS {
                 LocalDate.now().getYear());
 
         // Đóng gói vào ThongKeDoanhThu (dùng constructor Summary)
-        ThongKeDoanhThu tk = new ThongKeDoanhThu(doanhThuHomNay, doanhThuThang, phienDangChoi);
+        ThongKe tk = new ThongKe(doanhThuHomNay, doanhThuThang, phienDangChoi);
         tk.setThoiGian("Tổng quan");
         return tk;
     }
