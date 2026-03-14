@@ -69,6 +69,7 @@ public class LichSuNapTienDAO {
 
             pstmt.setString(1, maKH);
             ResultSet rs = pstmt.executeQuery();
+
             while (rs.next()) {
                 danhSach.add(taoDoiTuongTuResultSet(rs));
             }
@@ -132,6 +133,7 @@ public class LichSuNapTienDAO {
             pstmt.setTimestamp(1, Timestamp.valueOf(tuNgay));
             pstmt.setTimestamp(2, Timestamp.valueOf(denNgay));
             ResultSet rs = pstmt.executeQuery();
+
             while (rs.next()) {
                 danhSach.add(taoDoiTuongTuResultSet(rs));
             }
