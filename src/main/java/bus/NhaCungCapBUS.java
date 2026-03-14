@@ -1,80 +1,48 @@
 package bus;
 
 import dao.NhaCungCapDAO;
-import dao.PhieuNhapHangDAO;
 import entity.NhaCungCap;
+import entity.NhanVien;
+import utils.SessionManager;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class NhaCungCapBUS {
 
-    private NhaCungCapDAO nccDAO = new NhaCungCapDAO();
-    private PhieuNhapHangDAO phieuNhapHangDAO = new PhieuNhapHangDAO();
+    private final NhaCungCapDAO dao = new NhaCungCapDAO();
 
-    // lấy tất cả NCC
-    public ArrayList<NhaCungCap> getAllNhaCungCap() {
-        return nccDAO.getAll();
+    private NhanVien requireQuanLy() throws Exception {
+        if (!SessionManager.isLoggedIn()) throw new Exception("Chưa đăng nhập");
+
+        NhanVien current = SessionManager.getCurrentNhanVien();
+        if (current == null) throw new Exception("Tài khoản không có quyền (không phải nhân viên)");
+
+        if (!SessionManager.hasAdminPermission()) throw new Exception("Không có quyền thực hiện");
+        return current;
     }
 
-    // lấy NCC đang hoạt động
-    public ArrayList<NhaCungCap> getNhaCungCapHoatDong() {
-        ArrayList<NhaCungCap> list = nccDAO.getAll();
-        ArrayList<NhaCungCap> result = new ArrayList<>();
-
-        for (NhaCungCap ncc : list) {
-            if (ncc.getTrangThai().equalsIgnoreCase("HOATDONG")) {
-                result.add(ncc);
-            }
-        }
-
-        return result;
+    public List<NhaCungCap> getAllNhaCungCap() throws Exception {
+        requireQuanLy();
+        return dao.getAll(true);
     }
 
-    // thêm NCC
-    public boolean themNhaCungCap(NhaCungCap ncc) throws Exception {
-
-        if (ncc.getMaNCC() == null || ncc.getMaNCC().trim().isEmpty()) {
-            throw new Exception("Mã NCC không được để trống");
-        }
-
-        if (nccDAO.getByID(ncc.getMaNCC()) != null) {
-            throw new Exception("Mã NCC đã tồn tại");
-        }
-
-        ncc.setTrangThai("HOATDONG");
-
-        return nccDAO.insert(ncc);
+    public List<NhaCungCap> getNhaCungCapHoatDong() throws Exception {
+        requireQuanLy();
+        return dao.getAll(false);
     }
 
-    // sửa NCC
+    public String themNhaCungCap(NhaCungCap ncc) throws Exception {
+        requireQuanLy();
+        return dao.insert(ncc);
+    }
+
     public boolean suaNhaCungCap(NhaCungCap ncc) throws Exception {
-
-        NhaCungCap old = nccDAO.getByID(ncc.getMaNCC());
-
-        if (old == null) {
-            throw new Exception("Nhà cung cấp không tồn tại");
-        }
-
-        return nccDAO.update(ncc);
+        requireQuanLy();
+        return dao.update(ncc);
     }
 
-    // xóa NCC
     public boolean xoaNhaCungCap(String maNCC) throws Exception {
-
-        NhaCungCap ncc = nccDAO.getByID(maNCC);
-
-        if (ncc == null) {
-            throw new Exception("Nhà cung cấp không tồn tại");
-        }
-
-        // kiểm tra phiếu nhập CHODUYET
-        if (phieuNhapHangDAO.phieuNhapChoDuyet(maNCC)) {
-            throw new Exception("NCC có phiếu nhập đang chờ duyệt");
-        }
-
-        // soft delete = chuyển sang NGUNG
-        ncc.setTrangThai("NGUNG");
-
-        return nccDAO.update(ncc);
+        requireQuanLy();
+        return dao.softDelete(maNCC);
     }
 }

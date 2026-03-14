@@ -2,7 +2,6 @@ package gui.controller;
 
 import bus.KhachHangBUS;
 import entity.KhachHang;
-import gui.dialog.ThemDichVuDialog;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;

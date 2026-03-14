@@ -2,153 +2,226 @@ package dao;
 
 import entity.NhaCungCap;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class NhaCungCapDAO {
 
-    // phương thức getAll
-    public ArrayList<NhaCungCap> getAll() {
-        ArrayList<NhaCungCap> danhSach = new ArrayList<>();
-        String sql = "SELECT * FROM NhaCungCap";
+    // ===================== Helpers =====================
 
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
-
-            while (rs.next()) {
-                NhaCungCap ncc = new NhaCungCap(
-                        rs.getString("maNCC"),
-                        rs.getString("tenNCC"),
-                        rs.getString("soDienThoai"),
-                        rs.getString("email"),
-                        rs.getString("diaChi"),
-                        rs.getString("nguoiLienHe"),
-                        rs.getString("trangThai"));
-                danhSach.add(ncc);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return danhSach;
+    private String emptyToNull(String s) {
+        if (s == null) return null;
+        String t = s.trim();
+        return t.isEmpty() ? null : t;
     }
 
-    // phương thức getByID
-    public NhaCungCap getByID(String maNCC) {
-        NhaCungCap ncc = null;
-        String sql = "SELECT * FROM NhaCungCap WHERE maNCC = ?";
+    private void validate(NhaCungCap ncc) {
+        if (ncc == null) throw new IllegalArgumentException("NhaCungCapDTO null");
 
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        if (ncc.getTenNCC() == null || ncc.getTenNCC().trim().isEmpty())
+            throw new IllegalArgumentException("TenNCC không được rỗng");
 
-            pstmt.setString(1, maNCC);
-            ResultSet rs = pstmt.executeQuery();
+        // Số điện thoại hợp lệ nếu có (9-15 chữ số)
+        String sdt = ncc.getSoDienThoai();
+        if (sdt != null && !sdt.trim().isEmpty() && !sdt.trim().matches("^\\d{9,15}$"))
+            throw new IllegalArgumentException("SoDienThoai không hợp lệ");
+
+        // Email hợp lệ nếu có
+        String email = ncc.getEmail();
+        if (email != null && !email.trim().isEmpty()
+                && !email.trim().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"))
+            throw new IllegalArgumentException("Email không hợp lệ");
+    }
+
+    /**
+     * Sinh mã NCC dạng NCC001, NCC002...
+     * (đúng tinh thần generateId("NCC","nhacungcap","MaNCC"))
+     */
+    private String genMaNCC(Connection conn) throws SQLException {
+        String sql = "SELECT MAX(MaNCC) FROM nhacungcap WHERE MaNCC LIKE 'NCC%'";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
-                ncc = new NhaCungCap(
-                        rs.getString("maNCC"),
-                        rs.getString("tenNCC"),
-                        rs.getString("soDienThoai"),
-                        rs.getString("email"),
-                        rs.getString("diaChi"),
-                        rs.getString("nguoiLienHe"),
-                        rs.getString("trangThai"));
+                String max = rs.getString(1);
+                if (max != null) {
+                    int num = Integer.parseInt(max.substring(3)); // bỏ "NCC"
+                    return "NCC" + String.format("%03d", num + 1);
+                }
             }
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ncc;
-    }
-
-    // phương thức insert
-    public boolean insert(NhaCungCap ncc) {
-        String sql = "INSERT INTO NhaCungCap (maNCC, tenNCC, soDienThoai, email, diaChi, nguoiLienHe, trangThai) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, ncc.getMaNCC());
-            pstmt.setString(2, ncc.getTenNCC());
-            pstmt.setString(3, ncc.getSoDienThoai());
-            pstmt.setString(4, ncc.getEmail());
-            pstmt.setString(5, ncc.getDiaChi());
-            pstmt.setString(6, ncc.getNguoiLienHe());
-            pstmt.setString(7, ncc.getTrangThai());
-
-            int rows = pstmt.executeUpdate();
-
-            return rows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            return "NCC001";
         }
     }
 
-    // phương thức update
+    private NhaCungCap map(ResultSet rs) throws SQLException {
+        return new NhaCungCap(
+                rs.getString("MaNCC"),
+                rs.getString("TenNCC"),
+                rs.getString("SoDienThoai"),
+                rs.getString("Email"),
+                rs.getString("DiaChi"),
+                rs.getString("NguoiLienHe"),
+                rs.getString("TrangThai")
+        );
+    }
+
+    // ===================== CRUD =====================
+
+    /**
+     * Lấy danh sách NCC
+     *
+     * @param includeNgung false => chỉ HOATDONG ; true => tất cả
+     */
+    public List<NhaCungCap> getAll(boolean includeNgung) {
+        List<NhaCungCap> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM nhacungcap";
+        if (!includeNgung) sql += " WHERE TrangThai='HOATDONG'";
+        sql += " ORDER BY MaNCC";
+
+        Connection conn = DBConnection.getConnection(); // ✅ không try-with-resources
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) list.add(map(rs));
+            return list;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("NhaCungCapDAO.getAll error", e);
+        }
+    }
+
+    public NhaCungCap getById(String maNCC) {
+        String sql = "SELECT * FROM nhacungcap WHERE MaNCC=?";
+
+        Connection conn = DBConnection.getConnection(); // ✅ không try-with-resources
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maNCC);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return map(rs);
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("NhaCungCapDAO.getById error", e);
+        }
+    }
+
+    /**
+     * THÊM NCC:
+     * - TenNCC không rỗng
+     * - SĐT/Email hợp lệ nếu có
+     * - MaNCC tự sinh
+     * - TrangThai = HOATDONG
+     */
+    public String insert(NhaCungCap ncc) {
+        validate(ncc);
+
+        String sql = "INSERT INTO nhacungcap(MaNCC, TenNCC, SoDienThoai, Email, DiaChi, NguoiLienHe, TrangThai) " +
+                "VALUES(?,?,?,?,?,?,?)";
+
+        Connection conn = DBConnection.getConnection(); // ✅ không try-with-resources
+        try {
+            conn.setAutoCommit(false);
+
+            String maNCC = genMaNCC(conn);
+
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, maNCC);
+                ps.setString(2, ncc.getTenNCC().trim());
+                ps.setString(3, emptyToNull(ncc.getSoDienThoai()));
+                ps.setString(4, emptyToNull(ncc.getEmail()));
+                ps.setString(5, emptyToNull(ncc.getDiaChi()));
+                ps.setString(6, emptyToNull(ncc.getNguoiLienHe()));
+                ps.setString(7, "HOATDONG"); // nghiệp vụ
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+            return maNCC;
+
+        } catch (Exception e) {
+            try { conn.rollback(); } catch (SQLException ignored) {}
+            throw new RuntimeException("NhaCungCapDAO.insert error", e);
+        } finally {
+            try { conn.setAutoCommit(true); } catch (SQLException ignored) {}
+        }
+    }
+
+    /**
+     * SỬA: sửa tất cả trừ MaNCC
+     */
     public boolean update(NhaCungCap ncc) {
-        String sql = "UPDATE NhaCungCap "
-                + "SET tenNCC = ?, soDienThoai = ?, email = ?, diaChi = ?, nguoiLienHe = ?, trangThai = ? "
-                + "WHERE maNCC = ?";
+        validate(ncc);
 
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        if (ncc.getMaNCC() == null || ncc.getMaNCC().trim().isEmpty())
+            throw new IllegalArgumentException("MaNCC không hợp lệ");
 
-            pstmt.setString(1, ncc.getTenNCC());
-            pstmt.setString(2, ncc.getSoDienThoai());
-            pstmt.setString(3, ncc.getEmail());
-            pstmt.setString(4, ncc.getDiaChi());
-            pstmt.setString(5, ncc.getNguoiLienHe());
-            pstmt.setString(6, ncc.getTrangThai());
-            pstmt.setString(7, ncc.getMaNCC());
+        String sql = "UPDATE nhacungcap " +
+                "SET TenNCC=?, SoDienThoai=?, Email=?, DiaChi=?, NguoiLienHe=?, TrangThai=? " +
+                "WHERE MaNCC=?";
 
-            int rows = pstmt.executeUpdate();
+        Connection conn = DBConnection.getConnection(); // ✅ không try-with-resources
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            return rows > 0;
+            ps.setString(1, ncc.getTenNCC().trim());
+            ps.setString(2, emptyToNull(ncc.getSoDienThoai()));
+            ps.setString(3, emptyToNull(ncc.getEmail()));
+            ps.setString(4, emptyToNull(ncc.getDiaChi()));
+            ps.setString(5, emptyToNull(ncc.getNguoiLienHe()));
+            ps.setString(6, (ncc.getTrangThai() == null ? "HOATDONG" : ncc.getTrangThai()));
+            ps.setString(7, ncc.getMaNCC());
+
+            return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException("NhaCungCapDAO.update error", e);
         }
     }
 
-    // phương thức delete
-    public boolean delete(String maNCC) {
-        String sql = "DELETE FROM NhaCungCap WHERE maNCC = ?";
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    /**
+     * XÓA (Soft delete):
+     * - Kiểm tra không có phiếu nhập CHODUYET của NCC này
+     * - UPDATE TrangThai='NGUNG'
+     */
+    public boolean softDelete(String maNCC) {
+        if (maNCC == null || maNCC.trim().isEmpty())
+            throw new IllegalArgumentException("MaNCC không hợp lệ");
 
-            pstmt.setString(1, maNCC);
+        String check = "SELECT COUNT(*) FROM phieunhaphang WHERE MaNCC=? AND TrangThai='CHODUYET'";
+        String del = "UPDATE nhacungcap SET TrangThai='NGUNG' WHERE MaNCC=?";
 
-            int rows = pstmt.executeUpdate();
+        Connection conn = DBConnection.getConnection(); // ✅ không try-with-resources
+        try {
+            conn.setAutoCommit(false);
 
-            return rows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // Tạo mã ncc tự động
-    public String generateMaNCC() {
-        String sql = "SELECT maNCC FROM NhaCungCap ORDER BY maNCC DESC LIMIT 1";
-
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
-
-            if (rs.next()) {
-                String lastId = rs.getString("maNCC");
-                int num = Integer.parseInt(lastId.replace("NCC", "")) + 1;
-                return String.format("NCC%03d", num);
+            // check phiếu nhập CHODUYET
+            try (PreparedStatement ps = conn.prepareStatement(check)) {
+                ps.setString(1, maNCC);
+                try (ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    int count = rs.getInt(1);
+                    if (count > 0) {
+                        throw new IllegalStateException("Không thể NGƯNG: còn phiếu nhập CHODUYET của NCC này");
+                    }
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
-        return "NCC001";
+            // update trạng thái NGUNG
+            try (PreparedStatement ps = conn.prepareStatement(del)) {
+                ps.setString(1, maNCC);
+                boolean ok = ps.executeUpdate() > 0;
+                conn.commit();
+                return ok;
+            }
+
+        } catch (Exception e) {
+            try { conn.rollback(); } catch (SQLException ignored) {}
+            throw new RuntimeException("NhaCungCapDAO.softDelete error", e);
+        } finally {
+            try { conn.setAutoCommit(true); } catch (SQLException ignored) {}
+        }
     }
 }

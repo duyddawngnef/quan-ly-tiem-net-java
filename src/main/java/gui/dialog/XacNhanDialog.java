@@ -17,14 +17,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Reusable confirm dialog.
  * Usage:
  *   boolean result = XacNhanDialog.show(ownerStage, "Xóa dữ liệu", "Bạn có chắc muốn xóa?");
+ *   boolean result = XacNhanDialog.showDelete(ownerStage, "Tên mục cần xóa");
  */
 public class XacNhanDialog implements Initializable {
 
-    @FXML private Label lblHeaderIcon;
-    @FXML private Label lblDialogTitle;
-    @FXML private Label lblIcon;
-    @FXML private Label lblMessage;
-    @FXML private Label lblSubMessage;
+    @FXML private Label  lblHeaderIcon;
+    @FXML private Label  lblDialogTitle;
+    @FXML private Label  lblIcon;
+    @FXML private Label  lblMessage;
+    @FXML private Label  lblSubMessage;
     @FXML private Button btnCancel;
     @FXML private Button btnConfirm;
 
@@ -96,10 +97,11 @@ public class XacNhanDialog implements Initializable {
     }
 
     public static boolean show(Stage owner, String title, String message,
-                               String subMessage, Type type) {
+                                String subMessage, Type type) {
         AtomicBoolean result = new AtomicBoolean(false);
         try {
-            FXMLLoader loader = new FXMLLoader(XacNhanDialog.class.getResource("/fxml/dialogs/xacNhan.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                XacNhanDialog.class.getResource("/fxml/dialogs/xacNhan.fxml"));
             Parent root = loader.load();
             XacNhanDialog controller = loader.getController();
             controller.setup(title, message, subMessage, type);

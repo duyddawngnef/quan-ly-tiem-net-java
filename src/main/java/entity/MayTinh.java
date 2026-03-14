@@ -2,19 +2,19 @@ package entity;
 
 import java.math.BigDecimal;
 
-public class MayTinh
-{
-    String mamay;
-    String tenmay;
-    String makhu;
-    String cauhinh;
-    double giamoigio;
-    String trangthai;
+public class MayTinh {
+    private String mamay;
+    private String tenmay;
+    private String makhu;
+    private String cauhinh;
+    private Double giamoigio;
+    private String trangthai;
 
-    public MayTinh() {}
+    public MayTinh() {
+    }
 
-    public MayTinh(String mamay, String tenmay, String makhu, String cauhinh, double giamoigio, String trangthai)
-    {
+    public MayTinh(String mamay, String tenmay, String makhu, String cauhinh,
+                   Double giamoigio, String trangthai) {
         this.mamay = mamay;
         this.tenmay = tenmay;
         this.makhu = makhu;
@@ -55,11 +55,11 @@ public class MayTinh
         this.cauhinh = cauhinh;
     }
 
-    public double getGiamoigio() {
+    public Double getGiamoigio() {
         return giamoigio;
     }
 
-    public void setGiamoigio(double giamoigio) {
+    public void setGiamoigio(Double giamoigio) {
         this.giamoigio = giamoigio;
     }
 
@@ -69,20 +69,5 @@ public class MayTinh
 
     public void setTrangthai(String trangthai) {
         this.trangthai = trangthai;
-    }
-
-    public String getTrangThaiText()
-    {
-        switch (trangthai)
-        {
-            case "TRONG":
-                return "Trống";
-            case "DANGDUNG":
-                return "Đang dùng";
-            case "BAOTRI":
-                return "Bảo trì";
-            default:
-                return "Chưa xác định";
-        }
     }
 }

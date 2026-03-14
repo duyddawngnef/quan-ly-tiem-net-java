@@ -1,16 +1,14 @@
 package bus;
 
-import java.sql.Connection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import dao.DBConnection;
 import dao.KhachHangDAO;
 import entity.KhachHang;
 import utils.PasswordEncoder;
 import utils.PermissionHelper;
 import utils.SessionManager;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class KhachHangBUS {
     private final KhachHangDAO khachHangDAO;
@@ -19,35 +17,12 @@ public class KhachHangBUS {
         this.khachHangDAO = new KhachHangDAO();
     }
 
-    // ============================================================
-    // PHƯƠNG THỨC KIỂM TRA KẾT NỐI DATABASE (dùng cho LoginController)
-    // Controller chỉ cần gọi KhachHangBUS.kiemTraKetNoi() — không cần import dao
-    // ============================================================
-
-    /**
-     * Kiểm tra kết nối database.
-     * @return true nếu kết nối thành công, false nếu thất bại
-     */
-    public boolean kiemTraKetNoi() {
-        try {
-            Connection conn = DBConnection.getConnection();
-            return conn != null && !conn.isClosed();
-        } catch (Exception e) {
-            System.err.println("[KhachHangBUS] Lỗi kiemTraKetNoi: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // ============================================================
-    // ĐĂNG NHẬP / ĐĂNG KÝ
-    // ============================================================
-
     public KhachHang dangKy(KhachHang kh) throws Exception {
         chuanHoaDuLieuKhachHang(kh);
         validateKhachHangToanDien(kh, true);
 
-        String encodedPass = PasswordEncoder.encode(kh.getMatkhau());
-        kh.setMatkhau(encodedPass);
+        //String encodedPass = PasswordEncoder.encode(kh.getMatkhau());
+        //kh.setMatkhau(encodedPass);//
 
         try {
             boolean isSuccess = khachHangDAO.insert(kh);
@@ -68,12 +43,7 @@ public class KhachHangBUS {
             throw new Exception("Mật khẩu không được để trống!");
         }
 
-        // Kiểm tra DB trước khi thao tác
-        if (!kiemTraKetNoi()) {
-            throw new Exception("Không thể kết nối database. Vui lòng kiểm tra lại MySQL!");
-        }
-
-        KhachHang kh = khachHangDAO.getByTenDangNhap(tenDangNhap.trim());
+        KhachHang kh = khachHangDAO.getByTenDangNhap(tenDangNhap);
 
         if (kh == null) {
             throw new Exception("Tên đăng nhập không tồn tại trong hệ thống!");
@@ -82,18 +52,13 @@ public class KhachHangBUS {
             throw new Exception("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Quản lý!");
         }
 
-        boolean isMatch = PasswordEncoder.matches(matKhau, kh.getMatkhau());
+        boolean isMatch = matKhau.equals(kh.getMatkhau());
         if (!isMatch) {
             throw new Exception("Mật khẩu không chính xác!");
         }
 
-        SessionManager.setCurrentUser(kh);
         return kh;
     }
-
-    // ============================================================
-    // CÁC PHƯƠNG THỨC QUẢN LÝ KHÁCH HÀNG
-    // ============================================================
 
     public boolean doiMatKhau(String maKH, String mkCu, String mkMoi) throws Exception {
         PermissionHelper.canEditKhachHang(maKH);
@@ -302,10 +267,6 @@ public class KhachHangBUS {
         return csv.toString();
     }
 
-    // ============================================================
-    // VALIDATION
-    // ============================================================
-
     private void validateKhachHangToanDien(KhachHang kh, boolean isInsert) throws Exception {
         validateHoTen(kh.getHo(), kh.getTen());
         validateSoDienThoai(kh.getSodienthoai());
@@ -361,16 +322,26 @@ public class KhachHangBUS {
     }
 
     private void chuanHoaDuLieuKhachHang(KhachHang kh) {
-        if (kh.getHo() != null) kh.setHo(chuanHoaChuoi(kh.getHo()));
-        if (kh.getTen() != null) kh.setTen(chuanHoaChuoi(kh.getTen()));
-        if (kh.getTendangnhap() != null) kh.setTendangnhap(kh.getTendangnhap().trim().toLowerCase());
-        if (kh.getSodienthoai() != null) kh.setSodienthoai(kh.getSodienthoai().trim());
+        if (kh.getHo() != null) {
+            kh.setHo(chuanHoaChuoi(kh.getHo()));
+        }
+        if (kh.getTen() != null) {
+            kh.setTen(chuanHoaChuoi(kh.getTen()));
+        }
+        if (kh.getTendangnhap() != null) {
+            kh.setTendangnhap(kh.getTendangnhap().trim().toLowerCase());
+        }
+        if (kh.getSodienthoai() != null) {
+            kh.setSodienthoai(kh.getSodienthoai().trim());
+        }
     }
 
     private String chuanHoaChuoi(String input) {
         if (input == null || input.trim().isEmpty()) return "";
+
         String[] words = input.trim().replaceAll("\\s+", " ").split(" ");
         StringBuilder result = new StringBuilder();
+
         for (String word : words) {
             result.append(Character.toUpperCase(word.charAt(0)))
                     .append(word.substring(1).toLowerCase())

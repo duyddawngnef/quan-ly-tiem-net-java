@@ -3,69 +3,113 @@ package entity;
 import java.time.LocalDateTime;
 
 public class GoiDichVuKhachHang {
+    private String magoikh;
+    private String makh;
+    private String magoi;
+    private String manv;
+    private double sogiobandau;
+    private double sogioconlai;
+    private LocalDateTime ngaymua;
+    private LocalDateTime ngayhethan;
+    private double giamua;
+    private String trangthai;
 
-    private String maGoiKH;
-    private String maKH;
-    private String maGoi;
-    private String maNV;
-    private double soGioBanDau;
-    private double soGioConLai;
-    private LocalDateTime ngayMua;
-    private LocalDateTime ngayHetHan;
-    private double giaMua;
-    private String trangThai;
-
-    public GoiDichVuKhachHang() {}
-
-    public GoiDichVuKhachHang(String maGoiKH, String maKH, String maGoi,
-                              String maNV, double soGioBanDau,
-                              double soGioConLai, LocalDateTime ngayMua,
-                              LocalDateTime ngayHetHan, double giaMua,
-                              String trangThai) {
-        this.maGoiKH = maGoiKH;
-        this.maKH = maKH;
-        this.maGoi = maGoi;
-        this.maNV = maNV;
-        this.soGioBanDau = soGioBanDau;
-        this.soGioConLai = soGioConLai;
-        this.ngayMua = ngayMua;
-        this.ngayHetHan = ngayHetHan;
-        this.giaMua = giaMua;
-        this.trangThai = trangThai;
+    public GoiDichVuKhachHang() {
     }
 
-    public String getMaGoiKH() { return maGoiKH; }
-    public void setMaGoiKH(String maGoiKH) { this.maGoiKH = maGoiKH; }
+    public GoiDichVuKhachHang(String magoikh, String makh, String magoi, String manv,
+                              double sogiobandau, double sogioconlai,
+                              LocalDateTime ngaymua, LocalDateTime ngayhethan,
+                              double giamua, String trangthai) {
+        this.magoikh = magoikh;
+        this.makh = makh;
+        this.magoi = magoi;
+        this.manv = manv;
+        this.sogiobandau = sogiobandau;
+        this.sogioconlai = sogioconlai;
+        this.ngaymua = ngaymua;
+        this.ngayhethan = ngayhethan;
+        this.giamua = giamua;
+        this.trangthai = trangthai;
+    }
 
-    public String getMaKH() { return maKH; }
-    public void setMaKH(String maKH) { this.maKH = maKH; }
+    public String getMagoikh() {
+        return this.magoikh;
+    }
 
-    public String getMaGoi() { return maGoi; }
-    public void setMaGoi(String maGoi) { this.maGoi = maGoi; }
+    public void setMagoikh(String magoikh) {
+        this.magoikh = magoikh;
+    }
 
-    public String getMaNV() { return maNV; }
-    public void setMaNV(String maNV) { this.maNV = maNV; }
+    public String getMakh() {
+        return this.makh;
+    }
 
-    public double getSoGioBanDau() { return soGioBanDau; }
-    public void setSoGioBanDau(double soGioBanDau) { this.soGioBanDau = soGioBanDau; }
+    public void setMakh(String makh) {
+        this.makh = makh;
+    }
 
-    public double getSoGioConLai() { return soGioConLai; }
-    public void setSoGioConLai(double soGioConLai) { this.soGioConLai = soGioConLai; }
+    public String getMagoi() {
+        return this.magoi;
+    }
 
-    public LocalDateTime getNgayMua() { return ngayMua; }
-    public void setNgayMua(LocalDateTime ngayMua) { this.ngayMua = ngayMua; }
+    public void setMagoi(String magoi) {
+        this.magoi = magoi;
+    }
 
-    public LocalDateTime getNgayHetHan() { return ngayHetHan; }
-    public void setNgayHetHan(LocalDateTime ngayHetHan) { this.ngayHetHan = ngayHetHan; }
+    public String getManv() {
+        return this.manv;
+    }
 
-    public double getGiaMua() { return giaMua; }
-    public void setGiaMua(double giaMua) { this.giaMua = giaMua; }
+    public void setManv(String manv) {
+        this.manv = manv;
+    }
 
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+    public double getSogiobandau() {
+        return this.sogiobandau;
+    }
 
-    @Override
-    public String toString() {
-        return maGoiKH + " | " + maKH + " | " + soGioConLai;
+    public void setSogiobandau(double sogiobandau) {
+        this.sogiobandau = sogiobandau;
+    }
+
+    public double getSogioconlai() {
+        return this.sogioconlai;
+    }
+
+    public void setSogioconlai(double sogioconlai) {
+        this.sogioconlai = sogioconlai;
+    }
+
+    public LocalDateTime getNgaymua() {
+        return this.ngaymua;
+    }
+
+    public void setNgaymua(LocalDateTime ngaymua) {
+        this.ngaymua = ngaymua;
+    }
+
+    public LocalDateTime getNgayhethan() {
+        return this.ngayhethan;
+    }
+
+    public void setNgayhethan(LocalDateTime ngayhethan) {
+        this.ngayhethan = ngayhethan;
+    }
+
+    public double getGiamua() {
+        return this.giamua;
+    }
+
+    public void setGiamua(double giamua) {
+        this.giamua = giamua;
+    }
+
+    public String getTrangthai() {
+        return this.trangthai;
+    }
+
+    public void setTrangthai(String trangthai) {
+        this.trangthai = trangthai;
     }
 }

@@ -1,63 +1,102 @@
 package entity;
 
 public class GoiDichVu {
+    private String magoi;
+    private String tengoi;
+    private String loaigoi;
+    private double sogio;
+    private int songayhieuluc;
+    private double giagoc;
+    private double giagoi;
+    private String apdungchokhu;
+    private String trangthai;
 
-    private String maGoi;
-    private String tenGoi;
-    private String loaiGoi;
-    private double soGio;
-    private int soNgayHieuLuc;
-    private double giaGoc;
-    private double giaGoi;
-    private String apDungChoKhu;
-    private String trangThai;
-
-    public GoiDichVu() {}
-
-    public GoiDichVu(String maGoi, String tenGoi, String loaiGoi,
-                     double soGio, int soNgayHieuLuc,
-                     double giaGoc, double giaGoi,
-                     String apDungChoKhu, String trangThai) {
-        this.maGoi = maGoi;
-        this.tenGoi = tenGoi;
-        this.loaiGoi = loaiGoi;
-        this.soGio = soGio;
-        this.soNgayHieuLuc = soNgayHieuLuc;
-        this.giaGoc = giaGoc;
-        this.giaGoi = giaGoi;
-        this.apDungChoKhu = apDungChoKhu;
-        this.trangThai = trangThai;
+    public GoiDichVu() {
     }
 
-    public String getMaGoi() { return maGoi; }
-    public void setMaGoi(String maGoi) { this.maGoi = maGoi; }
+    public GoiDichVu( String magoi, String tengoi, String loaigoi, double sogio,
+                      int songayhieuluc, double giagoc, double giagoi,
+                      String apdungchokhu, String trangthai) {
+        this.magoi = magoi;
+        this.tengoi = tengoi;
+        this.loaigoi = loaigoi;
+        this.sogio = sogio;
+        this.songayhieuluc = songayhieuluc;
+        this.giagoc = giagoc;
+        this.giagoi = giagoi;
+        this.apdungchokhu = apdungchokhu;
+        this.trangthai = trangthai;
+    }
 
-    public String getTenGoi() { return tenGoi; }
-    public void setTenGoi(String tenGoi) { this.tenGoi = tenGoi; }
+    public String getMagoi() {
+        return this.magoi;
+    }
 
-    public String getLoaiGoi() { return loaiGoi; }
-    public void setLoaiGoi(String loaiGoi) { this.loaiGoi = loaiGoi; }
+    public void setMagoi(String magoi) {
+        this.magoi = magoi;
+    }
 
-    public double getSoGio() { return soGio; }
-    public void setSoGio(double soGio) { this.soGio = soGio; }
+    public String getTengoi() {
+        return this.tengoi;
+    }
 
-    public int getSoNgayHieuLuc() { return soNgayHieuLuc; }
-    public void setSoNgayHieuLuc(int soNgayHieuLuc) { this.soNgayHieuLuc = soNgayHieuLuc; }
+    public void setTengoi(String tengoi) {
+        this.tengoi = tengoi;
+    }
 
-    public double getGiaGoc() { return giaGoc; }
-    public void setGiaGoc(double giaGoc) { this.giaGoc = giaGoc; }
+    public String getLoaigoi() {
+        return this.loaigoi;
+    }
 
-    public double getGiaGoi() { return giaGoi; }
-    public void setGiaGoi(double giaGoi) { this.giaGoi = giaGoi; }
+    public void setLoaigoi(String loaigoi) {
+        this.loaigoi = loaigoi;
+    }
 
-    public String getApDungChoKhu() { return apDungChoKhu; }
-    public void setApDungChoKhu(String apDungChoKhu) { this.apDungChoKhu = apDungChoKhu; }
+    public double getSogio() {
+        return this.sogio;
+    }
 
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+    public void setSogio(double sogio) {
+        this.sogio = sogio;
+    }
 
-    @Override
-    public String toString() {
-        return maGoi + " | " + tenGoi + " | " + giaGoi + " | " + soGio + "h";
+    public int getSongayhieuluc() {
+        return this.songayhieuluc;
+    }
+
+    public void setSongayhieuluc(int songayhieuluc) {
+        this.songayhieuluc = songayhieuluc;
+    }
+
+    public double getGiagoc() {
+        return this.giagoc;
+    }
+
+    public void setGiagoc(double giagoc) {
+        this.giagoc = giagoc;
+    }
+
+    public double getGiagoi() {
+        return this.giagoi;
+    }
+
+    public void setGiagoi(double giagoi) {
+        this.giagoi = giagoi;
+    }
+
+    public String getApdungchokhu() {
+        return this.apdungchokhu;
+    }
+
+    public void setApdungchokhu(String apdungchokhu) {
+        this.apdungchokhu = apdungchokhu;
+    }
+
+    public String getTrangthai() {
+        return this.trangthai;
+    }
+
+    public void setTrangthai(String trangthai) {
+        this.trangthai = trangthai;
     }
 }

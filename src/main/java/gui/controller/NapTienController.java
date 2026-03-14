@@ -13,44 +13,48 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import utils.ThongBaoDialogHelper;
+import utils.SessionManager;
 
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
+import javafx.beans.property.SimpleStringProperty;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class NapTienController implements Initializable {
 
     @FXML private TextField txtTimKH;
-    @FXML private VBox vboxKHInfo;
-    @FXML private Label lblKHAvatar;
-    @FXML private Label lblKHTen;
-    @FXML private Label lblKHSDT;
-    @FXML private Label lblKHSoDu;
-
+    @FXML private VBox      vboxKHInfo;
+    @FXML private Label     lblKHAvatar;
+    @FXML private Label     lblKHTen;
+    @FXML private Label     lblKHSDT;
+    @FXML private Label     lblKHSoDu;
     @FXML private TextField txtSoTien;
-    @FXML private ComboBox<ChuongTrinhKhuyenMai> cboCTKM;
-    @FXML private VBox vboxKM;
-    @FXML private Label lblTienKM;
-    @FXML private Label lblSoTienFmt;
-    @FXML private Label lblTienKMFmt;
-    @FXML private Label lblTongCong;
-    @FXML private Label lblError;
-    @FXML private Button btnNapTien;
 
-    @FXML private TableView<LichSuNapTien> tableHistory;
-    @FXML private TableColumn<LichSuNapTien, String> colMaNap;
-    @FXML private TableColumn<LichSuNapTien, String> colMaKH;
-    @FXML private TableColumn<LichSuNapTien, String> colSoTienNap;
-    @FXML private TableColumn<LichSuNapTien, String> colKhuyenMai;
-    @FXML private TableColumn<LichSuNapTien, String> colTongTienCong;
-    @FXML private TableColumn<LichSuNapTien, String> colMaNV;
-    @FXML private TableColumn<LichSuNapTien, String> colNgayNap;
+    @FXML private ComboBox<ChuongTrinhKhuyenMai> cboCTKM;
+    @FXML private VBox      vboxKM;
+    @FXML private Label     lblTienKM;
+    @FXML private Label     lblSoTienFmt;
+    @FXML private Label     lblTienKMFmt;
+    @FXML private Label     lblTongCong;
+    @FXML private Label     lblError;
+    @FXML private Button    btnNapTien;
+
+    @FXML private TableView<LichSuNapTien>         tableHistory;
+    @FXML private TableColumn<LichSuNapTien, String> colMaNT;
+    @FXML private TableColumn<LichSuNapTien, String> colKHHist;
+    @FXML private TableColumn<LichSuNapTien, String> colSoTienHist;
+    @FXML private TableColumn<LichSuNapTien, String> colKMHist;
+    @FXML private TableColumn<LichSuNapTien, String> colTongHist;
+    @FXML private TableColumn<LichSuNapTien, String> colNVHist;
+    @FXML private TableColumn<LichSuNapTien, String> colNgayHist;
 
     private final NapTienBUS   napTienBUS   = new NapTienBUS();
     private final KhachHangBUS khachHangBUS = new KhachHangBUS();
     private final KhuyenMaiBUS khuyenMaiBUS = new KhuyenMaiBUS();
 
     private KhachHang currentKH = null;
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -59,42 +63,34 @@ public class NapTienController implements Initializable {
         hideKHInfo();
         if (cboCTKM   != null) cboCTKM.setOnAction(e -> recalculate());
         if (txtSoTien != null) txtSoTien.textProperty().addListener((obs, o, n) -> recalculate());
-        loadHistory();
     }
 
-    // ===== HELPER: format giá trị KM từ entity =====
-
-    /**
-     * Format giá trị KM dựa theo loaiKM:
-     *   PHANTRAM → "10%"
-     *   SOTIEN   → "50,000 ₫"
-     *   TANGGIO  → "1.5 giờ"
-     */
-    private String formatGiaTriKM(ChuongTrinhKhuyenMai km) {
-        if (km == null) return "";
-        switch (km.getLoaiKM() != null ? km.getLoaiKM() : "") {
-            case "PHANTRAM": return String.format("%.0f%%", km.getGiaTriKM());
-            case "SOTIEN":   return String.format("%,.0f ₫", km.getGiaTriKM());
-            case "TANGGIO":  return String.format("%.1f giờ", km.getGiaTriKM());
-            default:         return String.valueOf(km.getGiaTriKM());
-        }
+    private void setupTableHistory() {
+        if (colMaNT      != null) colMaNT.setCellValueFactory(new PropertyValueFactory<>("maNap"));
+        if (colKHHist    != null) colKHHist.setCellValueFactory(new PropertyValueFactory<>("maKH"));
+        if (colSoTienHist!= null) colSoTienHist.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f ₫", c.getValue().getSoTienNap())));
+        if (colKMHist    != null) colKMHist.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f ₫", c.getValue().getKhuyenMai())));
+        if (colTongHist  != null) colTongHist.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f ₫", c.getValue().getTongTienCong())));
+        if (colNVHist    != null) colNVHist.setCellValueFactory(new PropertyValueFactory<>("maNV"));
+        if (colNgayHist  != null) colNgayHist.setCellValueFactory(c -> {
+            var d = c.getValue().getNgayNap();
+            return new SimpleStringProperty(d != null ? d.format(FMT) : "");
+        });
     }
-
-    // ===== LOAD DATA =====
 
     private void loadCTKM() {
         if (cboCTKM == null) return;
         try {
             List<ChuongTrinhKhuyenMai> list = khuyenMaiBUS.getKhuyenMaiConHieuLuc();
             cboCTKM.getItems().clear();
-            cboCTKM.getItems().add(null); // Không áp dụng
+            cboCTKM.getItems().add(null);
             cboCTKM.getItems().addAll(list);
             cboCTKM.setCellFactory(lv -> new ListCell<>() {
                 @Override protected void updateItem(ChuongTrinhKhuyenMai item, boolean empty) {
                     super.updateItem(item, empty);
                     setText(empty ? null : (item == null
                             ? "-- Không áp dụng --"
-                            : item.getTenCT() + " (" + formatGiaTriKM(item) + ")"));  // ✔ không dùng getGiaTriKMFormatted()
+                            : item.getTenCT() + " (" + item.getGiaTriKMFormatted() + ")"));
                 }
             });
             cboCTKM.setButtonCell(new ListCell<>() {
@@ -105,45 +101,6 @@ public class NapTienController implements Initializable {
             });
         } catch (Exception ignored) {}
     }
-
-    private void setupTableHistory() {
-        if (tableHistory == null) return;
-
-        if (colMaNap != null)
-            colMaNap.setCellValueFactory(new PropertyValueFactory<>("maNap"));
-
-        if (colMaKH != null)
-            colMaKH.setCellValueFactory(new PropertyValueFactory<>("maKH"));
-
-        if (colSoTienNap != null)
-            colSoTienNap.setCellValueFactory(c ->
-                    new javafx.beans.property.SimpleStringProperty(
-                            String.format("%,.0f ₫", c.getValue().getSoTienNap())));
-
-        if (colKhuyenMai != null)
-            colKhuyenMai.setCellValueFactory(c ->
-                    new javafx.beans.property.SimpleStringProperty(
-                            String.format("%,.0f ₫", c.getValue().getKhuyenMai())));
-
-        if (colTongTienCong != null)
-            colTongTienCong.setCellValueFactory(c ->
-                    new javafx.beans.property.SimpleStringProperty(
-                            String.format("%,.0f ₫", c.getValue().getTongTienCong())));
-
-        if (colMaNV != null)
-            colMaNV.setCellValueFactory(new PropertyValueFactory<>("maNV"));
-
-        if (colNgayNap != null)
-            colNgayNap.setCellValueFactory(c -> {
-                java.time.LocalDate d = c.getValue().getNgayNap();
-                String val = d != null
-                        ? d.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                        : "";
-                return new javafx.beans.property.SimpleStringProperty(val);
-            });
-    }
-
-    // ===== TÌM KHÁCH HÀNG =====
 
     @FXML
     public void handleTimKH() {
@@ -159,15 +116,14 @@ public class NapTienController implements Initializable {
             currentKH = results.get(0);
             showKHInfo(currentKH);
             clearError();
-            loadHistory();
+            loadLichSuNap();
         } catch (Exception e) {
             showError(e.getMessage());
         }
     }
 
     private void showKHInfo(KhachHang kh) {
-        String hoTen = ((kh.getHo() != null ? kh.getHo() : "") + " "
-                + (kh.getTen() != null ? kh.getTen() : "")).trim();
+        String hoTen = (trim(kh.getHo()) + " " + trim(kh.getTen())).trim();
         if (lblKHAvatar != null) lblKHAvatar.setText(hoTen.isEmpty() ? "K" : String.valueOf(hoTen.charAt(0)).toUpperCase());
         if (lblKHTen    != null) lblKHTen.setText(hoTen.isEmpty() ? "(Không có tên)" : hoTen);
         if (lblKHSDT    != null) lblKHSDT.setText(kh.getSodienthoai() != null ? kh.getSodienthoai() : "-");
@@ -180,8 +136,6 @@ public class NapTienController implements Initializable {
         if (vboxKHInfo != null) { vboxKHInfo.setVisible(false); vboxKHInfo.setManaged(false); }
     }
 
-    // ===== TÍNH TOÁN =====
-
     @FXML public void handleSoTienChanged() { recalculate(); }
     @FXML public void handleCTKMChanged()   { recalculate(); }
 
@@ -190,7 +144,6 @@ public class NapTienController implements Initializable {
             String raw = txtSoTien != null ? txtSoTien.getText().replace(",", "").trim() : "";
             if (raw.isEmpty()) { resetCalc(); return; }
             double soTien = Double.parseDouble(raw);
-
             double tienKM = 0;
             ChuongTrinhKhuyenMai km = cboCTKM != null ? cboCTKM.getValue() : null;
             if (km != null) {
@@ -199,11 +152,11 @@ public class NapTienController implements Initializable {
             } else {
                 if (vboxKM != null) { vboxKM.setVisible(false); vboxKM.setManaged(false); }
             }
-
-            if (lblTienKM    != null) lblTienKM.setText(String.format("%,.0f ₫", tienKM));
-            if (lblSoTienFmt != null) lblSoTienFmt.setText(String.format("%,.0f ₫", soTien));
-            if (lblTienKMFmt != null) lblTienKMFmt.setText(String.format("%,.0f ₫", tienKM));
-            if (lblTongCong  != null) lblTongCong.setText(String.format("%,.0f ₫", soTien + tienKM));
+            double tongCong = soTien + tienKM;
+            if (lblTienKM     != null) lblTienKM.setText(String.format("%,.0f ₫", tienKM));
+            if (lblSoTienFmt  != null) lblSoTienFmt.setText(String.format("%,.0f ₫", soTien));
+            if (lblTienKMFmt  != null) lblTienKMFmt.setText(String.format("%,.0f ₫", tienKM));
+            if (lblTongCong   != null) lblTongCong.setText(String.format("%,.0f ₫", tongCong));
         } catch (NumberFormatException e) {
             resetCalc();
         } catch (Exception ignored) {}
@@ -213,6 +166,7 @@ public class NapTienController implements Initializable {
         if (lblSoTienFmt != null) lblSoTienFmt.setText("0 ₫");
         if (lblTienKMFmt != null) lblTienKMFmt.setText("0 ₫");
         if (lblTongCong  != null) lblTongCong.setText("0 ₫");
+        if (lblTienKM    != null) lblTienKM.setText("0 ₫");
         if (vboxKM       != null) { vboxKM.setVisible(false); vboxKM.setManaged(false); }
     }
 
@@ -220,20 +174,13 @@ public class NapTienController implements Initializable {
     @FXML public void handleQuickAmount100() { setQuick("100000"); }
     @FXML public void handleQuickAmount200() { setQuick("200000"); }
     @FXML public void handleQuickAmount500() { setQuick("500000"); }
-
-    private void setQuick(String amount) {
-        if (txtSoTien != null) txtSoTien.setText(amount);
-        recalculate();
-    }
-
-    // ===== NẠP TIỀN =====
+    private void setQuick(String amount) { if (txtSoTien != null) txtSoTien.setText(amount); recalculate(); }
 
     @FXML
     public void handleNapTien() {
         if (currentKH == null) { showError("Vui lòng chọn khách hàng"); return; }
         String soTienStr = txtSoTien != null ? txtSoTien.getText().replace(",", "").trim() : "";
         if (soTienStr.isEmpty()) { showError("Vui lòng nhập số tiền"); return; }
-
         double soTien;
         try { soTien = Double.parseDouble(soTienStr); }
         catch (NumberFormatException e) { showError("Số tiền không hợp lệ"); return; }
@@ -241,52 +188,51 @@ public class NapTienController implements Initializable {
 
         ChuongTrinhKhuyenMai km = cboCTKM != null ? cboCTKM.getValue() : null;
         String maCTKM = km != null ? km.getMaCTKM() : null;
-
+        String maNV   = SessionManager.getCurrentMaNV();
         try {
-            napTienBUS.napTien(currentKH.getMakh(), soTien, maCTKM);
+            napTienBUS.napTien(currentKH.getMakh(), soTien, maCTKM, maNV, "TIENMAT", null);
             clearError();
-
-            // Refresh thông tin KH
-            List<KhachHang> updated = khachHangBUS.timKiemKhachHang(currentKH.getMakh());
-            if (updated != null && !updated.isEmpty()) {
-                currentKH = updated.get(0);
-                showKHInfo(currentKH);
-            }
-
+            refreshKhachHangInfo();
             if (txtSoTien != null) txtSoTien.clear();
             if (cboCTKM   != null) cboCTKM.setValue(null);
             resetCalc();
-            loadHistory();
-
-            String hoTen = ((currentKH.getHo() != null ? currentKH.getHo() : "") + " "
-                    + (currentKH.getTen() != null ? currentKH.getTen() : "")).trim();
+            loadLichSuNap();
             ThongBaoDialogHelper.showSuccess(
                     txtSoTien != null ? txtSoTien.getScene() : null,
-                    String.format("Đã nạp %,.0f ₫ cho %s!", soTien, hoTen));
+                    String.format("Đã nạp %,.0f ₫ cho %s!", soTien,
+                            (trim(currentKH.getHo()) + " " + trim(currentKH.getTen())).trim())
+            );
         } catch (Exception e) {
             showError(e.getMessage());
         }
     }
 
-    @FXML
-    public void handleFilterHistory() { loadHistory(); }
+    private void refreshKhachHangInfo() {
+        if (currentKH == null) return;
+        try {
+            List<KhachHang> results = khachHangBUS.timKiemKhachHang(currentKH.getMakh());
+            if (results != null && !results.isEmpty()) {
+                currentKH = results.get(0);
+                showKHInfo(currentKH);
+            }
+        } catch (Exception ignored) {}
+    }
 
-    private void loadHistory() {
+    @FXML public void handleFilterHistory() { loadLichSuNap(); }
+
+    public void loadLichSuNap() {
         if (tableHistory == null) return;
         try {
             List<LichSuNapTien> list = currentKH != null
                     ? napTienBUS.getLichSuNapTien(currentKH.getMakh())
-                    : napTienBUS.getAllLichSu();
+                    : new java.util.ArrayList<>();
             tableHistory.setItems(FXCollections.observableArrayList(list));
         } catch (Exception e) {
-            e.printStackTrace();
+            showError("Lỗi tải lịch sử: " + e.getMessage());
         }
     }
 
-    private void showError(String msg) {
-        if (lblError != null) lblError.setText(msg);
-    }
-    private void clearError() {
-        if (lblError != null) lblError.setText("");
-    }
+    private void showError(String msg) { if (lblError != null) lblError.setText(msg); }
+    private void clearError()          { if (lblError != null) lblError.setText(""); }
+    private String trim(String s)      { return s != null ? s : ""; }
 }

@@ -3,52 +3,81 @@ package entity;
 import java.time.LocalDateTime;
 
 public class SuDungDichVu {
+    private String masd;
+    private String maphien;
+    private String madv;
+    private int soluong;
+    private double dongia;
+    private double thanhtien;
+    private LocalDateTime thoigian;
 
-    private String maSD;
-    private String maPhien;
-    private String maDV;
-    private int soLuong;
-    private double donGia;
-    private double thanhTien;
-    private LocalDateTime thoiGian;
-
-    public SuDungDichVu() {}
-
-    public SuDungDichVu(String maSD, String maPhien, String maDV,
-                        int soLuong, double donGia,
-                        double thanhTien, LocalDateTime thoiGian) {
-        this.maSD = maSD;
-        this.maPhien = maPhien;
-        this.maDV = maDV;
-        this.soLuong = soLuong;
-        this.donGia = donGia;
-        this.thanhTien = thanhTien;
-        this.thoiGian = thoiGian;
+    public SuDungDichVu() {
     }
 
-    public String getMaSD() { return maSD; }
-    public void setMaSD(String maSD) { this.maSD = maSD; }
+    public SuDungDichVu(String masd, String maphien, String madv, int soluong,
+                        double dongia, double thanhtien, LocalDateTime thoigian) {
+        this.masd = masd;
+        this.maphien = maphien;
+        this.madv = madv;
+        this.soluong = soluong;
+        this.dongia = dongia;
+        this.thanhtien = thanhtien;
+        this.thoigian = thoigian;
+    }
 
-    public String getMaPhien() { return maPhien; }
-    public void setMaPhien(String maPhien) { this.maPhien = maPhien; }
+    public String getMasd() {
+        return this.masd;
+    }
 
-    public String getMaDV() { return maDV; }
-    public void setMaDV(String maDV) { this.maDV = maDV; }
+    public void setMasd(String masd) {
+        this.masd = masd;
+    }
 
-    public int getSoLuong() { return soLuong; }
-    public void setSoLuong(int soLuong) { this.soLuong = soLuong; }
+    public String getMaphien() {
+        return this.maphien;
+    }
 
-    public double getDonGia() { return donGia; }
-    public void setDonGia(double donGia) { this.donGia = donGia; }
+    public void setMaphien(String maphien) {
+        this.maphien = maphien;
+    }
 
-    public double getThanhTien() { return thanhTien; }
-    public void setThanhTien(double thanhTien) { this.thanhTien = thanhTien; }
+    public String getMadv() {
+        return this.madv;
+    }
 
-    public LocalDateTime getThoiGian() { return thoiGian; }
-    public void setThoiGian(LocalDateTime thoiGian) { this.thoiGian = thoiGian; }
+    public void setMadv(String madv) {
+        this.madv = madv;
+    }
 
-    @Override
-    public String toString() {
-        return maSD + " | " + maDV + " | " + thanhTien;
+    public int getSoluong() {
+        return this.soluong;
+    }
+
+    public void setSoluong(int soluong) {
+        this.soluong = soluong;
+    }
+
+    public double getDongia() {
+        return this.dongia;
+    }
+
+    public void setDongia(double dongia) {
+        this.dongia = dongia;
+    }
+
+    public double getThanhtien() {
+        return this.thanhtien;
+    }
+
+    public void setThanhtien(double thanhtien) {
+        this.thanhtien = thanhtien;
+    }
+
+    public LocalDateTime getThoigian() {
+        return this.thoigian;
+    }
+
+    public void setThoigian(LocalDateTime thoigian) {
+        this.thoigian = thoigian;
     }
 }

@@ -7,13 +7,12 @@ public class NhaCungCap {
     private String email;
     private String diaChi;
     private String nguoiLienHe;
-    private String trangThai;
+    private String trangThai; // HOATDONG, NGUNG
 
-    public NhaCungCap() {
-    }
+    public NhaCungCap() {}
 
-    public NhaCungCap(String maNCC, String tenNCC, String soDienThoai, String email, String diaChi, String nguoiLienHe,
-            String trangThai) {
+    public NhaCungCap(String maNCC, String tenNCC, String soDienThoai,
+                      String email, String diaChi, String nguoiLienHe, String trangThai) {
         this.maNCC = maNCC;
         this.tenNCC = tenNCC;
         this.soDienThoai = soDienThoai;
@@ -27,52 +26,52 @@ public class NhaCungCap {
         return maNCC;
     }
 
-    public String getTenNCC() {
-        return tenNCC;
-    }
-
-    public String getSoDienThoai() {
-        return soDienThoai;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getDiaChi() {
-        return diaChi;
-    }
-
-    public String getNguoiLienHe() {
-        return nguoiLienHe;
-    }
-
-    public String getTrangThai() {
-        return trangThai;
-    }
-
     public void setMaNCC(String maNCC) {
         this.maNCC = maNCC;
+    }
+
+    public String getTenNCC() {
+        return tenNCC;
     }
 
     public void setTenNCC(String tenNCC) {
         this.tenNCC = tenNCC;
     }
 
+    public String getSoDienThoai() {
+        return soDienThoai;
+    }
+
     public void setSoDienThoai(String soDienThoai) {
         this.soDienThoai = soDienThoai;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
+    public String getDiaChi() {
+        return diaChi;
+    }
+
     public void setDiaChi(String diaChi) {
         this.diaChi = diaChi;
     }
 
+    public String getNguoiLienHe() {
+        return nguoiLienHe;
+    }
+
     public void setNguoiLienHe(String nguoiLienHe) {
         this.nguoiLienHe = nguoiLienHe;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
     }
 
     public void setTrangThai(String trangThai) {
@@ -81,23 +80,6 @@ public class NhaCungCap {
 
     @Override
     public String toString() {
-        return "NhaCungCap{" +
-                "maNCC=" + maNCC +
-                ", tenNCC=" + tenNCC +
-                ", soDienThoai=" + soDienThoai +
-                ", email=" + email +
-                ", diaChi=" + diaChi +
-                ", nguoiLienHe=" + nguoiLienHe +
-                ", trangThai=" + trangThai +
-                '}';
+        return maNCC + " | " + tenNCC + " | " + soDienThoai + " | " + trangThai;
     }
-
-    public boolean isHoatDong() {
-        return "HOATDONG".equals(trangThai);
-    }
-
-    public boolean isNgung() {
-        return "NGUNG".equals(trangThai);
-    }
-
 }

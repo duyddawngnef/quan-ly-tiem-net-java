@@ -12,133 +12,110 @@ import java.util.ResourceBundle;
 
 public class ThemNhanVienDialog implements Initializable {
 
-    @FXML private Label lblDialogTitle;
-    @FXML private Label lblError;
-    @FXML private Button btnSave;
-
-    @FXML private TextField txtMaNV;
-    @FXML private TextField txtHo;
-    @FXML private TextField txtTen;
-    @FXML private ComboBox<String> cboChucVu;
-    @FXML private TextField txtTenDangNhap;
+    @FXML private Label        lblTitle;
+    @FXML private TextField    txtHo;
+    @FXML private TextField    txtTen;
+    @FXML private TextField    txtSDT;
+    @FXML private TextField    txtTenDangNhap;
     @FXML private PasswordField txtMatKhau;
-    @FXML private PasswordField txtXacNhanMK;
+    @FXML private ComboBox<String> cboChucVu;
     @FXML private ComboBox<String> cboTrangThai;
+    @FXML private Label        lblError;
+    @FXML private Button       btnSave;
+    @FXML private Button       btnCancel;
 
     private final NhanVienBUS nhanVienBUS = new NhanVienBUS();
+    private NhanVien entity;
     private boolean isEditMode = false;
-    private NhanVien currentEntity;
     private Runnable onSaveCallback;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (cboChucVu != null)
-            cboChucVu.getItems().setAll("QUANLY", "NHANVIEN", "THUNGAN");
-        if (cboTrangThai != null)
+        if (cboChucVu != null) {
+            cboChucVu.getItems().setAll("NHANVIEN", "QUANLY", "THUNGAN");
+            cboChucVu.setValue("NHANVIEN");
+        }
+        if (cboTrangThai != null) {
             cboTrangThai.getItems().setAll("DANGLAMVIEC", "NGHIVIEC");
-    }
-
-    public void setEntity(Object entity) {
-        if (entity instanceof NhanVien) {
-            currentEntity = (NhanVien) entity;
-            isEditMode = true;
-            if (lblDialogTitle != null) lblDialogTitle.setText("Cập nhật nhân viên");
-            if (txtMaNV != null) txtMaNV.setEditable(false);
-            // Khi edit, mật khẩu không bắt buộc
-            if (txtMatKhau  != null) txtMatKhau.setPromptText("Để trống nếu không đổi");
-            if (txtXacNhanMK!= null) txtXacNhanMK.setPromptText("Để trống nếu không đổi");
-            populateFields(currentEntity);
-        } else {
-            currentEntity = null;
-            isEditMode = false;
-            if (lblDialogTitle != null) lblDialogTitle.setText("Thêm nhân viên mới");
-            if (cboChucVu   != null) cboChucVu.setValue("NHANVIEN");
-            if (cboTrangThai!= null) cboTrangThai.setValue("DANGLAMVIEC");
+            cboTrangThai.setValue("DANGLAMVIEC");
         }
     }
 
-    public void setOnSaveCallback(Runnable callback) {
-        this.onSaveCallback = callback;
+    public void setEntity(NhanVien nv) {
+        this.entity     = nv;
+        this.isEditMode = (nv != null);
+        if (isEditMode) {
+            if (lblTitle  != null) lblTitle.setText("Sửa Nhân Viên");
+            if (txtHo     != null) txtHo.setText(nv.getHo() != null ? nv.getHo() : "");
+            if (txtTen    != null) txtTen.setText(nv.getTen() != null ? nv.getTen() : "");
+            if (txtTenDangNhap != null) {
+                txtTenDangNhap.setText(nv.getTendangnhap() != null ? nv.getTendangnhap() : "");
+                txtTenDangNhap.setDisable(true);
+            }
+            if (txtMatKhau != null)
+                txtMatKhau.setPromptText("Để trống nếu không đổi mật khẩu");
+            if (cboChucVu   != null) cboChucVu.setValue(nv.getChucvu());
+            if (cboTrangThai != null) cboTrangThai.setValue(nv.getTrangthai());
+        } else {
+            if (lblTitle != null) lblTitle.setText("Thêm Nhân Viên");
+        }
     }
 
-    private void populateFields(NhanVien nv) {
-        if (txtMaNV       != null) txtMaNV.setText(nv.getManv());
-        if (txtHo         != null) txtHo.setText(nv.getHo());
-        if (txtTen        != null) txtTen.setText(nv.getTen());
-        if (cboChucVu     != null) cboChucVu.setValue(nv.getChucvu());
-        if (txtTenDangNhap!= null) txtTenDangNhap.setText(nv.getTendangnhap());
-        if (cboTrangThai  != null) cboTrangThai.setValue(nv.getTrangthai());
-        // Không điền mật khẩu khi edit
-    }
+    public void setOnSaveCallback(Runnable cb) { this.onSaveCallback = cb; }
 
     @FXML
     public void handleSave() {
         clearError();
-        if (!validateFields()) return;
+        String ho  = txtHo  != null ? txtHo.getText().trim()  : "";
+        String ten = txtTen != null ? txtTen.getText().trim() : "";
+        if (ho.isEmpty() || ten.isEmpty()) { setError("Họ và tên không được để trống"); return; }
+
+        String tenDN = txtTenDangNhap != null ? txtTenDangNhap.getText().trim() : "";
+        if (!isEditMode) {
+            if (tenDN.length() < 4) { setError("Tên đăng nhập phải có ít nhất 4 ký tự"); return; }
+        }
+
+        String matKhau = txtMatKhau != null ? txtMatKhau.getText() : "";
+        if (!isEditMode && matKhau.length() < 6) {
+            setError("Mật khẩu phải có ít nhất 6 ký tự"); return;
+        }
+        if (isEditMode && !matKhau.isEmpty() && matKhau.length() < 6) {
+            setError("Mật khẩu mới phải có ít nhất 6 ký tự"); return;
+        }
+
+        NhanVien nv = isEditMode ? entity : new NhanVien();
+        nv.setHo(ho);
+        nv.setTen(ten);
+        if (!isEditMode) nv.setTendangnhap(tenDN);
+        if (!isEditMode || !matKhau.isEmpty()) nv.setMatkhau(matKhau);
+        nv.setChucvu(cboChucVu   != null ? cboChucVu.getValue()    : "NHANVIEN");
+        nv.setTrangthai(cboTrangThai != null ? cboTrangThai.getValue() : "DANGLAMVIEC");
+//        if (txtSDT != null) {
+//            // NhanVien có thể có field sodienthoai - set nếu field tồn tại
+//            try { nv.set(txtSDT.getText().trim()); } catch (Exception ignored) {}
+//        }
+
         try {
-            NhanVien nv = buildEntity();
             if (isEditMode) {
-                // Nếu có nhập mật khẩu mới thì đổi
-                String mk = txtMatKhau != null ? txtMatKhau.getText() : "";
-                if (!mk.isEmpty()) {
-                    nhanVienBUS.resetMatKhau(nv.getManv(), mk);
-                }
                 nhanVienBUS.suaNhanVien(nv);
+                ThongBaoDialog.showSuccess(getStage(), "Cập nhật nhân viên thành công!");
             } else {
                 nhanVienBUS.themNhanVien(nv);
+                ThongBaoDialog.showSuccess(getStage(), "Thêm nhân viên thành công!");
             }
             if (onSaveCallback != null) onSaveCallback.run();
             closeDialog();
         } catch (Exception e) {
-            showError(e.getMessage());
+            setError(e.getMessage());
         }
     }
 
-    private NhanVien buildEntity() {
-        NhanVien nv = isEditMode ? currentEntity : new NhanVien();
-        if (txtMaNV       != null) nv.setManv(txtMaNV.getText().trim());
-        if (txtHo         != null) nv.setHo(txtHo.getText().trim());
-        if (txtTen        != null) nv.setTen(txtTen.getText().trim());
-        if (cboChucVu     != null) nv.setChucvu(cboChucVu.getValue());
-        if (txtTenDangNhap!= null) nv.setTendangnhap(txtTenDangNhap.getText().trim());
-        if (!isEditMode && txtMatKhau != null) nv.setMatkhau(txtMatKhau.getText());
-        if (cboTrangThai  != null) nv.setTrangthai(cboTrangThai.getValue());
-        return nv;
-    }
+    @FXML public void handleCancel() { closeDialog(); }
 
-    private boolean validateFields() {
-        if (txtMaNV        != null && txtMaNV.getText().trim().isEmpty())        { showError("Vui lòng nhập mã NV"); return false; }
-        if (txtHo          != null && txtHo.getText().trim().isEmpty())          { showError("Vui lòng nhập họ"); return false; }
-        if (txtTen         != null && txtTen.getText().trim().isEmpty())         { showError("Vui lòng nhập tên"); return false; }
-        if (txtTenDangNhap != null && txtTenDangNhap.getText().trim().isEmpty()) { showError("Vui lòng nhập tên đăng nhập"); return false; }
-        if (!isEditMode) {
-            // Thêm mới: bắt buộc nhập mật khẩu
-            String mk      = txtMatKhau  != null ? txtMatKhau.getText()  : "";
-            String xacNhan = txtXacNhanMK!= null ? txtXacNhanMK.getText(): "";
-            if (mk.isEmpty())             { showError("Vui lòng nhập mật khẩu"); return false; }
-            if (mk.length() < 6)          { showError("Mật khẩu phải có ít nhất 6 ký tự"); return false; }
-            if (!mk.equals(xacNhan))      { showError("Mật khẩu xác nhận không khớp"); return false; }
-        } else {
-            // Edit: nếu nhập mk mới thì phải xác nhận khớp
-            String mk      = txtMatKhau  != null ? txtMatKhau.getText()  : "";
-            String xacNhan = txtXacNhanMK!= null ? txtXacNhanMK.getText(): "";
-            if (!mk.isEmpty() && !mk.equals(xacNhan)) { showError("Mật khẩu xác nhận không khớp"); return false; }
-        }
-        return true;
-    }
-
-    @FXML
-    public void handleCancel() { closeDialog(); }
-
-    private void showError(String msg) {
-        if (lblError != null) { lblError.setText(msg); lblError.setVisible(true); }
-    }
-
-    private void clearError() {
-        if (lblError != null) { lblError.setText(""); lblError.setVisible(false); }
-    }
-
-    private void closeDialog() {
-        ((Stage) btnSave.getScene().getWindow()).close();
-    }
+    private void setError(String msg)  { if (lblError != null) lblError.setText(msg); }
+    private void clearError()          { if (lblError != null) lblError.setText(""); }
+    private void closeDialog()         { if (btnCancel != null && btnCancel.getScene() != null)
+                                            ((Stage) btnCancel.getScene().getWindow()).close(); }
+    private Stage getStage()           { return btnSave != null && btnSave.getScene() != null
+                                            ? (Stage) btnSave.getScene().getWindow() : null; }
 }

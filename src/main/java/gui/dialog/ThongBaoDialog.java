@@ -19,10 +19,11 @@ import java.util.ResourceBundle;
  *   ThongBaoDialog.showSuccess(stage, "Thêm thành công!");
  *   ThongBaoDialog.showError(stage,   "Lỗi: ...");
  *   ThongBaoDialog.showWarning(stage, "Cảnh báo: ...");
+ *   ThongBaoDialog.showInfo(stage,    "Thông báo: ...");
  */
 public class ThongBaoDialog implements Initializable {
 
-    @FXML private HBox headerBox;
+    @FXML private HBox  headerBox;
     @FXML private Label lblHeaderIcon;
     @FXML private Label lblTitle;
     @FXML private Label lblBigIcon;
@@ -66,7 +67,7 @@ public class ThongBaoDialog implements Initializable {
         ((Stage) btnOK.getScene().getWindow()).close();
     }
 
-    // ===== Static factory helpers =====
+    // ===== Static factory methods =====
 
     public static void showSuccess(Stage owner, String msg) {
         show(owner, "Thành công", msg, Type.SUCCESS);
@@ -100,7 +101,7 @@ public class ThongBaoDialog implements Initializable {
             stage.centerOnScreen();
             stage.showAndWait();
         } catch (Exception e) {
-            // Fallback to JavaFX Alert
+            // Fallback to standard JavaFX Alert
             Alert.AlertType alertType = switch (type) {
                 case SUCCESS -> Alert.AlertType.INFORMATION;
                 case ERROR   -> Alert.AlertType.ERROR;

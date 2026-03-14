@@ -1,299 +1,256 @@
 package dao;
-
+import entity.KhachHang;
 import entity.KhuMay;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-public class KhuMayDAO
-{
-    public List<KhuMay> getAll()
-    {
+import java.net.ConnectException;
+public class   KhuMayDAO {
+    public List<KhuMay> getAll() {
         List<KhuMay> list = new ArrayList<>();
-        String sql = "SELECT * FROM khumay ORDER BY MaKhu DESC";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
+        String sql = "SELECT * FROM KhuMay ORDER BY MaKhu DESC";
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next())
-            {
+            while (rs.next()) {
                 KhuMay km = mapResultSetToEntity(rs);
                 list.add(km);
             }
             rs.close();
-
+            pstmt.close();
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi getAll KhuMay: " + e.getMessage());
+            throw new RuntimeException("Lỗi getALL KhuMay: " + e.getMessage());
+
         }
         return list;
     }
+    private KhuMay mapResultSetToEntity(ResultSet rs) throws SQLException {
+        KhuMay km = new KhuMay();
+        km.setMakhu(rs.getString("MaKhu"));
+        km.setTenkhu(rs.getString("TenKhu"));
+        km.setGiacoso(rs.getDouble("GiaCoSo"));
+        km.setSomaytoida(rs.getInt("SoMayToiDa"));
+        km.setTrangthai(rs.getString("TrangThai"));;
 
-    public boolean insert(KhuMay km)
-    {
-        validateKhuMay(km);
-
-        String sql = "INSERT INTO khumay (MaKhu, TenKhu, GiaCoSo, SoMayToiDa, TrangThai) " +
-                     "VALUES (?, ?, ?, ?, ?)";
-
-        // Tạo mã khu tự động
-        String makhu = generateMaKhu();
-        km.setMaKhu(makhu);
-
-        // Set trạng thái = Hoạt Động
-        km.setTrangthai("HOATDONG");
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            pstmt.setString(1, km.getMaKhu());
-            pstmt.setString(2, km.getTenKhu());
-            pstmt.setDouble(3, km.getGiacoso());
-            pstmt.setInt(4, km.getSomaytoida());
-            pstmt.setString(5, km.getTrangthai());
-
-            int rowUpdate = pstmt.executeUpdate();
-            return rowUpdate > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Lỗi insert KhuMay: " + e.getMessage());
-        }
+        return km;
     }
-
-    public boolean update(KhuMay km)
-    {
-        KhuMay existing = getByID(km.getMaKhu());
-
-        //kiểm tra khu máy tồn tại
-        if (existing == null){
-            throw new RuntimeException("Lỗi khu máy không tồn tại !");
-        }
-
-        //khu máy đã bị xóa trước đó
-        if (existing.getTrangthai().equals("NGUNG")) {
-            throw new RuntimeException("Khu máy đã bị xóa !");
-        }
-
-        //kiểm tra Valid
-        validateKhuMay(km);
-
-        String sql = "UPDATE khumay SET TenKhu = ?, GiaCoSo = ?, SoMayToiDa = ? " +
-                     "WHERE MaKhu = ? AND TrangThai = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            pstmt.setString(1, km.getTenKhu());
-            pstmt.setDouble(2, km.getGiacoso());
-            pstmt.setInt(3, km.getSomaytoida());
-            pstmt.setString(4, km.getMaKhu());
-            pstmt.setString(5, "HOATDONG");
-            pstmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Lỗi update KhuMay: " + e.getMessage());
-        }
-        return true;
-    }
-
-    public boolean delete(String MaKhu)
-    {
-        KhuMay km = getByID(MaKhu);
-
-        //kiểm tra khu máy tồn tại
-        if (km == null) {
-            throw new RuntimeException("Lỗi khu máy không tồn tại !");
-        }
-
-        //khu máy đã bị xóa trước đó
-        if (km.getTrangthai().equals("NGUNG")) {
-            throw new RuntimeException("Khu máy đã bị xóa !");
-        }
-
-        if (hasActiveComputer(MaKhu)) {
-            throw new RuntimeException("Không thể xóa khu máy có máy đang sử dụng !");
-        } else {
-            updateMaKhuNull(MaKhu);
-        }
-
-        String sql = "UPDATE khumay SET TrangThai = 'NGUNG' WHERE MaKhu = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            pstmt.setString(1, MaKhu);
-            int row = pstmt.executeUpdate();
-            return row > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Lỗi delete KhuMay: " + e.getMessage());
-        }
-    }
-
-    //Tạo mã tự động
-    public String generateMaKhu()
-    {
+// ham tao ma khu may
+    public  String generateMaKhu(){
         String sql = "SELECT MaKhu FROM khumay "+
-                     "ORDER BY MaKhu DESC LIMIT 1";
+                "ORDER BY MaKhu DESC LIMIT 1";
+        try {
+            Connection conn = DBConnection.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            ResultSet rs = pstmt.executeQuery(sql);
+            if(rs.next()){
+                String maKhu = rs.getString("MaKhu");
+                //LẤY TỪ VỊ TRÍ THỨ 2
+                int num = Integer.parseInt(maKhu.substring(3));
+                //FORMAT CHO MÃ KHU
 
-            if(rs.next())
-            {
-                String makhu = rs.getString("MaKhu");
-                int num = Integer.parseInt(makhu.substring(3));
-                return String.format("KHU%03d", num + 1);
+                conn.close();
+                stmt.close();
+
+                return String.format("KHU%03d" ,num + 1);
             }
-            rs.close();
-        } catch (SQLException e) {
+
+            conn.close();
+            stmt.close();
+        }catch (SQLException e){
             throw new RuntimeException("Lỗi generateMaKhu" + e.getMessage());
+
         }
         //CHƯA CÓ DATABASE
-        return "KHU001";
+        return  "KHU001";
     }
-
-    // Tìm khu theo mã
-    public KhuMay getByID(String makhu)
-    {
+    public KhuMay getById(String MaKhu) {
         KhuMay km = null;
         String sql = "SELECT * FROM khumay WHERE MaKhu = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            pstmt.setString(1, makhu);
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+
+            pstmt.setString(1, MaKhu);
+
             ResultSet rs = pstmt.executeQuery();
 
-            if (rs.next())
+            if (rs.next()) {
                 km = mapResultSetToEntity(rs);
+            }
+
             rs.close();
+            pstmt.close();
+            conn.close();
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi getByID KhuMay: " + e.getMessage());
+            throw new RuntimeException("Lỗi getById KhuMay: " + e.getMessage());
+
         }
         return km;
     }
-
-    /*
-    ======================VALIDATION=============
-     */
-    private void validateKhuMay(KhuMay km) {
-        // Validate TenKhu
-        if (km.getTenKhu() == null || km.getTenKhu().trim().isEmpty()) {
-            throw new RuntimeException("Tên khu kmông được để trống");
-        }
-        if (km.getTenKhu().trim().length() > 50) {
-            throw new RuntimeException("Tên khu kmông được vượt quá 50 ký tự");
-        }
-        if (isTenKhuExists(km.getTenKhu())) {
+    //===================== THEM MAY=================
+    public boolean insert (KhuMay km) {
+        ValidateInsert( km );
+        if(isTenKhuExist(km.getTenkhu())) {
             throw new RuntimeException("Tên khu đã tồn tại !");
+
+        }
+        String sql="INSERT INTO khumay (MaKhu,TenKhu,GiaCoSo,SoMayToiDa,TrangThai)"+"VALUES (?,?,?,?,?)";
+        String makhumay=generateMaKhu();
+        km.setMakhu(makhumay);
+        try{
+            Connection conn=DBConnection.getConnection();
+            PreparedStatement pstmt=conn.prepareStatement(sql);
+
+
+            pstmt.setString(1,km.getMakhu());
+            pstmt.setString(2,km.getTenkhu());
+            pstmt.setDouble(3,km.getGiacoso());
+            pstmt.setInt(4,km.getSomaytoida());
+            pstmt.setString(5, "HOATDONG");
+            int rows = pstmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi update KhuMay : " + e.getMessage());
         }
 
-        // Validate GiaCoSo
-        if (km.getGiacoso() <= 0) {
-            throw new RuntimeException("Giá cơ sở không được nhỏ hơn hoặc bằng 0");
-        }
-
-        // Validate SoMayToiDa
-        if (km.getSomaytoida() < 0) {
-            throw new RuntimeException("Số máy tối đa không được nhỏ hơn 0");
-        }
     }
 
-    public boolean isTenKhuExists(String tenkhu){
 
-        if (tenkhu == null || tenkhu.trim().isEmpty()) {
-            return false;
+
+
+
+
+    //================= VALIDATION ==========================
+    public void ValidateInsert(KhuMay km )  {
+        //ktra ten khu
+        if(km.getTenkhu()==null || km.getTenkhu().trim().isEmpty()) {
+            throw new RuntimeException("ten khu khong duoc de trong!");
         }
-
+        if(km.getGiacoso()<=0) {
+            throw new RuntimeException("gia co so khong duoc namg hoac nho hon 0!");
+        }
+        if(km.getSomaytoida()<0) {
+            throw new RuntimeException("so may toi da phai lon hon 0!");
+        }
+    }
+    public boolean isTenKhuExist( String tenKhu)  {
         String sql = "SELECT COUNT(*) FROM khumay WHERE TenKhu = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            pstmt.setString(1, tenkhu);
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, tenKhu);
             ResultSet rs = pstmt.executeQuery();
-
-            if(rs.next())
+            if (rs.next()) {
                 return rs.getInt(1) > 0;
-            rs.close();
-
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi isTenKhuExists KhachHang " + e.getMessage());
+            throw new RuntimeException("Lỗi isTenKhuExists  " + e.getMessage());
+        }
+        return false;
+    }
+//========================KIEM TRA TEN KHU TRONG KHI SUA===========(kiem tra ten nhung ma loai tru ten chinh no)
+    public boolean isTenKhuExistExceptId(String tenKhu, String maKhu) {
+        String sql = "SELECT COUNT(*) FROM khumay WHERE TenKhu = ? AND MaKhu <> ?";
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, tenKhu);
+            pstmt.setString(2, maKhu);
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            pstmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi kiểm tra trùng tên khu: " + e.getMessage());
         }
         return false;
     }
 
-    // Đếm số lượng máy đang dùng ở trong khu
-    public boolean hasActiveComputer (String MaKhu) {
-        String sql = "SELECT COUNT(*) FROM maytinh WHERE MaKhu = ? AND TrangThai = 'DANGDUNG'";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            pstmt.setString(1, MaKhu);
-            ResultSet rs = pstmt.executeQuery();
 
-            if(rs.next())
-                return rs.getInt(1) > 0 ;
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Lỗi hasActiveComputer KhuMay " + e.getMessage());
+    public boolean update (KhuMay km){
+        KhuMay a=getById(km.getMakhu());
+        if(a==null) {
+            throw new RuntimeException("khu may khong ton tai!");
         }
-        return false;
-    }
-
-    public int countMayTinhByKhu (String MaKhu)
-    {
-        int count = 0;
-        String sql = "SELECT COUNT(*) FROM maytinh WHERE MaKhu = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            pstmt.setString(1, MaKhu);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next())
-                count = rs.getInt(1);
-            rs.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Lỗi countMayTinhByKhu KhuMay " + e.getMessage());
+        if (isTenKhuExistExceptId(km.getTenkhu(), km.getMakhu())) {
+            throw new RuntimeException("Tên khu đã tồn tại!");
         }
-        return count;
-    }
-
-    public boolean updateMaKhuNull(String MaKhu)
-    {
-        String sql = "UPDATE maytinh SET MaKhu = NULL WHERE MaKhu = ? ";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql))
-        {
-            pstmt.setString(1, MaKhu);
+        String sql = "UPDATE khumay SET TenKhu=?, GiaCoSo=?, SoMayToiDa=?, TrangThai=? WHERE MaKhu=?";
+        try {
+            Connection conn=DBConnection.getConnection();
+            PreparedStatement pstmt=conn.prepareStatement(sql);
+            pstmt.setString(1, km.getTenkhu());
+            pstmt.setDouble(2, km.getGiacoso());
+            pstmt.setInt(3, km.getSomaytoida());
+            pstmt.setString(4, "HOATDONG");
+            pstmt.setString(5, km.getMakhu());
             pstmt.executeUpdate();
-
+            pstmt.close();
         } catch (SQLException e) {
-            throw new RuntimeException("Lỗi updateMaKhuNull KhuMay " + e.getMessage());
+            throw new RuntimeException("Lỗi update KhuMay : " + e.getMessage());
         }
         return true;
     }
+    //====================== XOA=====================
 
-    public KhuMay mapResultSetToEntity(ResultSet rs) throws SQLException
-    {
-        KhuMay km = new KhuMay();
-        km.setMaKhu(rs.getString("MaKhu"));
-        km.setTenKhu(rs.getString("TenKhu"));
-        km.setGiacoso(rs.getDouble("GiaCoSo"));
-        km.setSomaytoida(rs.getInt("SoMayToiDa"));
-
-        try {
-            km.setTrangthai(rs.getString("TrangThai"));
-        } catch (SQLException e) {
-            km.setTrangthai("HOATDONG");
+    public boolean delete (String MaKhu){
+        KhuMay km = getById(MaKhu);
+        if(km == null){
+            throw new RuntimeException("Lỗi khu máy không tồn tại !");
         }
-        return km;
+
+        if(hasActiveSession(MaKhu)){
+            throw new RuntimeException("Không thể xóa khu máy đang có phiên chơi !");
+        }
+
+        String sqlkhu = "UPDATE khumay SET TrangThai = ? WHERE MaKhu = ?";
+        String sqlmay="UPDATE maytinh SET MaKhu= NULL WHERE MaKhu= ?";
+        try{
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement psmay=conn.prepareStatement(sqlmay);
+            psmay.setString(1,MaKhu);
+            psmay.executeUpdate();
+            psmay.close();
+
+            PreparedStatement pskhu = conn.prepareStatement(sqlkhu);
+            pskhu.setString(1,"NGUNG");
+            pskhu.setString(2,MaKhu);
+            int row = pskhu.executeUpdate();
+            conn.close();
+            pskhu.close();
+            return row > 0;
+        }catch (SQLException e){
+            throw new RuntimeException("Lỗi delete KhuMay " + e.getMessage());
+        }
+
     }
+
+
+    private  boolean hasActiveSession (String MaKhu ){
+        String sql = "SELECT COUNT(*) FROM maytinh WHERE MaKhu = ? AND TrangThai = 'DANGCHOI'";
+        try{
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1,MaKhu);
+            ResultSet rs = pstmt.executeQuery();
+
+            if(rs.next()){
+                return rs.getInt(1) > 0 ;
+            }
+            rs.close();
+            pstmt.close();
+            conn.close();
+        }catch (SQLException e){
+            throw new RuntimeException("Lỗi hasActiveSession KhuMay " + e.getMessage());
+        }
+        return  false;
+    }
+
+
 }

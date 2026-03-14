@@ -1,10 +1,8 @@
 package entity;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-/**
- * Entity class đại diện cho bảng hoadon
- */
 public class HoaDon {
     private String maHD;
     private String maPhien;
@@ -16,29 +14,23 @@ public class HoaDon {
     private double tongTien;
     private double giamGia;
     private double thanhToan;
-    private String phuongThucTT; // ENUM: TIENMAT, CHUYENKHOAN, MOMO, VNPAY, TAIKHOAN
-    private String trangThai;    // ENUM: CHUATHANHTOAN, DATHANHTOAN
+    private String phuongThucTT;
+    private String trangThai;
 
-    // Constructors
     public HoaDon() {
         this.ngayLap = LocalDateTime.now();
         this.tienGioChoi = 0.0;
         this.tienDichVu = 0.0;
+        this.tongTien = 0.0;
         this.giamGia = 0.0;
-        this.phuongThucTT = "TAIKHOAN";
-        this.trangThai = "CHUATHANHTOAN";
+        this.thanhToan = 0.0;
+        this.trangThai = "CHUA";
     }
 
-    public HoaDon(String maPhien, String maKH, String maNV) {
-        this();
-        this.maPhien = maPhien;
-        this.maKH = maKH;
-        this.maNV = maNV;
-    }
-
-    public HoaDon(String maHD, String maPhien, String maKH, String maNV, LocalDateTime ngayLap,
-                  double tienGioChoi, double tienDichVu, double tongTien, double giamGia,
-                  double thanhToan, String phuongThucTT, String trangThai) {
+    public HoaDon(String maHD, String maPhien, String maKH, String maNV,
+                  LocalDateTime ngayLap, double tienGioChoi, double tienDichVu,
+                  double tongTien, double giamGia, double thanhToan,
+                  String phuongThucTT, String trangThai) {
         this.maHD = maHD;
         this.maPhien = maPhien;
         this.maKH = maKH;
@@ -53,132 +45,141 @@ public class HoaDon {
         this.trangThai = trangThai;
     }
 
-    // Getters and Setters
+    // Getters
     public String getMaHD() {
         return maHD;
-    }
-
-    public void setMaHD(String maHD) {
-        this.maHD = maHD;
     }
 
     public String getMaPhien() {
         return maPhien;
     }
 
-    public void setMaPhien(String maPhien) {
-        this.maPhien = maPhien;
-    }
-
     public String getMaKH() {
         return maKH;
-    }
-
-    public void setMaKH(String maKH) {
-        this.maKH = maKH;
     }
 
     public String getMaNV() {
         return maNV;
     }
 
-    public void setMaNV(String maNV) {
-        this.maNV = maNV;
-    }
-
     public LocalDateTime getNgayLap() {
         return ngayLap;
-    }
-
-    public void setNgayLap(LocalDateTime ngayLap) {
-        this.ngayLap = ngayLap;
     }
 
     public double getTienGioChoi() {
         return tienGioChoi;
     }
 
-    public void setTienGioChoi(double tienGioChoi) {
-        this.tienGioChoi = tienGioChoi;
-    }
-
     public double getTienDichVu() {
         return tienDichVu;
-    }
-
-    public void setTienDichVu(double tienDichVu) {
-        this.tienDichVu = tienDichVu;
     }
 
     public double getTongTien() {
         return tongTien;
     }
 
-    public void setTongTien(double tongTien) {
-        this.tongTien = tongTien;
-    }
-
     public double getGiamGia() {
         return giamGia;
-    }
-
-    public void setGiamGia(double giamGia) {
-        this.giamGia = giamGia;
     }
 
     public double getThanhToan() {
         return thanhToan;
     }
 
-    public void setThanhToan(double thanhToan) {
-        this.thanhToan = thanhToan;
-    }
-
     public String getPhuongThucTT() {
         return phuongThucTT;
-    }
-
-    public void setPhuongThucTT(String phuongThucTT) {
-        this.phuongThucTT = phuongThucTT;
     }
 
     public String getTrangThai() {
         return trangThai;
     }
 
+    // Setters
+    public void setMaHD(String maHD) {
+        this.maHD = maHD;
+    }
+
+    public void setMaPhien(String maPhien) {
+        this.maPhien = maPhien;
+    }
+
+    public void setMaKH(String maKH) {
+        this.maKH = maKH;
+    }
+
+    public void setMaNV(String maNV) {
+        this.maNV = maNV;
+    }
+
+    public void setNgayLap(LocalDateTime ngayLap) {
+        this.ngayLap = ngayLap;
+    }
+
+    public void setTienGioChoi(double tienGioChoi) {
+        this.tienGioChoi = tienGioChoi;
+    }
+
+    public void setTienDichVu(double tienDichVu) {
+        this.tienDichVu = tienDichVu;
+    }
+
+    public void setTongTien(double tongTien) {
+        this.tongTien = tongTien;
+    }
+
+    public void setGiamGia(double giamGia) {
+        this.giamGia = giamGia;
+    }
+
+    public void setThanhToan(double thanhToan) {
+        this.thanhToan = thanhToan;
+    }
+
+    public void setPhuongThucTT(String phuongThucTT) {
+        this.phuongThucTT = phuongThucTT;
+    }
+
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
     }
 
-    // Business methods
-
-    /**
-     * Tính tổng tiền từ tiền giờ chơi và tiền dịch vụ
-     */
+    // Phương thức tính toán tự động
     public void tinhTongTien() {
         this.tongTien = this.tienGioChoi + this.tienDichVu;
     }
 
-    /**
-     * Tính số tiền thanh toán sau khi trừ giảm giá
-     */
     public void tinhThanhToan() {
         this.thanhToan = this.tongTien - this.giamGia;
     }
 
-    /**
-     * Tự động tính toán tổng tiền và thanh toán
-     */
-    public void tinhToanTuDong() {
-        tinhTongTien();
-        tinhThanhToan();
+    // Format hiển thị tiền
+    public String getTienGioChoiFormatted() {
+        return String.format("%,.0f VND", tienGioChoi);
     }
 
-    /**
-     * Kiểm tra hóa đơn đã thanh toán chưa
-     */
-    public boolean isDaThanhToan() {
-        return "DATHANHTOAN".equals(this.trangThai);
+    public String getTienDichVuFormatted() {
+        return String.format("%,.0f VND", tienDichVu);
+    }
+
+    public String getTongTienFormatted() {
+        return String.format("%,.0f VND", tongTien);
+    }
+
+    public String getGiamGiaFormatted() {
+        return String.format("%,.0f VND", giamGia);
+    }
+
+    public String getThanhToanFormatted() {
+        return String.format("%,.0f VND", thanhToan);
+    }
+
+    // Format hiển thị ngày
+    public String getNgayLapFormatted() {
+        if (ngayLap != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            return ngayLap.format(formatter);
+        }
+        return "";
     }
 
     @Override
@@ -197,30 +198,5 @@ public class HoaDon {
                 ", phuongThucTT='" + phuongThucTT + '\'' +
                 ", trangThai='" + trangThai + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        HoaDon hoaDon = (HoaDon) o;
-        return maHD != null && maHD.equals(hoaDon.maHD);
-    }
-
-    @Override
-    public int hashCode() {
-        return maHD != null ? maHD.hashCode() : 0;
-    }
-    public String getNgayLapFormatted() {
-        return ngayLap != null ? java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(ngayLap) : "";
-    }
-    public String getTongTienFormatted() {
-        return String.format("%,.0f ₫", tongTien);
-    }
-    public String getThanhToanFormatted() {
-        return String.format("%,.0f ₫", thanhToan);
-    }
-    public String getTienGioChoiFormatted() {
-        return String.format("%,.0f ₫", tienGioChoi);
     }
 }

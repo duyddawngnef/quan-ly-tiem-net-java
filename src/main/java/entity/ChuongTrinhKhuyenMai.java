@@ -1,20 +1,31 @@
 package entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ChuongTrinhKhuyenMai {
     private String maCTKM;
     private String tenCT;
-    private String loaiKM;
+    private String loaiKM;  // PHANTRAM, SOTIEN, TANGGIO
     private double giaTriKM;
     private double dieuKienToiThieu;
-    private LocalDate ngayBatDau;
-    private LocalDate ngayKetThuc;
-    private String trangThai;
+    private LocalDateTime ngayBatDau;
+    private LocalDateTime ngayKetThuc;
+    private String trangThai;  // HOATDONG, NGUNG, HETHAN
 
-    public ChuongTrinhKhuyenMai() {}
+    public ChuongTrinhKhuyenMai() {
+        this.giaTriKM = 0.0;
+        this.dieuKienToiThieu = 0.0;
+        this.ngayBatDau = LocalDateTime.now();
+        this.ngayKetThuc = LocalDateTime.now().plusDays(30);
+        this.trangThai = "HOATDONG";
+        this.loaiKM = "PHANTRAM";
+    }
 
-    public ChuongTrinhKhuyenMai(String maCTKM, String tenCT, String loaiKM, double giaTriKM, double dieuKienToiThieu, LocalDate ngayBatDau, LocalDate ngayKetThuc, String trangThai) {
+    public ChuongTrinhKhuyenMai(String maCTKM, String tenCT, String loaiKM,
+                                double giaTriKM, double dieuKienToiThieu,
+                                LocalDateTime ngayBatDau, LocalDateTime ngayKetThuc,
+                                String trangThai) {
         this.maCTKM = maCTKM;
         this.tenCT = tenCT;
         this.loaiKM = loaiKM;
@@ -25,6 +36,7 @@ public class ChuongTrinhKhuyenMai {
         this.trangThai = trangThai;
     }
 
+    // Getters
     public String getMaCTKM() {
         return maCTKM;
     }
@@ -41,15 +53,14 @@ public class ChuongTrinhKhuyenMai {
         return giaTriKM;
     }
 
-    public double getDieuKienToiThieu() {
-        return dieuKienToiThieu;
+    public double getDieuKienToiThieu() {return dieuKienToiThieu;
     }
 
-    public LocalDate getNgayBatDau() {
+    public LocalDateTime getNgayBatDau() {
         return ngayBatDau;
     }
 
-    public LocalDate getNgayKetThuc() {
+    public LocalDateTime getNgayKetThuc() {
         return ngayKetThuc;
     }
 
@@ -57,6 +68,7 @@ public class ChuongTrinhKhuyenMai {
         return trangThai;
     }
 
+    // Setters
     public void setMaCTKM(String maCTKM) {
         this.maCTKM = maCTKM;
     }
@@ -77,11 +89,11 @@ public class ChuongTrinhKhuyenMai {
         this.dieuKienToiThieu = dieuKienToiThieu;
     }
 
-    public void setNgayBatDau(LocalDate ngayBatDau) {
+    public void setNgayBatDau(LocalDateTime ngayBatDau) {
         this.ngayBatDau = ngayBatDau;
     }
 
-    public void setNgayKetThuc(LocalDate ngayKetThuc) {
+    public void setNgayKetThuc(LocalDateTime ngayKetThuc) {
         this.ngayKetThuc = ngayKetThuc;
     }
 
@@ -89,18 +101,114 @@ public class ChuongTrinhKhuyenMai {
         this.trangThai = trangThai;
     }
 
+    // Phương thức kiểm tra
+    public boolean conHieuLuc() {
+        LocalDateTime now = LocalDateTime.now();
+        return trangThai.equals("HOATDONG") &&
+                now.isAfter(ngayBatDau) &&
+                now.isBefore(ngayKetThuc);
+    }
+
+    public boolean kiemTraDieuKien(double soTienNap) {
+        return soTienNap >= dieuKienToiThieu;
+    }
+
+    // Tính giá trị khuyến mãi
+    public double tinhKhuyenMai(double soTienNap) {
+        if (!kiemTraDieuKien(soTienNap)) {
+            return 0;
+        }
+
+        switch (loaiKM) {
+            case "PHANTRAM":
+                return soTienNap * giaTriKM / 100;
+            case "SOTIEN":
+                return giaTriKM;
+            case "TANGGIO":
+                return giaTriKM; // Trả về số giờ
+            default:
+                return 0;
+        }
+    }
+
+    // Format hiển thị
+    public String getGiaTriKMFormatted() {
+        if (loaiKM == null) return "";
+
+        switch (loaiKM) {
+            case "PHANTRAM":
+                return String.format("%.0f%%", giaTriKM);
+            case "SOTIEN":
+                return String.format("%,.0f VND", giaTriKM);
+            case "TANGGIO":
+                return String.format("%.1f giờ", giaTriKM);
+            default:
+                return String.valueOf(giaTriKM);
+        }
+    }
+
+    public String getDieuKienToiThieuFormatted() {
+        return String.format("%,.0f VND", dieuKienToiThieu);
+    }
+
+    public String getNgayBatDauFormatted() {
+        if (ngayBatDau != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            return ngayBatDau.format(formatter);
+        }
+        return "";
+    }
+
+    public String getNgayKetThucFormatted() {
+        if (ngayKetThuc != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            return ngayKetThuc.format(formatter);
+        }
+        return "";
+    }
+
+    // Lấy tên hiển thị
+    public String getTenLoaiKM() {
+        if (loaiKM == null) return "";
+
+        switch (loaiKM) {
+            case "PHANTRAM":
+                return "Phần trăm";
+            case "SOTIEN":
+                return "Số tiền";
+            case "TANGGIO":
+                return "Tặng giờ";
+            default:
+                return loaiKM;
+        }
+    }
+
+    public String getTenTrangThai() {
+        if (trangThai == null) return "";
+
+        switch (trangThai) {
+            case "HOATDONG":
+                return "Hoạt động";
+            case "NGUNG":
+                return "Ngừng";
+            case "HETHAN":
+                return "Hết hạn";
+            default:
+                return trangThai;
+        }
+    }
+
     @Override
     public String toString() {
         return "ChuongTrinhKhuyenMai{" +
-                "maCTKM=" + maCTKM +
-                ", tenCT=" + tenCT +
-                ", loaiKM=" + loaiKM +
+                "maCTKM='" + maCTKM + '\'' +
+                ", tenCT='" + tenCT + '\'' +
+                ", loaiKM='" + loaiKM + '\'' +
                 ", giaTriKM=" + giaTriKM +
                 ", dieuKienToiThieu=" + dieuKienToiThieu +
                 ", ngayBatDau=" + ngayBatDau +
                 ", ngayKetThuc=" + ngayKetThuc +
-                ", trangThai=" + trangThai +
+                ", trangThai='" + trangThai + '\'' +
                 '}';
     }
-
 }

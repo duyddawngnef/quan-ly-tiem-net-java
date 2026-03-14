@@ -3,7 +3,12 @@ package gui.controller;
 import bus.MayTinhBUS;
 import bus.KhuMayBUS;
 import bus.PhienSuDungBUS;
-import dao.*;
+import dao.PhienSuDungDAO;
+import dao.MayTinhDAO;
+import dao.KhachHangDAO;
+import dao.GoiDichVuKhachHangDAO;
+import dao.SuDungDichVuDAO;
+import dao.HoaDonDAO;
 import entity.MayTinh;
 import entity.KhuMay;
 import javafx.animation.KeyFrame;
@@ -38,8 +43,8 @@ public class SoDoMayController implements Initializable {
     private final MayTinhBUS mayTinhBUS = new MayTinhBUS();
     private final KhuMayBUS khuMayBUS = new KhuMayBUS();
     private final PhienSuDungBUS phienBUS = new PhienSuDungBUS(
-            new PhienSuDungDAO(), new MayTinhDAO(), new KhachHangDAO(),
-            new GoiDichVuKhachHangDAO(), new SuDungDichVuDAO(), new HoaDonDAO());
+        new PhienSuDungDAO(), new MayTinhDAO(), new KhachHangDAO(),
+        new GoiDichVuKhachHangDAO(), new SuDungDichVuDAO(), new HoaDonDAO());
     private MayTinh selectedMay = null;
     private Timeline autoRefresh;
     private int refreshCountdown = 30;
@@ -56,7 +61,7 @@ public class SoDoMayController implements Initializable {
             List<KhuMay> khuList = khuMayBUS.getAllKhuMay();
             cboKhu.getItems().clear();
             cboKhu.getItems().add("Tất cả");
-            khuList.forEach(k -> cboKhu.getItems().add(k.getTenKhu()));
+            khuList.forEach(k -> cboKhu.getItems().add(k.getTenkhu()));
             cboKhu.setValue("Tất cả");
         } catch (Exception e) {
             cboKhu.getItems().setAll("Tất cả");
@@ -96,15 +101,14 @@ public class SoDoMayController implements Initializable {
             .collect(Collectors.groupingBy(m -> m.getMakhu() == null ? "none" : m.getMakhu()));
 
         for (KhuMay khu : allKhu) {
-            if (!"Tất cả".equals(filterKhu) && !khu.getTenKhu().equals(filterKhu)) continue;
+            if (!"Tất cả".equals(filterKhu) && !khu.getTenkhu().equals(filterKhu)) continue;
 
-            List<MayTinh> mayInKhu = grouped.getOrDefault(khu.getMaKhu(), List.of());
+            List<MayTinh> mayInKhu = grouped.getOrDefault(khu.getMakhu(), List.of());
 
             VBox khuBox = new VBox(10);
-            khuBox.setStyle("-fx-background-color:#FFFFFF; -fx-background-radius:10; -fx-padding:16;" +
-                            "-fx-effect: dropshadow(gaussian,rgba(0,0,0,0.06),6,0,0,2);");
+            khuBox.setStyle("-fx-background-color:#F8FAFF; -fx-background-radius:10; -fx-padding:16;");
 
-            Label khuLabel = new Label("📍 " + khu.getTenKhu() +
+            Label khuLabel = new Label("📍 " + khu.getTenkhu() +
                     "  (" + mayInKhu.size() + " máy)");
             khuLabel.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:#1565C0;");
             khuBox.getChildren().add(khuLabel);
@@ -130,13 +134,17 @@ public class SoDoMayController implements Initializable {
         card.setPrefHeight(95);
         card.setCursor(javafx.scene.Cursor.HAND);
 
-        String styleClass = switch (may.getTrangthai()) {
-            case "TRONG"    -> "machine-free";
-            case "DANGDUNG" -> "machine-using";
-            case "BAOTRI"   -> "machine-maintain";
-            default          -> "machine-off";
+        // Màu nền theo trạng thái - không có border
+        String bgColor = switch (may.getTrangthai()) {
+            case "TRONG"    -> "#E8F5E9";  // xanh lá nhạt
+            case "DANGDUNG" -> "#E3F2FD";  // xanh dương nhạt
+            case "BAOTRI"   -> "#FFF3E0";  // cam nhạt
+            default          -> "#F5F5F5";  // xám nhạt
         };
-        card.getStyleClass().addAll("machine-card", styleClass);
+        card.setStyle("-fx-background-color:" + bgColor + ";" +
+                      "-fx-background-radius:8;" +
+                      "-fx-border-color:transparent;" +
+                      "-fx-border-width:0;");
 
         String icon = switch (may.getTrangthai()) {
             case "TRONG"    -> "💚";
@@ -149,8 +157,8 @@ public class SoDoMayController implements Initializable {
         iconLbl.setStyle("-fx-font-size:22px;");
         Label nameLbl = new Label(may.getTenmay());
         nameLbl.getStyleClass().add("machine-name");
+        nameLbl.setStyle("-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#212121;");
         Label statusLbl = new Label(may.getTrangthai());
-        statusLbl.getStyleClass().add("machine-status-label");
         statusLbl.setStyle("-fx-font-size:10px; -fx-text-fill:#555555;");
 
         card.getChildren().addAll(iconLbl, nameLbl, statusLbl);
@@ -184,14 +192,55 @@ public class SoDoMayController implements Initializable {
     @FXML
     public void handleMoPhien() {
         if (selectedMay == null) return;
-        // TODO: open dialog to select KH and open session
-        // Then reload
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Mở phiên mới");
+        dialog.setHeaderText("Máy: " + selectedMay.getTenmay());
+        dialog.setContentText("Nhập mã khách hàng:");
+        dialog.showAndWait().ifPresent(maKH -> {
+            if (maKH.trim().isEmpty()) return;
+            try {
+                phienBUS.moPhienMoi(maKH.trim(), selectedMay.getMamay());
+                // Refresh
+                selectedMay = null;
+                btnMoPhien.setDisable(true);
+                btnKetThuc.setDisable(true);
+                lblSelectedMay.setText("Chưa chọn máy");
+                loadSoDo();
+            } catch (Exception e) {
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.ERROR);
+                alert.setHeaderText(null);
+                alert.setContentText("Lỗi mở phiên: " + e.getMessage());
+                alert.showAndWait();
+            }
+        });
     }
 
     @FXML
     public void handleKetThucPhien() {
         if (selectedMay == null) return;
-        // TODO: confirm, call phienBUS.ketThucPhien(), reload
+        try {
+            entity.PhienSuDung phien = phienBUS.getPhienDangChoiByMay(selectedMay.getMamay());
+            if (phien == null) {
+                javafx.scene.control.Alert a = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.WARNING);
+                a.setHeaderText(null);
+                a.setContentText("Máy " + selectedMay.getTenmay() + " không có phiên đang chơi.");
+                a.showAndWait(); return;
+            }
+            phienBUS.ketThucPhien(phien.getMaPhien());
+            selectedMay = null;
+            btnMoPhien.setDisable(true);
+            btnKetThuc.setDisable(true);
+            lblSelectedMay.setText("Chưa chọn máy");
+            loadSoDo();
+        } catch (Exception e) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setHeaderText(null);
+            alert.setContentText("Lỗi kết thúc phiên: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     private void startAutoRefresh() {
