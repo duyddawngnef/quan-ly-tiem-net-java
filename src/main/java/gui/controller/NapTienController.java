@@ -49,8 +49,6 @@ public class NapTienController implements Initializable {
     @FXML private TableColumn<LichSuNapTien, String> colNVHist;
     @FXML private TableColumn<LichSuNapTien, String> colNgayHist;
 
-    @FXML private DatePicker dateFilter;
-
     private final NapTienBUS   napTienBUS   = new NapTienBUS();
     private final KhachHangBUS khachHangBUS = new KhachHangBUS();
     private final KhuyenMaiBUS khuyenMaiBUS = new KhuyenMaiBUS();
@@ -90,11 +88,7 @@ public class NapTienController implements Initializable {
             cboCTKM.setCellFactory(lv -> new ListCell<>() {
                 @Override protected void updateItem(ChuongTrinhKhuyenMai item, boolean empty) {
                     super.updateItem(item, empty);
-                    if (empty) {
-                        setText(null);
-                        return;
-                    }
-                    setText(item == null
+                    setText(empty ? null : (item == null
                             ? "-- Không áp dụng --"
                             : item.getTenCT() + " (" + item.getGiaTriKMFormatted() + ")"));
                 }
@@ -102,25 +96,10 @@ public class NapTienController implements Initializable {
             cboCTKM.setButtonCell(new ListCell<>() {
                 @Override protected void updateItem(ChuongTrinhKhuyenMai item, boolean empty) {
                     super.updateItem(item, empty);
-                    if (empty || (item == null && cboCTKM.getValue() == null)) {
-                        setText("-- Không áp dụng --");
-                    } else {
-                        setText(item == null ? "-- Không áp dụng --" : item.getTenCT());
-                    }
+                    setText(empty ? null : (item == null ? "-- Không áp dụng --" : item.getTenCT()));
                 }
             });
-            // Chọn mặc định là null (không áp dụng)
-            cboCTKM.setValue(null);
-
-            int count = list != null ? list.size() : 0;
-            if (lblCTKMDebug != null)
-                lblCTKMDebug.setText(count == 0 ? "⚠ Không có CTKM đang hoạt động" : count + " CTKM đang hoạt động");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (lblCTKMDebug != null)
-                lblCTKMDebug.setText("⚠ Lỗi load CTKM: " + e.getMessage());
-        }
+        } catch (Exception ignored) {}
     }
 
     @FXML
