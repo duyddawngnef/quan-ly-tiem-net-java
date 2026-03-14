@@ -25,15 +25,15 @@
             <Label text="Thông tin nạp tiền" styleClass="section-title-blue"/>
             <Separator/>
 
-            <!-- Find customer -->
-            <VBox spacing="4">
-                <Label text="Tìm khách hàng *" styleClass="form-label"/>
-                <HBox spacing="6">
-                    <TextField fx:id="txtTimKH" promptText="Mã KH hoặc tên đăng nhập"
-                               styleClass="text-field" HBox.hgrow="ALWAYS"/>
-                    <Button text="🔍  Tìm" styleClass="btn btn-outline" onAction="#handleTimKH"/>
-                </HBox>
-            </VBox>
+                        <!-- Find customer -->
+                        <VBox spacing="4">
+                            <Label text="Tìm khách hàng *" styleClass="form-label"/>
+                            <HBox spacing="6">
+                                <TextField fx:id="txtTimKH" promptText="Mã KH hoặc tên đăng nhập"
+                                           styleClass="text-field" HBox.hgrow="ALWAYS"/>
+                                <Button text="🔍  Tìm" styleClass="btn btn-outline" onAction="#handleTimKH"/>
+                            </HBox>
+                        </VBox>
 
             <!-- Customer info display -->
             <VBox fx:id="vboxKHInfo" spacing="8" styleClass="customer-info-box"
@@ -71,12 +71,12 @@
                 </HBox>
             </VBox>
 
-            <!-- CTKM -->
-            <VBox spacing="4">
-                <Label text="Chương trình khuyến mãi" styleClass="form-label"/>
-                <ComboBox fx:id="cboCTKM" promptText="Không áp dụng" styleClass="combo-box"
-                          maxWidth="Infinity" onAction="#handleCTKMChanged"/>
-            </VBox>
+                        <!-- CTKM -->
+                        <VBox spacing="4">
+                            <Label text="Chương trình khuyến mãi" styleClass="form-label"/>
+                            <ComboBox fx:id="cboCTKM" promptText="Không áp dụng" styleClass="combo-box"
+                                      maxWidth="Infinity" onAction="#handleCTKMChanged"/>
+                        </VBox>
 
             <!-- Calculated bonus -->
             <VBox fx:id="vboxKM" spacing="6" styleClass="promo-info-box"
@@ -104,7 +104,9 @@
                 </HBox>
             </VBox>
 
-            <Label fx:id="lblError" styleClass="error-label" text="" wrapText="true"/>
+                    </VBox>
+                </ScrollPane>
+            </center>
 
             <Button fx:id="btnNapTien" text="💳  XÁC NHẬN NẠP TIỀN" styleClass="btn btn-primary, btn-confirm-large"
                     maxWidth="Infinity"
