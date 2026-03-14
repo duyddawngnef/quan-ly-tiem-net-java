@@ -1,95 +1,129 @@
 package bus;
 
-import java.util.List;
-
-import dao.DichVuDAO;
 import entity.DichVu;
-import entity.NhanVien;
-import utils.SessionManager;
+import utils.PermissionHelper;
+import dao.DichVuDAO;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class DichVuBUS {
 
-    private final DichVuDAO dichVuDAO = new DichVuDAO();
+    private final DichVuDAO dvDAO = new DichVuDAO();
 
-    // Lấy danh sách dịch vụ
-    public List<DichVu> getDanhSachDV() throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isNhanVien())
-            throw new Exception("Không có quyền thực hiện");
+    // LẤY TẤT CẢ DỊCH VỤ (Phân quyền: Nhân viên trở lên)
+    public List<DichVu> getAll() throws Exception {
+        // KÍCH HOẠT PHÂN QUYỀN
+        PermissionHelper.requireLogin();
+        PermissionHelper.requireNhanVien();
 
-        return dichVuDAO.getAll();
+        List<DichVu> result = dvDAO.getAll();
+        System.out.println("Đã lấy được " + result.size() + " dịch vụ.");
+        return result;
     }
 
-    // Thêm dịch vụ mới + validate
-    public boolean themDichVu(DichVu dv) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isQuanLy())
-            throw new Exception("Không có quyền thực hiện");
+    // LẤY CÁC DỊCH VỤ CÒN HÀNG (Phân quyền: Khách hàng)
+    public List<DichVu> getDichVuConHang() throws Exception {
+        // KÍCH HOẠT PHÂN QUYỀN
+        PermissionHelper.requireLogin();
+        PermissionHelper.requireNhanVien();
 
-        // Validate
-        if (dv.getTenDV() == null || dv.getTenDV().trim().isEmpty())
-            throw new Exception("Tên dịch vụ không được để trống");
-        if (dv.getDonGia() <= 0)
-            throw new Exception("Đơn giá phải lớn hơn 0");
-        if (dv.getSoLuongTon() < 0)
-            throw new Exception("Số lượng tồn không được âm");
-        if (dv.getLoaiDV() == null || dv.getLoaiDV().trim().isEmpty())
-            throw new Exception("Loại dịch vụ không được để trống");
-        if (dv.getDonViTinh() == null || dv.getDonViTinh().trim().isEmpty())
-            throw new Exception("Đơn vị tính không được để trống");
-
-        // Tạo mã tự động
-        dv.setMaDV(dichVuDAO.generateId());
-
-        return dichVuDAO.insert(dv);
+        List<DichVu> list = dvDAO.getAll();
+        Iterator<DichVu> it = list.iterator();
+        while(it.hasNext()) {
+            if (it.next().getSoluongton() <= 0) it.remove();
+        }
+        return list;
     }
 
-    // Sửa dịch vụ + validate
-    public boolean suaDichVu(DichVu dv) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isQuanLy())
-            throw new Exception("Không có quyền thực hiện");
-
-        // Validate
-        if (dv.getTenDV() == null || dv.getTenDV().trim().isEmpty())
-            throw new Exception("Tên dịch vụ không được để trống");
-        if (dv.getDonGia() <= 0)
-            throw new Exception("Đơn giá phải lớn hơn 0");
-        if (dv.getSoLuongTon() < 0)
-            throw new Exception("Số lượng tồn không được âm");
-
-        return dichVuDAO.update(dv);
+    // CHUẨN HÓA TÊN DỊCH VỤ
+    private String chuanHoaTen(String ten) {
+        if (ten == null) return "";
+        return ten.trim().replaceAll("\\s+", " ").toLowerCase();
     }
 
-    // Xóa dịch vụ
-    public boolean xoaDichVu(String maDV) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isQuanLy())
-            throw new Exception("Không có quyền thực hiện");
-
-        return dichVuDAO.delete(maDV);
+    // KIỂM TRA TÊN KHÔNG ĐƯỢC TRÙNG VỚI CÁC DỊCH VỤ ĐÃ CÓ
+    private boolean checkTrungTenDichVu(String tenDV, String oldName) {
+        for (DichVu item : dvDAO.getAll()) {
+            if (oldName != null && oldName.equals(item.getTendv())) continue;
+            if (chuanHoaTen(tenDV).equals(chuanHoaTen(item.getTendv()))) return false;
+        }
+        return true;
     }
 
-    // Kiểm tra tồn kho đủ không
-    public boolean kiemTraTonKho(String maDV, int soLuong) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isNhanVien())
-            throw new Exception("Không có quyền thực hiện");
+    // KIỂM TRA VALIDATION (dùng cho insert và update)
+    private void validateDichVu(DichVu dv, String oldName) throws Exception {
+        if (dv.getTendv() == null || dv.getTendv().trim().isEmpty())
+            throw new Exception("Tên dịch vụ không được để trống!");
 
-        DichVu dv = dichVuDAO.getById(maDV);
-        if (dv == null)
-            throw new Exception("Dịch vụ không tồn tại");
+        if (!checkTrungTenDichVu(dv.getTendv(), oldName))
+            throw new Exception("Tên dịch vụ này đã tồn tại!");
 
-        return dv.getSoLuongTon() >= soLuong;
+        if (dv.getLoaidv() == null || dv.getLoaidv().trim().isEmpty())
+            throw new Exception("Loại dịch vụ không được để trống!");
+
+        if (!dv.getLoaidv().equals("DOUONG") && !dv.getLoaidv().equals("THUCPHAM") && !dv.getLoaidv().equals("KHAC"))
+            dv.setLoaidv("KHAC");
+
+        if (dv.getDongia() <= 0.0)
+            throw new Exception("Đơn giá phải lớn hơn 0!");
+    }
+
+    // THÊM DỊCH VỤ (Phân quyền: Quản lý)
+    public void themDichVu(DichVu newDichVu) throws Exception {
+        // KÍCH HOẠT PHÂN QUYỀN
+        PermissionHelper.requireLogin();
+        PermissionHelper.requireQuanLy();
+
+        validateDichVu(newDichVu, "");
+
+        boolean ok = dvDAO.insert(newDichVu);
+        if (!ok) throw new Exception("Thêm dịch vụ không thành công!");
+        System.out.println("Thêm dịch vụ thành công.");
+    }
+
+    // SỬA DỊCH VỤ (Phân quyền: Quản lý)
+    public void suaDichVu(DichVu updateDV) throws Exception {
+        // KÍCH HOẠT PHÂN QUYỀN
+        PermissionHelper.requireLogin();
+        PermissionHelper.requireQuanLy();
+
+        DichVu existing = dvDAO.getByID(updateDV.getMadv());
+        if (existing == null) throw new Exception("Không tìm thấy mã dịch vụ cần sửa!");
+
+        validateDichVu(updateDV, existing.getTendv());
+
+        boolean ok = dvDAO.update(updateDV);
+        if (!ok) throw new Exception("Sửa dịch vụ không thành công!");
+        System.out.println("Sửa dịch vụ thành công.");
+    }
+
+    // XÓA DỊCH VỤ => CHUYỂN SANG TRẠNG THÁI NGỪNG BÁN (Phân quyền: Quản lý)
+    public void xoaDichVu(String maDV) throws Exception {
+        // KÍCH HOẠT PHÂN QUYỀN
+        PermissionHelper.requireLogin();
+        PermissionHelper.requireQuanLy();
+
+        if (maDV == null) throw new Exception("Mã dịch vụ không được để trống!");
+        if (dvDAO.getByID(maDV) == null) throw new Exception("Không tồn tại mã dịch vụ này!");
+
+        boolean ok = dvDAO.delete(maDV);
+        if (!ok) throw new Exception("Xóa dịch vụ không thành công!");
+        System.out.println("Xóa dịch vụ thành công.");
+    }
+
+    // KHÔI PHỤC DỊCH VỤ (Phân quyền: Quản lý)
+    public void khoiPhucLaiDichVu(String maDV) throws Exception {
+        // KÍCH HOẠT PHÂN QUYỀN
+        PermissionHelper.requireLogin();
+        PermissionHelper.requireQuanLy();
+
+        if (maDV == null) throw new Exception("Mã dịch vụ không được để trống!");
+        DichVu check = dvDAO.getByID(maDV);
+        if (check == null) throw new Exception("Không tồn tại mã dịch vụ này!");
+
+        boolean ok = dvDAO.cancelDelete(check);
+        if (!ok) throw new Exception("Khôi phục dịch vụ không thành công!");
+        System.out.println("Khôi phục dịch vụ thành công.");
     }
 }

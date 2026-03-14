@@ -1,96 +1,39 @@
 package entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PhieuNhapHang {
     private String maPhieuNhap;
     private String maNCC;
     private String maNV;
-    private LocalDate ngayNhap;
+    private LocalDateTime ngayNhap;
     private double tongTien;
     private String trangThai;
 
+    private List<ChiTietPhieuNhap> chiTietList = new ArrayList<>();
+
     public PhieuNhapHang() {}
 
-    public PhieuNhapHang(String maPhieuNhap, String maNCC, String maNV, LocalDate ngayNhap, double tongTien,
-            String trangThai) {
-        this.maPhieuNhap = maPhieuNhap;
-        this.maNCC = maNCC;
-        this.maNV = maNV;
-        this.ngayNhap = ngayNhap;
-        this.tongTien = tongTien;
-        this.trangThai = trangThai;
-    }
+    public String getMaPhieuNhap() { return maPhieuNhap; }
+    public void setMaPhieuNhap(String maPhieuNhap) { this.maPhieuNhap = maPhieuNhap; }
 
-    public String getMaPhieuNhap() {
-        return maPhieuNhap;
-    }
+    public String getMaNCC() { return maNCC; }
+    public void setMaNCC(String maNCC) { this.maNCC = maNCC; }
 
-    public String getMaNCC() {
-        return maNCC;
-    }
+    public String getMaNV() { return maNV; }
+    public void setMaNV(String maNV) { this.maNV = maNV; }
 
-    public String getMaNV() {
-        return maNV;
-    }
+    public LocalDateTime getNgayNhap() { return ngayNhap; }
+    public void setNgayNhap(LocalDateTime ngayNhap) { this.ngayNhap = ngayNhap; }
 
-    public LocalDate getNgayNhap() {
-        return ngayNhap;
-    }
+    public double getTongTien() { return tongTien; }
+    public void setTongTien(double tongTien) { this.tongTien = tongTien; }
 
-    public double getTongTien() {
-        return tongTien;
-    }
+    public String getTrangThai() { return trangThai; }
+    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
-    public String getTrangThai() {
-        return trangThai;
-    }
-
-    public void setMaPhieuNhap(String maPhieuNhap) {
-        this.maPhieuNhap = maPhieuNhap;
-    }
-
-    public void setMaNCC(String maNCC) {
-        this.maNCC = maNCC;
-    }
-
-    public void setMaNV(String maNV) {
-        this.maNV = maNV;
-    }
-
-    public void setNgayNhap(LocalDate ngayNhap) {
-        this.ngayNhap = ngayNhap;
-    }
-
-    public void setTongTien(double tongTien) {
-        this.tongTien = tongTien;
-    }
-
-    public void setTrangThai(String trangThai) {
-        this.trangThai = trangThai;
-    }
-
-    @Override
-    public String toString() {
-        return "PhieuNhapHang{" +
-                "maPhieuNhap='" + maPhieuNhap +
-                ", maNCC='" + maNCC +
-                ", maNV='" + maNV +
-                ", ngayNhap=" + ngayNhap +
-                ", tongTien=" + tongTien +
-                ", trangThai='" + trangThai +
-                '}';
-    }
-
-    public boolean isChoDuyet() {
-        return "CHODUYET".equals(trangThai);
-    }
-
-    public boolean isDaNhap() {
-        return "DANHAP".equals(trangThai);
-    }
-
-    public boolean isDaHuy() {
-        return "DAHUY".equals(trangThai);
-    }
+    public List<ChiTietPhieuNhap> getChiTietList() { return chiTietList; }
+    public void setChiTietList(List<ChiTietPhieuNhap> chiTietList) { this.chiTietList = chiTietList; }
 }

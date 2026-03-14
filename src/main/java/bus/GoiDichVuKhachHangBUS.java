@@ -1,135 +1,151 @@
 package bus;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import dao.GoiDichVuDAO;
-import dao.GoiDichVuKhachHangDAO;
-import dao.KhachHangDAO;
-import entity.GoiDichVu;
+import dao.DBConnection;
 import entity.GoiDichVuKhachHang;
+import entity.GoiDichVu;
 import entity.KhachHang;
 import entity.NhanVien;
-import utils.SessionManager;
+import utils.*;
+import dao.GoiDichVuKhachHangDAO;
+import dao.GoiDichVuDAO;
+import dao.KhachHangDAO;
 
-public class GoiDichVuKhachHangBUS {
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+import java.time.LocalDateTime;
+/* CÁC METHOD.
+    1. void muaGoi(String maGDV, String maKH): mua gói dịch vụ. phân quyền(quản lý, nhân viên).
+    2. List<GoiDichVuKhachHang> getGoiConHieuLuc(String maKH): lấy tất cả các gói còn hiệu lực của khách hàng đó.
+phân quyền( quản lý, nhân viên).
+    3. boolean kiemTraGoiHopLe(String maGoiKH): kiểm tra gói có hợp lệ. phân quyền(quản lý, nhân viên).
+*/
 
-    private final GoiDichVuKhachHangDAO goiDichVuKhachHangDAO = new GoiDichVuKhachHangDAO();
-    private final GoiDichVuDAO goiDichVuDAO = new GoiDichVuDAO();
-    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
+public class GoiDichVuKhachHangBUS{
 
-    /**
-     * Mua gói dịch vụ cho khách hàng
-     * 1. Lấy giá gói
-     * 2. Kiểm tra KH đủ tiền
-     * 3. Trừ tiền KH
-     * 4. Tạo GoiDichVuKhachHang với ngayHetHan
-     */
-    public boolean muaGoi(String maKH, String maGoi) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isNhanVien())
-            throw new Exception("Không có quyền thực hiện");
+    private final GoiDichVuKhachHangDAO gdvkhDAO = new GoiDichVuKhachHangDAO();
+    private final GoiDichVuDAO gdvDAO = new GoiDichVuDAO();
+    private final KhachHangDAO khDAO = new KhachHangDAO();
 
-        // 1. Lấy thông tin gói dịch vụ
-        GoiDichVu goi = null;
-        List<GoiDichVu> danhSachGoi = goiDichVuDAO.getAll();
-        for (GoiDichVu g : danhSachGoi) {
-            if (g.getMaGoi().equals(maGoi)) {
-                goi = g;
+    // CHỨC NĂNG MUA GÓI DỊCH VỤ
+    public void muaGoi(String maGDV, String maKH) throws Exception{
+        // check login
+        PermissionHelper.requireLogin();
+
+        // kiểm tra phân quyền.
+        PermissionHelper.requireQuanLy();
+
+        // kiểm tra VALIDATION
+        // check mã gói dịch vụ
+        if(maGDV == null ){ throw new Exception("Mã gói dịch vụ cần mua không được để trống!!!"); }
+        GoiDichVu gdv = gdvDAO.getByID(maGDV);
+        if(  gdv == null ){ throw new Exception("Mã gói dịch vụ này không tồn tại!!!"); }
+        // kiểm tra trạng thái của gói dịch vụ
+        if( gdv.getTrangthai().equals("NGUNG")){ throw new Exception("Gói dịch vụ này hiện tại đã ngừng!!!"); }
+
+        // kiểm tra khách hàng
+        if( maKH == null){ throw new Exception("Mã khách hàng mua gói dịch vụ không được để trống!!!"); }
+        List<KhachHang> list = new ArrayList<>();
+        list = khDAO.getAll();
+        KhachHang kh = null;
+        for(KhachHang item : list){
+            if(item.getMakh().equals(maKH)){
+                kh = item;
                 break;
             }
         }
-        if (goi == null)
-            throw new Exception("Gói dịch vụ không tồn tại");
-        if (!"CONHAN".equals(goi.getTrangThai()) && !"HOATDONG".equals(goi.getTrangThai()))
-            throw new Exception("Gói dịch vụ không còn hoạt động");
+        if(kh == null){ throw new Exception("Mã khách hàng này không tồn tại!!!"); }
+        if(kh.getTrangthai().equals("NGUNG")){ throw new Exception("Tài khoản của khách này đã ngừng hoạt động!!!"); }
 
-        // 2. Kiểm tra KH đủ tiền
-        KhachHang kh = khachHangDAO.getById(maKH);
-        if (kh == null)
-            throw new Exception("Khách hàng không tồn tại");
-        if (kh.getSodu() < goi.getGiaGoi())
-            throw new Exception("Số dư không đủ! Cần: " + goi.getGiaGoi() + ", Hiện có: " + kh.getSodu());
+        // kiểm tra số dư
+        if( kh.getSodu() < gdv.getGiagoi() ){ throw new Exception("Số dư của khách không đủ để mua gói dịch vụ này!!!");}
 
-        // 3. Trừ tiền KH
-        double soDuMoi = kh.getSodu() - goi.getGiaGoi();
-        boolean truTien = khachHangDAO.updateSoDu(maKH, soDuMoi);
-        if (!truTien)
-            throw new Exception("Lỗi khi trừ tiền khách hàng");
+        // lấy thông tin của nhân viên thực hiện mua gói cho khách
+        NhanVien nv = SessionManager.getCurrentNhanVien();
+        // tạo thông tin gói dịch vụ khách hàng
+        GoiDichVuKhachHang gdvkh = new GoiDichVuKhachHang("", kh.getMakh(), gdv.getMagoi(), nv.getManv(), gdv.getSogio()
+                , gdv.getSogio(), LocalDateTime.now(), LocalDateTime.now().plusDays(gdv.getSongayhieuluc()), gdv.getGiagoi()
+                , "CONHAN");
 
-        // 4. Tạo GoiDichVuKhachHang
-        GoiDichVuKhachHang goiKH = new GoiDichVuKhachHang();
-        goiKH.setMaGoiKH(goiDichVuKhachHangDAO.generateId());
-        goiKH.setMaKH(maKH);
-        goiKH.setMaGoi(maGoi);
-        goiKH.setMaNV(SessionManager.getCurrentMaNV());
-        goiKH.setSoGioBanDau(goi.getSoGio());
-        goiKH.setSoGioConLai(goi.getSoGio());
-        goiKH.setNgayMua(LocalDateTime.now());
-        goiKH.setNgayHetHan(LocalDateTime.now().plusDays(goi.getSoNgayHieuLuc()));
-        goiKH.setGiaMua(goi.getGiaGoi());
-        goiKH.setTrangThai("CONHAN");
+        // gọi xuống DAO
+        try{
+            // trừ tiền khách hàng
+            kh.setSodu( kh.getSodu() - gdv.getGiagoi());
+            boolean truTien = this.khDAO.updateSoDuKhiMuaGoi(kh);
 
-        boolean inserted = goiDichVuKhachHangDAO.insert(goiKH);
-        if (!inserted) {
-            // Rollback: hoàn tiền nếu insert thất bại
-            khachHangDAO.updateSoDu(maKH, kh.getSodu());
-            throw new Exception("Lỗi khi đăng ký gói dịch vụ");
+            // thêm một dòng gói dịch vụ khách hàng
+            boolean isSucess = this.gdvkhDAO.insert(gdvkh);
+            if(truTien && isSucess){
+                System.out.println("Mua gói dịch vụ thành công!!!");
+            }else{
+                System.out.println("Mua gói dịch vụ không thành công!!!");
+            }
+        }catch(Exception e){
+            throw new Exception("Lỗi hệ thống: " + e.getMessage());
         }
-
-        return true;
     }
 
-    /**
-     * Trừ giờ sử dụng từ gói của khách hàng
-     * 1. Lấy gói còn hiệu lực của KH
-     * 2. Trừ giờ, cập nhật soGioConLai
-     * 3. Return số giờ còn thừa (nếu gói hết giờ)
-     */
-    public double truGioSuDung(String maKH, double soGio) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isNhanVien())
-            throw new Exception("Không có quyền thực hiện");
+    // LẤY NHỮNG GÓI DỊCH VỤ CÒN HẠN CỦA MỘT KHÁCH HÀNG
+    public List<GoiDichVuKhachHang> getGoiConHieuLuc(String maKH) throws Exception{
+        // check login
+        PermissionHelper.requireLogin();
 
-        if (soGio <= 0)
-            throw new Exception("Số giờ phải lớn hơn 0");
+        // kiểm tra phân quyền.
+        PermissionHelper.requireQuanLy();
 
-        // 1. Lấy gói còn hiệu lực
-        List<GoiDichVuKhachHang> goiConHan = goiDichVuKhachHangDAO.getConHieuLuc(maKH);
-        if (goiConHan == null || goiConHan.isEmpty())
-            throw new Exception("Khách hàng không có gói dịch vụ còn hiệu lực");
-
-        double gioCanTru = soGio;
-
-        // 2. Trừ giờ từ từng gói (ưu tiên gói sắp hết hạn trước)
-        for (GoiDichVuKhachHang goiKH : goiConHan) {
-            if (gioCanTru <= 0)
+        // KIỂM TRA VALIDATION
+        // kiểm tra khách hàng
+        if( maKH == null){ throw new Exception("Mã khách hàng mua gói dịch vụ không được để trống!!!"); }
+        List<KhachHang> list = new ArrayList<>();
+        list = khDAO.getAll();
+        KhachHang kh = null;
+        for(KhachHang item : list){
+            if(item.getMakh().equals(maKH)){
+                kh = item;
                 break;
+            }
+        }
+        if(kh == null){ throw new Exception("Mã khách hàng này không tồn tại!!!"); }
+        if(kh.getTrangthai().equals("NGUNG")){ throw new Exception("Tài khoản của khách này đã ngừng hoạt động!!!"); }
 
-            double gioConLai = goiKH.getSoGioConLai();
-
-            if (gioConLai >= gioCanTru) {
-                // Gói này đủ giờ
-                goiKH.setSoGioConLai(gioConLai - gioCanTru);
-                if (goiKH.getSoGioConLai() == 0) {
-                    goiKH.setTrangThai("HETGIO");
-                }
-                goiDichVuKhachHangDAO.update(goiKH);
-                gioCanTru = 0;
-            } else {
-                // Gói này không đủ, trừ hết và chuyển sang gói tiếp theo
-                gioCanTru -= gioConLai;
-                goiKH.setSoGioConLai(0);
-                goiKH.setTrangThai("HETGIO");
-                goiDichVuKhachHangDAO.update(goiKH);
+        // gọi xuống DAO
+        List<GoiDichVuKhachHang> result = new ArrayList<>();
+        result = this.gdvkhDAO.getByKhachHang(maKH);
+        // lấy tất cả
+        Iterator<GoiDichVuKhachHang> l = result.iterator();
+        while(l.hasNext()) {
+            GoiDichVuKhachHang item = l.next();
+            if(item.getTrangthai().equals("HETHAN") || item.getTrangthai().equals("DAHETGIO")){
+                l.remove();
             }
         }
 
-        // 3. Return số giờ còn thừa (chưa trừ được)
-        return gioCanTru;
+        return result;
+    }
+
+    // CHỨC NĂNG KIỂM TRA GÓI HỢP LỆ
+    public boolean kiemTraGoiHopLe(String maGoiKH) throws Exception{
+        // check login
+        PermissionHelper.requireLogin();
+
+        // kiểm tra phân quyền.
+        PermissionHelper.requireQuanLy();
+
+        // kiểm tra VALIDATION
+        if( maGoiKH == null ){ throw new Exception("Mã gói khách hàng không được để trống!!!"); }
+        GoiDichVuKhachHang gdvkh = null;
+        gdvkh = this.gdvkhDAO.getByID(maGoiKH);
+        if(gdvkh == null){ throw new Exception("Không tồn tại mã gói khách hàng này!!!"); }
+
+        // kiểm tra kết quả
+        if( gdvkh.getTrangthai().equals("CONHAN") ){
+            System.out.println("Gói " + maGoiKH + " còn dùng được!!!");
+            return true;
+        }
+        else{
+            System.out.println("Gói " + maGoiKH + " không còn dùng được!!!");
+            return false;
+        }
     }
 }

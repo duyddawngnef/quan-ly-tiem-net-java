@@ -24,15 +24,16 @@ import java.util.ResourceBundle;
 public class KhuMayController implements Initializable {
 
     @FXML private TableView<KhuMay> tableView;
-    @FXML private TableColumn<KhuMay, String>  colMaKhu;
-    @FXML private TableColumn<KhuMay, String>  colTenKhu;
-    @FXML private TableColumn<KhuMay, Double>  colGiaCoso;
-    @FXML private TableColumn<KhuMay, Integer> colSoMayToiDa;
+    @FXML private TableColumn<KhuMay, String>  colMaKhu;        // ← SỬA khớp FXML
+    @FXML private TableColumn<KhuMay, String>  colTenKhu;       // ← SỬA khớp FXML
+    @FXML private TableColumn<KhuMay, String>  colSoMay;        // ← SỬA khớp FXML (hiển thị số máy)
+    @FXML private TableColumn<KhuMay, String>  colMoTa;         // ← SỬA khớp FXML
     @FXML private TableColumn<KhuMay, String>  colTrangThai;
 
     @FXML private TextField txtSearch;
     @FXML private Label lblSubtitle;
     @FXML private Label lblTotal;
+    @FXML private Label lblSoMay;
     @FXML private Button btnSua;
     @FXML private Button btnXoa;
 
@@ -49,19 +50,47 @@ public class KhuMayController implements Initializable {
     }
 
     private void setupTableColumns() {
-        if (colMaKhu         != null) colMaKhu.setCellValueFactory(new PropertyValueFactory<>("maKhu"));
-        if (colTenKhu        != null) colTenKhu.setCellValueFactory(new PropertyValueFactory<>("tenKhu"));
-        if (colGiaCoso    != null) {
-            colGiaCoso.setCellValueFactory(new PropertyValueFactory<>("giacoso"));
-            colGiaCoso.setCellFactory(col -> new TableCell<>() {
-                @Override protected void updateItem(Double v, boolean empty) {
-                    super.updateItem(v, empty);
-                    setText(empty || v == null ? null : String.format("%,.0f ₫/giờ", v));
+        if (colMaKhu    != null) colMaKhu.setCellValueFactory(new PropertyValueFactory<>("makhu"));
+        if (colTenKhu   != null) colTenKhu.setCellValueFactory(new PropertyValueFactory<>("tenkhu"));
+        if (colTrangThai != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
+
+        // Cột Số máy: hiển thị số máy trong khu (gọi BUS đếm)
+        if (colSoMay != null) {
+            colSoMay.setCellFactory(col -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                        setText(null);
+                    } else {
+                        KhuMay km = getTableRow().getItem();
+                        try {
+                            int soMay = khuMayBUS.demSoMayTrongKhu(km.getMakhu());
+                            setText(soMay + " máy");
+                        } catch (Exception e) {
+                            setText("N/A");
+                        }
+                    }
                 }
             });
         }
-        if (colSoMayToiDa != null) colSoMayToiDa.setCellValueFactory(new PropertyValueFactory<>("somaytoida"));
-        if (colTrangThai  != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
+
+        // Cột Mô tả: hiển thị giá cơ sở + số máy tối đa
+        if (colMoTa != null) {
+            colMoTa.setCellFactory(col -> new TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                        setText(null);
+                    } else {
+                        KhuMay km = getTableRow().getItem();
+                        setText(String.format("Giá: %,.0f ₫/giờ | Tối đa: %d máy",
+                                km.getGiacoso(), km.getSomaytoida()));
+                    }
+                }
+            });
+        }
     }
 
     private void setupTableSelection() {
@@ -70,9 +99,32 @@ public class KhuMayController implements Initializable {
             boolean has = n != null;
             if (btnSua != null) btnSua.setDisable(!has);
             if (btnXoa != null) btnXoa.setDisable(!has);
+
+            // Gọi onRowSelected khi chọn dòng
+            onRowSelected(n);
         });
         if (btnSua != null) btnSua.setDisable(true);
         if (btnXoa != null) btnXoa.setDisable(true);
+    }
+
+    /**
+     * Xử lý khi chọn 1 dòng trong bảng
+     * Gọi KhuMayBUS.demSoMayTrongKhu(maKhu) để hiển thị số máy
+     */
+    private void onRowSelected(KhuMay khuMay) {
+        if (lblSoMay == null) return;
+
+        if (khuMay == null) {
+            lblSoMay.setText("");
+            return;
+        }
+
+        try {
+            int soMay = khuMayBUS.demSoMayTrongKhu(khuMay.getMakhu());
+            lblSoMay.setText("📊 Khu " + khuMay.getTenkhu() + ": " + soMay + " máy");
+        } catch (Exception e) {
+            lblSoMay.setText("⚠️ Không thể đếm số máy: " + e.getMessage());
+        }
     }
 
     public void loadData() {
@@ -92,8 +144,8 @@ public class KhuMayController implements Initializable {
         String keyword = txtSearch != null ? txtSearch.getText().toLowerCase().trim() : "";
         if (filteredList == null) return;
         filteredList.setPredicate(item -> keyword.isEmpty()
-            || (item.getMaKhu()  != null && item.getMaKhu().toLowerCase().contains(keyword))
-            || (item.getTenKhu()  != null && item.getTenKhu().toLowerCase().contains(keyword)));
+                || (item.getMakhu()   != null && item.getMakhu().toLowerCase().contains(keyword))
+                || (item.getTenkhu()  != null && item.getTenkhu().toLowerCase().contains(keyword)));
         updateSubtitle();
     }
 
@@ -110,9 +162,9 @@ public class KhuMayController implements Initializable {
     public void handleXoa() {
         if (selectedItem == null) return;
         Stage owner = (Stage) tableView.getScene().getWindow();
-        if (!gui.dialog.XacNhanDialog.showDelete(owner, selectedItem.getTenKhu())) return;
+        if (!gui.dialog.XacNhanDialog.showDelete(owner, selectedItem.getTenkhu())) return;
         try {
-            khuMayBUS.xoaKhuMay(selectedItem.getMaKhu());
+            khuMayBUS.xoaKhuMay(selectedItem.getMakhu());
             ThongBaoDialogHelper.showSuccess(tableView.getScene(), "Đã xóa khu máy!");
             loadData();
         } catch (Exception e) {

@@ -19,30 +19,32 @@ import javafx.stage.StageStyle;
 import utils.ThongBaoDialogHelper;
 
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class KhuyenMaiController implements Initializable {
 
     @FXML private TableView<ChuongTrinhKhuyenMai> tableView;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colMaCTKM;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTenCT;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colLoaiKM;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colGiaTriKM;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colDieuKienToiThieu;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colNgayBatDau;
-    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colNgayKetThuc;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colMaKM;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTenKM;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colLoai;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colGiaTri;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTuNgay;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colDenNgay;
     @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTrangThai;
 
-    @FXML private TextField txtSearch;
+    @FXML private TextField        txtSearch;
     @FXML private ComboBox<String> cboTrangThai;
-    @FXML private Label lblSubtitle;
-    @FXML private Label lblTotal;
-    @FXML private Button btnSua;
-    @FXML private Button btnXoa;
+    @FXML private Label            lblSubtitle;
+    @FXML private Label            lblTotal;
+    @FXML private Button           btnThem;
+    @FXML private Button           btnSua;
+    @FXML private Button           btnXoa;       // nút toggle: Ngừng / Kích hoạt
+    @FXML private Button           btnLamMoi;
 
     private final KhuyenMaiBUS khuyenMaiBUS = new KhuyenMaiBUS();
-    private ObservableList<ChuongTrinhKhuyenMai> dataList = FXCollections.observableArrayList();
+    private final ObservableList<ChuongTrinhKhuyenMai> dataList = FXCollections.observableArrayList();
     private FilteredList<ChuongTrinhKhuyenMai> filteredList;
     private ChuongTrinhKhuyenMai selectedItem;
 
@@ -59,26 +61,13 @@ public class KhuyenMaiController implements Initializable {
     }
 
     private void setupTableColumns() {
-        if (colMaCTKM != null) colMaCTKM.setCellValueFactory(new PropertyValueFactory<>("maCTKM"));
-        if (colTenCT != null) colTenCT.setCellValueFactory(new PropertyValueFactory<>("tenCT"));
-        if (colLoaiKM != null) {
-            colLoaiKM.setCellValueFactory(new PropertyValueFactory<>("loaiKM"));
-        }
-        if (colGiaTriKM != null) {
-            colGiaTriKM.setCellValueFactory(new PropertyValueFactory<>("giaTriKM"));
-        }
-        if (colDieuKienToiThieu != null) {
-            colDieuKienToiThieu.setCellValueFactory(new PropertyValueFactory<>("dieuKienToiThieu"));
-        }
-        if (colNgayBatDau!= null) {
-            colNgayBatDau.setCellValueFactory(new PropertyValueFactory<>("ngayBatDau"));
-        }
-        if (colNgayKetThuc != null) {
-            colNgayKetThuc.setCellValueFactory(new PropertyValueFactory<>("ngayKetThuc"));
-        }
-        if (colTrangThai!= null) {
-            colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
-        }
+        if (colMaKM      != null) colMaKM.setCellValueFactory(new PropertyValueFactory<>("maCTKM"));
+        if (colTenKM     != null) colTenKM.setCellValueFactory(new PropertyValueFactory<>("tenCT"));
+        if (colLoai      != null) colLoai.setCellValueFactory(new PropertyValueFactory<>("tenLoaiKM"));
+        if (colGiaTri    != null) colGiaTri.setCellValueFactory(new PropertyValueFactory<>("giaTriKMFormatted"));
+        if (colTuNgay    != null) colTuNgay.setCellValueFactory(new PropertyValueFactory<>("ngayBatDauFormatted"));
+        if (colDenNgay   != null) colDenNgay.setCellValueFactory(new PropertyValueFactory<>("ngayKetThucFormatted"));
+        if (colTrangThai != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("tenTrangThai"));
     }
 
     private void setupTableSelection() {
@@ -86,44 +75,62 @@ public class KhuyenMaiController implements Initializable {
             selectedItem = n;
             boolean has = n != null;
             if (btnSua != null) btnSua.setDisable(!has);
-            if (btnXoa != null) btnXoa.setDisable(!has);
+            if (btnXoa != null) {
+                btnXoa.setDisable(!has);
+                updateToggleButton(n);
+            }
         });
         if (btnSua != null) btnSua.setDisable(true);
         if (btnXoa != null) btnXoa.setDisable(true);
     }
 
+    private void updateToggleButton(ChuongTrinhKhuyenMai item) {
+        if (btnXoa == null) return;
+        if (item == null) {
+            btnXoa.setText("✕  Xóa");
+            return;
+        }
+        String tt = item.getTrangThai();
+        if ("HOATDONG".equals(tt)) btnXoa.setText("⏸  Ngừng");
+        else if ("NGUNG".equals(tt)) btnXoa.setText("▶  Kích hoạt");
+        else {
+            btnXoa.setText("✕  Hết hạn");
+            btnXoa.setDisable(true);
+        }
+    }
+
     public void loadData() {
         try {
-            khuyenMaiBUS.tuDongCapNhatHetHan();
+            khuyenMaiBUS.capNhatChuongTrinhHetHan();
+
             List<ChuongTrinhKhuyenMai> list = khuyenMaiBUS.getAllKhuyenMai();
             dataList.setAll(list);
             filteredList = new FilteredList<>(dataList, p -> true);
             tableView.setItems(filteredList);
+            applyFilter();
             updateSubtitle();
         } catch (Exception e) {
             ThongBaoDialogHelper.showError(tableView.getScene(), "Lỗi tải dữ liệu: " + e.getMessage());
         }
     }
 
-    @FXML
-    public void handleSearch() { applyFilter(); }
+    @FXML public void handleSearch() { applyFilter(); }
 
     private void applyFilter() {
-        String keyword = txtSearch != null ? txtSearch.getText().toLowerCase().trim() : "";
-        String tt = cboTrangThai != null ? cboTrangThai.getValue() : "Tất cả";
+        String keyword = txtSearch    != null ? txtSearch.getText().toLowerCase().trim() : "";
+        String tt      = cboTrangThai != null ? cboTrangThai.getValue() : "Tất cả";
         if (filteredList == null) return;
         filteredList.setPredicate(item -> {
             boolean matchKw = keyword.isEmpty()
-                || (item.getMaCTKM() != null && item.getMaCTKM().toLowerCase().contains(keyword))
-                || (item.getTenCT()  != null && item.getTenCT().toLowerCase().contains(keyword));
+                    || (item.getMaCTKM() != null && item.getMaCTKM().toLowerCase().contains(keyword))
+                    || (item.getTenCT()  != null && item.getTenCT().toLowerCase().contains(keyword));
             boolean matchTT = tt == null || "Tất cả".equals(tt) || tt.equals(item.getTrangThai());
             return matchKw && matchTT;
         });
         updateSubtitle();
     }
 
-    @FXML
-    public void handleThem() { openDialog(null); }
+    @FXML public void handleThem() { openDialog(null); }
 
     @FXML
     public void handleSua() {
@@ -134,14 +141,34 @@ public class KhuyenMaiController implements Initializable {
     @FXML
     public void handleXoa() {
         if (selectedItem == null) return;
+        String tt = selectedItem.getTrangThai();
+        if ("HETHAN".equals(tt)) {
+            ThongBaoDialogHelper.showWarning(tableView.getScene(),
+                    "Không thể kích hoạt chương trình đã hết hạn.\nVui lòng cập nhật ngày kết thúc trước.");
+            return;
+        }
+
         Stage owner = (Stage) tableView.getScene().getWindow();
-        if (!gui.dialog.XacNhanDialog.showDelete(owner, selectedItem.getTenCT())) return;
+
         try {
-            khuyenMaiBUS.xoaKhuyenMai(selectedItem.getMaCTKM());
-            ThongBaoDialogHelper.showSuccess(tableView.getScene(), "Đã xóa chương trình khuyến mãi!");
+            if ("HOATDONG".equals(tt)) {
+                if (!gui.dialog.XacNhanDialog.showDelete(owner, "Ngừng: " + selectedItem.getTenCT())) return;
+                khuyenMaiBUS.tatChuongTrinh(selectedItem.getMaCTKM());
+                ThongBaoDialogHelper.showSuccess(tableView.getScene(),
+                        "Đã ngừng chương trình: " + selectedItem.getTenCT());
+            } else if ("NGUNG".equals(tt)) {
+                if (LocalDateTime.now().isAfter(selectedItem.getNgayKetThuc())) {
+                    ThongBaoDialogHelper.showWarning(tableView.getScene(),
+                            "Chương trình đã quá ngày kết thúc.\nVui lòng cập nhật ngày kết thúc trước khi kích hoạt lại.");
+                    return;
+                }
+                khuyenMaiBUS.batChuongTrinh(selectedItem.getMaCTKM());
+                ThongBaoDialogHelper.showSuccess(tableView.getScene(),
+                        "Đã kích hoạt lại: " + selectedItem.getTenCT());
+            }
             loadData();
         } catch (Exception e) {
-            ThongBaoDialogHelper.showError(tableView.getScene(), "Lỗi xóa: " + e.getMessage());
+            ThongBaoDialogHelper.showError(tableView.getScene(), "Lỗi: " + e.getMessage());
         }
     }
 
@@ -159,7 +186,6 @@ public class KhuyenMaiController implements Initializable {
             ThemKhuyenMaiDialog ctrl = loader.getController();
             ctrl.setEntity(entity);
             ctrl.setOnSaveCallback(this::loadData);
-
             Stage stage = new Stage(StageStyle.UNDECORATED);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(tableView.getScene().getWindow());

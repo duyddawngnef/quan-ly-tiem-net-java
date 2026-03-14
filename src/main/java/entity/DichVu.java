@@ -1,52 +1,91 @@
 package entity;
 
+import java.math.BigDecimal;
+
 public class DichVu {
+    private String madv;
+    private String tendv;
+    private String loaidv;
+    private double dongia;
+    private String donvitinh;
+    private int soluongton;
+    private String trangthai;
 
-    private String maDV;
-    private String tenDV;
-    private String loaiDV;
-    private double donGia;
-    private String donViTinh;
-    private int soLuongTon;
-    private String trangThai;
-
-    public DichVu() {}
-
-    public DichVu(String maDV, String tenDV, String loaiDV,
-                  double donGia, String donViTinh,
-                  int soLuongTon, String trangThai) {
-        this.maDV = maDV;
-        this.tenDV = tenDV;
-        this.loaiDV = loaiDV;
-        this.donGia = donGia;
-        this.donViTinh = donViTinh;
-        this.soLuongTon = soLuongTon;
-        this.trangThai = trangThai;
+    public DichVu() {
     }
 
-    public String getMaDV() { return maDV; }
-    public void setMaDV(String maDV) { this.maDV = maDV; }
+    public DichVu(String madv, String tendv, String loaidv, double dongia,
+                  String donvitinh, int soluongton, String trangthai) {
+        this.madv = madv;
+        this.tendv = tendv;
+        this.loaidv = loaidv;
+        this.dongia = dongia;
+        this.donvitinh = donvitinh;
+        this.soluongton = soluongton;
+        this.trangthai = trangthai;
+    }
 
-    public String getTenDV() { return tenDV; }
-    public void setTenDV(String tenDV) { this.tenDV = tenDV; }
+    public DichVu(String madv, String tendv, String loaidv, double dongia, String donvitinh){
+        this.madv = madv;
+        this.tendv = tendv;
+        this.loaidv = loaidv;
+        this.dongia = dongia;
+        this.donvitinh = null;
+    }
 
-    public String getLoaiDV() { return loaiDV; }
-    public void setLoaiDV(String loaiDV) { this.loaiDV = loaiDV; }
+    public String getMadv() {
+        return this.madv;
+    }
 
-    public double getDonGia() { return donGia; }
-    public void setDonGia(double donGia) { this.donGia = donGia; }
+    public void setMadv(String madv) {
+        this.madv = madv;
+    }
 
-    public String getDonViTinh() { return donViTinh; }
-    public void setDonViTinh(String donViTinh) { this.donViTinh = donViTinh; }
+    public String getTendv() {
+        return this.tendv;
+    }
 
-    public int getSoLuongTon() { return soLuongTon; }
-    public void setSoLuongTon(int soLuongTon) { this.soLuongTon = soLuongTon; }
+    public void setTendv(String tendv) {
+        this.tendv = tendv;
+    }
 
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+    public String getLoaidv() {
+        return this.loaidv;
+    }
 
-    @Override
-    public String toString() {
-        return maDV + " | " + tenDV + " | " + donGia + " | " + soLuongTon;
+    public void setLoaidv(String loaidv) {
+        this.loaidv = loaidv;
+    }
+
+    public double getDongia() {
+        return this.dongia;
+    }
+
+    public void setDongia(double dongia) {
+        this.dongia = dongia;
+    }
+
+    public String getDonvitinh() {
+        return this.donvitinh;
+    }
+
+    public void setDonvitinh(String donvitinh) {
+        this.donvitinh = donvitinh;
+    }
+
+    public int getSoluongton() {
+        return this.soluongton;
+    }
+
+    public void setSoluongton(int soluongton) {
+        this.soluongton = soluongton;
+    }
+
+    public String getTrangthai() {
+        return this.trangthai;
+    }
+
+    public void setTrangthai(String trangthai) {
+        this.trangthai = trangthai;
     }
 }

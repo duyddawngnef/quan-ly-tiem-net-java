@@ -3,9 +3,9 @@ package gui.controller;
 import bus.NhanVienBUS;
 import entity.NhanVien;
 import gui.dialog.ThemNhanVienDialog;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -16,7 +16,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import utils.ThongBaoDialogHelper;
 
 import java.net.URL;
 import java.util.List;
@@ -24,155 +23,186 @@ import java.util.ResourceBundle;
 
 public class NhanVienController implements Initializable {
 
-    @FXML private TableView<NhanVien> tableView;
-    @FXML private TableColumn<NhanVien, String> colMa;
-    @FXML private TableColumn<NhanVien, String> colHo;
-    @FXML private TableColumn<NhanVien, String> colTen;
-    @FXML private TableColumn<NhanVien, String> colChucVu;
-    @FXML private TableColumn<NhanVien, String> colTDN;
-    @FXML private TableColumn<NhanVien, String> colTrangThai;
-
+    // --- CÁC ID KHỚP 100% VỚI NHANVIEN.FXML ---
     @FXML private TextField txtSearch;
     @FXML private ComboBox<String> cboChucVu;
     @FXML private ComboBox<String> cboTrangThai;
-    @FXML private Label lblSubtitle;
-    @FXML private Label lblTotal;
+
+    @FXML private Button btnThem;
     @FXML private Button btnSua;
     @FXML private Button btnXoa;
+    @FXML private Button btnLamMoi;
+
+    @FXML private TableView<NhanVien> tableView;
+    @FXML private TableColumn<NhanVien, String> colMaNV, colHoTen, colSDT, colTenDN, colChucVu, colTrangThai, colNgayVaoLam;
+
+    @FXML private Label lblTotal;
 
     private final NhanVienBUS nhanVienBUS = new NhanVienBUS();
-    private ObservableList<NhanVien> dataList = FXCollections.observableArrayList();
-    private FilteredList<NhanVien> filteredList;
-    private NhanVien selectedItem;
+    private final ObservableList<NhanVien> listNhanVien = FXCollections.observableArrayList();
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        setupTableColumns();
-        setupTableSelection();
-        if (cboChucVu != null) {
-            cboChucVu.getItems().setAll("Tất cả", "QUANLY", "NHANVIEN", "THUNGAN");
-            cboChucVu.setValue("Tất cả");
-            cboChucVu.setOnAction(e -> applyFilter());
+    public void initialize(URL url, ResourceBundle rb) {
+        setupTable();
+        setupComboBoxes();
+
+        // Lắng nghe sự kiện click vào bảng để bật/tắt nút Sửa, Xóa
+        if (tableView != null) {
+            tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+                boolean hasSelection = (newSelection != null);
+                if (btnSua != null) btnSua.setDisable(!hasSelection);
+                if (btnXoa != null) btnXoa.setDisable(!hasSelection);
+            });
         }
-        if (cboTrangThai != null) {
-            cboTrangThai.getItems().setAll("Tất cả", "DANGLAMVIEC", "NGHIVIEC");
-            cboTrangThai.setValue("Tất cả");
-            cboTrangThai.setOnAction(e -> applyFilter());
-        }
+
         loadData();
     }
 
-    private void setupTableColumns() {
-        if (colMa       != null) colMa.setCellValueFactory(new PropertyValueFactory<>("manv"));
-        if (colHo       != null) colHo.setCellValueFactory(new PropertyValueFactory<>("ho"));
-        if (colTen      != null) colTen.setCellValueFactory(new PropertyValueFactory<>("ten"));
-        if (colChucVu   != null) colChucVu.setCellValueFactory(new PropertyValueFactory<>("chucvu"));
-        if (colTDN      != null) colTDN.setCellValueFactory(new PropertyValueFactory<>("tendangnhap"));
-        if (colTrangThai!= null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
+    private void setupTable() {
+        if (colMaNV != null) colMaNV.setCellValueFactory(new PropertyValueFactory<>("manv"));
+
+        // Nối cột Họ và Tên lại với nhau cho đẹp
+        if (colHoTen != null) {
+            colHoTen.setCellValueFactory(cellData -> {
+                NhanVien nv = cellData.getValue();
+                String hoTen = (nv.getHo() != null ? nv.getHo() + " " : "") + (nv.getTen() != null ? nv.getTen() : "");
+                return new SimpleStringProperty(hoTen.trim());
+            });
+        }
+
+        if (colSDT != null) colSDT.setCellValueFactory(new PropertyValueFactory<>("sodienthoai"));
+        if (colTenDN != null) colTenDN.setCellValueFactory(new PropertyValueFactory<>("tendangnhap"));
+        if (colChucVu != null) colChucVu.setCellValueFactory(new PropertyValueFactory<>("chucvu"));
+        if (colTrangThai != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
+        if (colNgayVaoLam != null) colNgayVaoLam.setCellValueFactory(new PropertyValueFactory<>("ngayvaolam"));
     }
 
-    private void setupTableSelection() {
-        tableView.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
-            selectedItem = n;
-            boolean has = n != null;
-            if (btnSua != null) btnSua.setDisable(!has);
-            if (btnXoa != null) btnXoa.setDisable(!has);
-        });
-        if (btnSua != null) btnSua.setDisable(true);
-        if (btnXoa != null) btnXoa.setDisable(true);
+    private void setupComboBoxes() {
+        if (cboChucVu != null) {
+            cboChucVu.getItems().addAll("TATC", "QUANLY", "NHANVIEN", "THUNGAN");
+            cboChucVu.getSelectionModel().selectFirst();
+            // Tự động lọc lại bảng ngay khi bạn chọn chức vụ mới
+            cboChucVu.setOnAction(e -> loadData());
+        }
+        if (cboTrangThai != null) {
+            cboTrangThai.getItems().addAll("TATC", "DANGLAMVIEC", "NGHIVIEC");
+            cboTrangThai.getSelectionModel().selectFirst();
+            // Tự động lọc lại bảng ngay khi bạn chọn trạng thái mới
+            cboTrangThai.setOnAction(e -> loadData());
+        }
     }
 
     public void loadData() {
         try {
-            // Lấy tất cả: đang làm việc + đã nghỉ
-            List<NhanVien> active  = nhanVienBUS.getAllNhanVienDangLamViec();
-            List<NhanVien> nghiviec = nhanVienBUS.getAllNhanVienDaNghiViec();
-            dataList.clear();
-            dataList.addAll(active);
-            dataList.addAll(nghiviec);
-            filteredList = new FilteredList<>(dataList, p -> true);
-            tableView.setItems(filteredList);
-            updateSubtitle();
+            // 1. Lấy TẤT CẢ nhân viên bằng cách gộp 2 danh sách lại
+            List<NhanVien> listAll = new java.util.ArrayList<>();
+            listAll.addAll(nhanVienBUS.getAllNhanVienDangLamViec());
+            listAll.addAll(nhanVienBUS.getAllNhanVienDaNghiViec());
+
+            // 2. Lấy giá trị từ các bộ lọc trên giao diện
+            String chucVu = cboChucVu != null ? cboChucVu.getValue() : "TATC";
+            String trangThai = cboTrangThai != null ? cboTrangThai.getValue() : "TATC";
+            String keyword = txtSearch != null ? txtSearch.getText().trim().toLowerCase() : "";
+
+            // 3. Tiến hành lọc dữ liệu
+            List<NhanVien> listFiltered = listAll.stream()
+                    .filter(nv -> "TATC".equals(chucVu) || nv.getChucvu().equalsIgnoreCase(chucVu))
+                    .filter(nv -> "TATC".equals(trangThai) || nv.getTrangthai().equalsIgnoreCase(trangThai))
+                    .filter(nv -> keyword.isEmpty() ||
+                            nv.getManv().toLowerCase().contains(keyword) ||
+                            nv.getTen().toLowerCase().contains(keyword) ||
+                            (nv.getHo() != null && nv.getHo().toLowerCase().contains(keyword)))
+                    .collect(java.util.stream.Collectors.toList());
+
+            // 4. Hiển thị lên bảng
+            listNhanVien.setAll(listFiltered);
+            if (tableView != null) tableView.setItems(listNhanVien);
+            if (lblTotal != null) lblTotal.setText("Tổng: " + listNhanVien.size() + " bản ghi");
+
         } catch (Exception e) {
-            ThongBaoDialogHelper.showError(tableView.getScene(), "Lỗi tải dữ liệu: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Lỗi tải dữ liệu", e.getMessage());
         }
     }
 
     @FXML
-    public void handleSearch() { applyFilter(); }
-
-    private void applyFilter() {
-        String keyword = txtSearch    != null ? txtSearch.getText().toLowerCase().trim() : "";
-        String cv      = cboChucVu   != null ? cboChucVu.getValue() : "Tất cả";
-        String tt      = cboTrangThai!= null ? cboTrangThai.getValue() : "Tất cả";
-        if (filteredList == null) return;
-        filteredList.setPredicate(item -> {
-            boolean matchKw = keyword.isEmpty()
-                || (item.getManv()        != null && item.getManv().toLowerCase().contains(keyword))
-                || (item.getHo()          != null && item.getHo().toLowerCase().contains(keyword))
-                || (item.getTen()         != null && item.getTen().toLowerCase().contains(keyword))
-                || (item.getTendangnhap() != null && item.getTendangnhap().toLowerCase().contains(keyword));
-            boolean matchCV = cv == null || "Tất cả".equals(cv) || cv.equals(item.getChucvu());
-            boolean matchTT = tt == null || "Tất cả".equals(tt) || tt.equals(item.getTrangthai());
-            return matchKw && matchCV && matchTT;
-        });
-        updateSubtitle();
-    }
-
-    @FXML
-    public void handleThem() { openDialog(null); }
-
-    @FXML
-    public void handleSua() {
-        if (selectedItem == null) return;
-        openDialog(selectedItem);
-    }
-
-    @FXML
-    public void handleXoa() {
-        if (selectedItem == null) return;
-        Stage owner = (Stage) tableView.getScene().getWindow();
-        String tenNV = (selectedItem.getHo() != null ? selectedItem.getHo() : "")
-                     + " " + (selectedItem.getTen() != null ? selectedItem.getTen() : "");
-        if (!gui.dialog.XacNhanDialog.showDelete(owner, tenNV.trim())) return;
-        try {
-            nhanVienBUS.xoaNhanVien(selectedItem.getManv());
-            ThongBaoDialogHelper.showSuccess(tableView.getScene(), "Đã xóa nhân viên!");
-            loadData();
-        } catch (Exception e) {
-            ThongBaoDialogHelper.showError(tableView.getScene(), "Lỗi xóa: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    public void handleLamMoi() {
-        if (txtSearch    != null) txtSearch.clear();
-        if (cboChucVu   != null) cboChucVu.setValue("Tất cả");
-        if (cboTrangThai != null) cboTrangThai.setValue("Tất cả");
+    private void handleSearch() {
+        // Chỉ cần gọi lại loadData() là xong, vì logic tìm kiếm đã được tích hợp sẵn ở trên
         loadData();
     }
 
-    private void openDialog(NhanVien entity) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dialogs/themNhanVien.fxml"));
-            Parent root = loader.load();
-            ThemNhanVienDialog ctrl = loader.getController();
-            ctrl.setEntity(entity);
-            ctrl.setOnSaveCallback(this::loadData);
+    @FXML
+    private void handleLamMoi() {
+        if (txtSearch != null) txtSearch.clear();
+        if (cboChucVu != null) cboChucVu.getSelectionModel().selectFirst();
+        if (cboTrangThai != null) cboTrangThai.getSelectionModel().selectFirst();
+        loadData();
+    }
 
-            Stage stage = new Stage(StageStyle.UNDECORATED);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.initOwner(tableView.getScene().getWindow());
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-        } catch (Exception e) {
-            ThongBaoDialogHelper.showError(tableView.getScene(), "Không thể mở dialog: " + e.getMessage());
+    @FXML
+    private void handleThem() {
+        openDialog(null); // null tức là trạng thái Thêm mới
+    }
+
+    @FXML
+    private void handleSua() {
+        if (tableView == null) return;
+        NhanVien selected = tableView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "Cảnh báo", "Vui lòng chọn nhân viên cần sửa!");
+            return;
+        }
+        openDialog(selected); // Chuyển đối tượng vào để Sửa
+    }
+
+    @FXML
+    private void handleXoa() {
+        if (tableView == null) return;
+        NhanVien selected = tableView.getSelectionModel().getSelectedItem();
+        if (selected == null) return;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Khóa tài khoản nhân viên này?", ButtonType.YES, ButtonType.NO);
+        if (confirm.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+            try {
+                if (nhanVienBUS.xoaNhanVien(selected.getManv())) {
+                    showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã khóa nhân viên thành công!");
+                    loadData();
+                }
+            } catch (Exception e) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi xóa", e.getMessage());
+            }
         }
     }
 
-    private void updateSubtitle() {
-        int total = filteredList != null ? filteredList.size() : 0;
-        if (lblSubtitle != null) lblSubtitle.setText("Tổng: " + total + " bản ghi");
-        if (lblTotal    != null) lblTotal.setText("Tổng: " + total + " bản ghi");
+    // --- XỬ LÝ MỞ POPUP (DIALOG) ---
+    private void openDialog(NhanVien nv) {
+        try {
+            // Đã sửa lại đường dẫn chuẩn, loại bỏ chữ src/main/resources
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/themNhanVien.fxml"));
+            Parent root = loader.load();
+
+            ThemNhanVienDialog ctrl = loader.getController();
+            ctrl.setEntity(nv);
+            ctrl.setOnSaveCallback(this::loadData); // Gọi hàm loadData() tự động làm mới bảng sau khi Lưu
+
+            Stage stage = new Stage(StageStyle.UNDECORATED); // Bỏ thanh viền cửa sổ cho đẹp
+            stage.initModality(Modality.APPLICATION_MODAL);
+            if (tableView != null && tableView.getScene() != null) {
+                stage.initOwner(tableView.getScene().getWindow());
+            }
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Lỗi mở form", e.getMessage());
+        }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

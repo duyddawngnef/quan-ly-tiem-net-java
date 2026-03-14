@@ -1,20 +1,10 @@
-
 package bus;
 
+import dao.*;
+import entity.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-
-import dao.ChiTietHoaDonDAO;
-import dao.HoaDonDAO;
-import dao.KhachHangDAO;
-import dao.PhienSuDungDAO;
-import dao.SuDungDichVuDAO;
-import entity.ChiTietHoaDon;
-import entity.HoaDon;
-import entity.KhachHang;
-import entity.PhienSuDung;
-import entity.SuDungDichVu;
+import java.util.ArrayList;
 
 /** Chức năng chính:
  * - Tạo hóa đơn tự động khi kết thúc phiên
@@ -137,16 +127,16 @@ public class HoaDonBUS {
         }
 
         // 12.2. Chi tiết dịch vụ đã sử dụng
-        List<SuDungDichVu> danhSachDV = suDungDichVuDAO.getByPhien(maPhien);
+        List<SuDungDichVu> danhSachDV = suDungDichVuDAO.geyByPhien(maPhien);
         if (danhSachDV != null && !danhSachDV.isEmpty()) {
             for (SuDungDichVu sdDV : danhSachDV) {
                 ChiTietHoaDon ctDV = new ChiTietHoaDon();
                 ctDV.setMaCTHD(chiTietHoaDonDAO.taoMaChiTietTuDong());
                 ctDV.setMaHD(maHD);
                 ctDV.setLoaiChiTiet("DICHVU");
-                ctDV.setMoTa("Dịch vụ: " + sdDV.getMaDV());
-                ctDV.setSoLuong(sdDV.getSoLuong());
-                ctDV.setDonGia(sdDV.getDonGia());
+                ctDV.setMoTa("Dịch vụ: " + sdDV.getMadv());
+                ctDV.setSoLuong(sdDV.getSoluong());
+                ctDV.setDonGia(sdDV.getDongia());
                 ctDV.tinhThanhTien();
 
                 danhSachChiTiet.add(ctDV);
@@ -232,7 +222,7 @@ public class HoaDonBUS {
         return chiTietHoaDonDAO.timTheoHoaDon(maHD);
     }
 
-    // Lấy danh sách hóa đơn của khách hàng
+   // Lấy danh sách hóa đơn của khách hàng
     public List<HoaDon> layDanhSachHoaDonKhachHang(String maKH) throws Exception {
         if (maKH == null || maKH.trim().isEmpty()) {
             throw new Exception("Mã khách hàng không hợp lệ");
@@ -299,12 +289,12 @@ public class HoaDonBUS {
         return taoHoaDonTuDong(phien.getMaPhien(), maNV);
     }
 
-    // Lấy tất cả hóa đơn
+     // Lấy tất cả hóa đơn
     public List<HoaDon> getAllHoaDon() {
         return layTatCaHoaDon();
     }
 
-    //Lấy hóa đơn theo phiên
+   //Lấy hóa đơn theo phiên
     public HoaDon getHoaDonByPhien(String maPhien) throws Exception {
         if (maPhien == null || maPhien.trim().isEmpty()) {
             throw new Exception("Mã phiên không hợp lệ");

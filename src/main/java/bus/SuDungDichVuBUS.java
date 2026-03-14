@@ -1,113 +1,125 @@
 package bus;
 
+import entity.DichVu;
+import entity.SuDungDichVu;
+import utils.PermissionHelper;
+import entity.PhienSuDung;
+import dao.DBConnection;
 import dao.DichVuDAO;
 import dao.SuDungDichVuDAO;
-import entity.DichVu;
-import entity.NhanVien;
-import entity.SuDungDichVu;
-import utils.SessionManager;
+import dao.PhienSuDungDAO;
 
-import java.time.LocalDateTime;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.sql.*;
+import java.time.LocalDateTime;
 
-public class SuDungDichVuBUS {
+/*  CÁC METHOD
+    1. SuDungDichVu orderDichVu(String maPhien, String maDV, int SoLuong): order dịch vụ
+=> tạo phiếu sử dụng dịch vụ.
+    2. huyOrder(String maSDDV): hủy order bằng cách mã sử dụng dịch vụ.
+    3. List<SuDungDichVu> getOrderbyPhien(String maPhien): lấy tất cả các dịch vụ đã sử dụng trong phiên đó.
+*/
 
-    private final SuDungDichVuDAO suDungDichVuDAO = new SuDungDichVuDAO();
-    private final DichVuDAO dichVuDAO = new DichVuDAO();
+public class SuDungDichVuBUS{
 
-    /**
-     * Order dịch vụ cho phiên sử dụng
-     * 1. Kiểm tra tồn kho đủ không
-     * 2. Tạo SuDungDichVu
-     * 3. Trừ soLuongTon của DichVu
-     * 4. Insert vào DB
-     */
-    public boolean orderDichVu(String maPhien, String maDV, int soLuong) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isNhanVien())
-            throw new Exception("Không có quyền thực hiện");
+    private final DichVuDAO dvDAO = new DichVuDAO();
+    private final SuDungDichVuDAO sddvDAO = new SuDungDichVuDAO();
+    private final PhienSuDungDAO psdDAO = new PhienSuDungDAO();
 
-        if (soLuong <= 0)
-            throw new Exception("Số lượng phải lớn hơn 0");
+    // CHỨC NĂNG ORDER DỊCH VỤ ( YÊU CẦU PHIÊN CÒN CHƠI).
+    public SuDungDichVu orderDichVu(String maPhien, String maDV, int SoLuong) throws Exception{
+        // check login
+        PermissionHelper.requireLogin();
+        // kiểm tra phân quyền ( quản lý/ nhân viên)
+        PermissionHelper.requireNhanVien();
 
-        // 1. Kiểm tra tồn kho
-        DichVu dv = dichVuDAO.getById(maDV);
-        if (dv == null)
-            throw new Exception("Dịch vụ không tồn tại");
-        if (dv.getSoLuongTon() < soLuong)
-            throw new Exception("Tồn kho không đủ! Còn lại: " + dv.getSoLuongTon());
+        // VALIDATION
+        // check sự tồn tại của maPhien
+        PhienSuDung psd = new PhienSuDung();
+        psd = this.psdDAO.getByMaPhien(maPhien);
+        if(psd == null){ throw new Exception("Không tồn tại mã phiên này!!!"); }
+        // check mã phiện này có đang chơi không
+        if( !psd.getTrangThai().equals("DANGCHOI") ){ throw new Exception("Phiên này đang không chơi!!!"); }
 
-        // 2. Tạo SuDungDichVu
-        SuDungDichVu sd = new SuDungDichVu();
-        sd.setMaSD("SD" + System.currentTimeMillis()); // Tạo mã tạm
-        sd.setMaPhien(maPhien);
-        sd.setMaDV(maDV);
-        sd.setSoLuong(soLuong);
-        sd.setDonGia(dv.getDonGia());
-        sd.setThanhTien(dv.getDonGia() * soLuong);
-        sd.setThoiGian(LocalDateTime.now());
+        // check sự tồn tại của dịch vụ
+        DichVu dv = new DichVu();
+        dv = this.dvDAO.getByID(maDV);
+        if( dv == null ){ throw new Exception("Không tồn tại mã dịch vụ này!!!"); }
+        // check số lượng và trạng thái
+        if(dv.getSoluongton() < SoLuong || dv.getTrangthai().equals("NGUNGBAN")){ throw new Exception("Số lượng muốn " +
+                "mua lớn hơn số lượng tồn hiện có hoặc dịch vụ này đã ngừng bán!!!"); }
 
-        // 3. Trừ soLuongTon
-        boolean truKho = dichVuDAO.updateSoLuong(maDV, -soLuong);
-        if (!truKho)
-            throw new Exception("Lỗi khi trừ tồn kho");
+        // gọi xuống DAO ( yêu cầu trừ số lượng dịch vụ, tạo một dòng sử dụng dịch vụ)
+        SuDungDichVu sddv = new SuDungDichVu("", psd.getMaPhien(), dv.getMadv(), Math.abs(SoLuong), dv.getDongia()
+                , dv.getDongia()*Math.abs(SoLuong), LocalDateTime.now() );
 
-        // 4. Insert vào DB
-        boolean inserted = suDungDichVuDAO.insert(sd);
-        if (!inserted) {
-            // Rollback: hoàn lại số lượng nếu insert thất bại
-            dichVuDAO.updateSoLuong(maDV, soLuong);
-            throw new Exception("Lỗi khi tạo order dịch vụ");
+        try{
+            boolean isUpdate = this.dvDAO.updateSoLuongTon(dv.getMadv(), (-1)*SoLuong);
+            boolean isInsert = this.sddvDAO.insert(sddv);
+
+            if(isUpdate && isInsert){
+                System.out.println("Order dịch vụ thành công");
+            }
+            else{
+                throw new Exception("Order dịch vụ không thành công");
+            }
+        }catch(Exception e){
+            throw new Exception("Lỗi hệ thống: " + e.getMessage());
         }
-
-        return true;
+        return sddv;
     }
 
-    /**
-     * Hủy order dịch vụ
-     * 1. Hoàn lại số lượng vào tồn kho
-     * 2. Xóa khỏi DB
-     */
-    public boolean huyOrder(String maSuDung) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isNhanVien())
-            throw new Exception("Không có quyền thực hiện");
+    // HỦY ORDER ( YÊU CẦU: PHIÊN CÒN CHƠI)
+    public void huyOrder(String maSDDV) throws Exception{
+        // check login
+        PermissionHelper.requireLogin();
+        // không cần kiểm tra phân quyền
+        PermissionHelper.requireNhanVien();
 
-        // Lấy thông tin order
-        SuDungDichVu sd = suDungDichVuDAO.getById(maSuDung);
-        if (sd == null)
-            throw new Exception("Không tìm thấy order dịch vụ");
+        //VALIDATION
+        //kiểm tra sự tồn tại của mã này
+        SuDungDichVu sddv = new SuDungDichVu();
+        sddv = this.sddvDAO.getByID(maSDDV);
+        if(sddv==null){ throw new Exception("Mã sử dụng này không tồn tại!!!"); }
+        // kiểm trạng thái 'DANGCHOI' của phiên
+        PhienSuDung psd = psdDAO.getByMaPhien(sddv.getMaphien());
+        if(psd.getTrangThai().equals("DAKETTHUC")){ throw new Exception("Phiên này đã kết thức chơi!!!"); }
 
-        // 1. Hoàn lại số lượng vào tồn kho
-        boolean hoanKho = dichVuDAO.updateSoLuong(sd.getMaDV(), sd.getSoLuong());
-        if (!hoanKho)
-            throw new Exception("Lỗi khi hoàn lại tồn kho");
 
-        // 2. Xóa khỏi DB
-        boolean deleted = suDungDichVuDAO.delete(maSuDung);
-        if (!deleted) {
-            // Rollback: trừ lại nếu xóa thất bại
-            dichVuDAO.updateSoLuong(sd.getMaDV(), -sd.getSoLuong());
-            throw new Exception("Lỗi khi xóa order dịch vụ");
+        // gọi xuống DAO
+        try{
+            boolean isSuccess = this.sddvDAO.delete(maSDDV);
+            boolean isUpdate = this.dvDAO.updateSoLuongTon(sddv.getMadv(), sddv.getSoluong());
+            if(isSuccess && isUpdate){
+                System.out.println("Hủy dịch vụ thành công!!!");
+            }
+            else { System.out.println("Hủy dịch vụ không thành công!!!"); }
+        }catch(Exception e){
+            throw new Exception("Lỗi hệ thống: " + e.getMessage());
         }
-
-        return true;
     }
 
-    /**
-     * Lấy danh sách dịch vụ đã order theo phiên
-     */
-    public List<SuDungDichVu> getDVDaOrderTheoPhien(String maPhien) throws Exception {
-        NhanVien currentUser = SessionManager.getCurrentNhanVien();
-        if (currentUser == null)
-            throw new Exception("Chưa đăng nhập");
-        if (!SessionManager.isNhanVien())
-            throw new Exception("Không có quyền thực hiện");
+    // LẤY TẤT CẢ CÁC DÒNG DỮ LIỆU CỦA PHIÊN ĐÓ.
+    public List<SuDungDichVu> getOrderbyPhien(String maPhien) throws Exception{
+        // check login
+        PermissionHelper.requireLogin();
+        // kiểm tra phân quyền (ai cũng có thể xem)
 
-        return suDungDichVuDAO.getByPhien(maPhien);
+        // VALIDATION
+        PhienSuDung psd = new PhienSuDung();
+        psd = psdDAO.getByMaPhien(maPhien);
+        // check mã phiên
+        if(psd == null){ throw new Exception("Mã phiên này không tồn tại!!!"); }
+
+        // gọi xuống DAO
+        List<SuDungDichVu> result = new ArrayList<>();
+        try{
+            result = this.sddvDAO.geyByPhien(maPhien);
+        }catch(Exception e){
+            throw new Exception("Lỗi hệ thống: " + e.getMessage());
+        }
+        return result;
     }
 }

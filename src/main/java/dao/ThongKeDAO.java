@@ -1,237 +1,235 @@
 package dao;
 
-import entity.ThongKeDoanhThu;
-
-import java.sql.*;
-import java.time.LocalDateTime;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ThongKeDAO {
+public class ThongkeDAO {
 
-    // Summary Cards
-    public ThongKeDoanhThu getSummary(LocalDateTime tu, LocalDateTime den) throws Exception {
-        String sql = """
-                SELECT
-                    COALESCE(SUM(h.ThanhToan), 0)    AS Thu,
-                    COALESCE(SUM(n.TongTienNhap), 0) AS Chi,
-                    COUNT(DISTINCT h.MaHoaDon)        AS SoPhien
-                FROM HoaDon h
-                LEFT JOIN (
-                    SELECT DATE(NgayNhap) AS NgayNhap, SUM(TongTien) AS TongTienNhap
-                    FROM PhieuNhapHang
-                    GROUP BY DATE(NgayNhap)
-                ) n ON DATE(h.ThoiDiemThanhToan) = n.NgayNhap
-                WHERE h.ThoiDiemThanhToan >= ? AND h.ThoiDiemThanhToan < ?
-                """;
+    // ====== 20.2 Thống kê doanh thu tổng hợp trong khoảng ngày ======
+    // Trả về: TongDoanhThu, TongTienGioChoi, TongTienDichVu, SoHoaDon
+    public Map<String, Object> thongKeDoanhThuTongHop(LocalDate tuNgay, LocalDate denNgay) {
+        String sql =
+                "SELECT " +
+                        "  COALESCE(SUM(ThanhToan),0)    AS TongDoanhThu, " +
+                        "  COALESCE(SUM(TienGioChoi),0)  AS TongTienGioChoi, " +
+                        "  COALESCE(SUM(TienDichVu),0)   AS TongTienDichVu, " +
+                        "  COUNT(*)                      AS SoHoaDon " +
+                        "FROM hoadon " +
+                        "WHERE TrangThai='DATHANHTOAN' AND DATE(NgayLap) BETWEEN ? AND ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setTimestamp(1, Timestamp.valueOf(tu));
-            ps.setTimestamp(2, Timestamp.valueOf(den));
+            ps.setDate(1, Date.valueOf(tuNgay));
+            ps.setDate(2, Date.valueOf(denNgay));
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new ThongKeDoanhThu(
-                            rs.getDouble("Thu"),
-                            rs.getDouble("Chi"),
-                            rs.getInt("SoPhien")
-                    );
-                }
+                rs.next();
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("TongDoanhThu", rs.getDouble("TongDoanhThu"));
+                map.put("TongTienGioChoi", rs.getDouble("TongTienGioChoi"));
+                map.put("TongTienDichVu", rs.getDouble("TongTienDichVu"));
+                map.put("SoHoaDon", rs.getInt("SoHoaDon"));
+                return map;
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("ThongkeDAO.thongKeDoanhThuTongHop error", e);
         }
-        return new ThongKeDoanhThu(0, 0, 0);
     }
 
-    // Tab 1 — Group theo ngày
-    public List<ThongKeDoanhThu> thongKeTheoNgay(LocalDateTime tu, LocalDateTime den) throws Exception {
-        String sql = """
-                SELECT
-                    DATE(h.ThoiDiemThanhToan)        AS ThoiGian,
-                    COALESCE(SUM(h.ThanhToan), 0)    AS Thu,
-                    COALESCE(SUM(n.TongTienNhap), 0) AS Chi
-                FROM HoaDon h
-                LEFT JOIN (
-                    SELECT DATE(NgayNhap) AS NgayNhap, SUM(TongTien) AS TongTienNhap
-                    FROM PhieuNhapHang
-                    GROUP BY DATE(NgayNhap)
-                ) n ON DATE(h.ThoiDiemThanhToan) = n.NgayNhap
-                WHERE h.ThoiDiemThanhToan >= ? AND h.ThoiDiemThanhToan < ?
-                GROUP BY DATE(h.ThoiDiemThanhToan)
-                ORDER BY ThoiGian
-                """;
-        return queryThongKe(sql, tu, den);
-    }
-
-    // Tab 1 — Group theo tháng
-    public List<ThongKeDoanhThu> thongKeTheoThang(LocalDateTime tu, LocalDateTime den) throws Exception {
-        String sql = """
-                SELECT
-                    DATE_FORMAT(h.ThoiDiemThanhToan, '%Y-%m')  AS ThoiGian,
-                    COALESCE(SUM(h.ThanhToan), 0)              AS Thu,
-                    COALESCE(SUM(n.TongTienNhap), 0)           AS Chi
-                FROM HoaDon h
-                LEFT JOIN (
-                    SELECT DATE_FORMAT(NgayNhap, '%Y-%m') AS NgayNhap, SUM(TongTien) AS TongTienNhap
-                    FROM PhieuNhapHang
-                    GROUP BY DATE_FORMAT(NgayNhap, '%Y-%m')
-                ) n ON DATE_FORMAT(h.ThoiDiemThanhToan, '%Y-%m') = n.NgayNhap
-                WHERE h.ThoiDiemThanhToan >= ? AND h.ThoiDiemThanhToan < ?
-                GROUP BY DATE_FORMAT(h.ThoiDiemThanhToan, '%Y-%m')
-                ORDER BY ThoiGian
-                """;
-        return queryThongKe(sql, tu, den);
-    }
-
-    // Tab 2 — Thu Chi (group theo ngày)
-    public List<ThongKeDoanhThu> thongKeThuChi(LocalDateTime tu, LocalDateTime den) throws Exception {
-        String sql = """
-                SELECT
-                    DATE(h.ThoiDiemThanhToan)        AS ThoiGian,
-                    COALESCE(SUM(h.ThanhToan), 0)    AS Thu,
-                    COALESCE(SUM(n.TongTienNhap), 0) AS Chi
-                FROM HoaDon h
-                LEFT JOIN (
-                    SELECT DATE(NgayNhap) AS NgayNhap, SUM(TongTien) AS TongTienNhap
-                    FROM PhieuNhapHang
-                    GROUP BY DATE(NgayNhap)
-                ) n ON DATE(h.ThoiDiemThanhToan) = n.NgayNhap
-                WHERE h.ThoiDiemThanhToan >= ? AND h.ThoiDiemThanhToan < ?
-                GROUP BY DATE(h.ThoiDiemThanhToan)
-                ORDER BY ThoiGian
-                """;
-        return queryThongKe(sql, tu, den);
-    }
-
-    // Tab 3 — Top Khách Hàng
-    // Object[]: [0]=MaKH, [1]=TenKH, [2]=SoLanDen, [3]=TongChiTieu
-    public List<Object[]> topKhachHang(int nam, int n) throws Exception {
-        String sql = """
-                SELECT
-                    kh.MaKH,
-                    kh.TenKH,
-                    COUNT(DISTINCT ps.MaPhien)    AS SoLanDen,
-                    COALESCE(SUM(h.ThanhToan), 0) AS TongChiTieu
-                FROM KhachHang kh
-                JOIN PhienSuDung ps ON kh.MaKH    = ps.MaKH
-                JOIN HoaDon      h  ON ps.MaPhien = h.MaPhien
-                WHERE YEAR(h.ThoiDiemThanhToan) = ?
-                GROUP BY kh.MaKH, kh.TenKH
-                ORDER BY TongChiTieu DESC
-                LIMIT ?
-                """;
-
-        List<Object[]> list = new ArrayList<>();
+    // (phần bạn đã có) Tổng tiền nhập hàng (chỉ phiếu DANHAP) trong khoảng ngày
+    public double tongNhapHang(LocalDate from, LocalDate to) {
+        String sql = "SELECT COALESCE(SUM(TongTien),0) FROM phieunhaphang " +
+                "WHERE TrangThai='DANHAP' AND DATE(NgayNhap) BETWEEN ? AND ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, nam);
-            ps.setInt(2, n);
+            ps.setDate(1, Date.valueOf(from));
+            ps.setDate(2, Date.valueOf(to));
 
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(new Object[]{
-                            rs.getString("MaKH"),
-                            rs.getString("TenKH"),
-                            rs.getInt("SoLanDen"),
-                            rs.getDouble("TongChiTieu")
-                    });
-                }
+                rs.next();
+                return rs.getDouble(1);
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("ThongkeDAO.tongNhapHang error", e);
         }
-        return list;
     }
 
-    // Top Dịch Vụ bán chạy
-    // Object[]: [0]=MaDV, [1]=TenDV, [2]=TongSoLuong, [3]=TongDoanhThu
-    public List<Object[]> topDichVu(LocalDateTime tu, LocalDateTime den, int top) throws Exception {
-        String sql = """
-                SELECT
-                    dv.MaDV,
-                    dv.TenDV,
-                    SUM(sd.SoLuong)    AS TongSoLuong,
-                    SUM(sd.ThanhTien)  AS TongDoanhThu
-                FROM SuDungDichVu sd
-                JOIN DichVu       dv ON sd.MaDV     = dv.MaDV
-                JOIN PhienSuDung  ps ON sd.MaPhien  = ps.MaPhien
-                WHERE ps.GioKetThuc >= ? AND ps.GioKetThuc < ?
-                GROUP BY dv.MaDV, dv.TenDV
-                ORDER BY TongSoLuong DESC
-                LIMIT ?
-                """;
+    // ====== 20.3 Top dịch vụ bán chạy trong khoảng ngày ======
+    // Trả về list map: MaDV, TenDV, TongSoLuong, TongDoanhThu
+    public List<Map<String, Object>> thongKeDichVuBanChay(LocalDate tuNgay, LocalDate denNgay, int top) {
+        if (top <= 0) top = 10;
 
-        List<Object[]> list = new ArrayList<>();
+        String sql =
+                "SELECT dv.MaDV, dv.TenDV, " +
+                        "       COALESCE(SUM(sd.SoLuong),0)   AS TongSoLuong, " +
+                        "       COALESCE(SUM(sd.ThanhTien),0) AS TongDoanhThu " +
+                        "FROM sudungdichvu sd " +
+                        "JOIN dichvu dv ON sd.MaDV = dv.MaDV " +
+                        "JOIN phiensudung ps ON sd.MaPhien = ps.MaPhien " +
+                        "WHERE ps.GioKetThuc IS NOT NULL AND DATE(ps.GioKetThuc) BETWEEN ? AND ? " +
+                        "GROUP BY dv.MaDV, dv.TenDV " +
+                        "ORDER BY TongSoLuong DESC " +
+                        "LIMIT ?";
+
+        List<Map<String, Object>> list = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setTimestamp(1, Timestamp.valueOf(tu));
-            ps.setTimestamp(2, Timestamp.valueOf(den));
+            ps.setDate(1, Date.valueOf(tuNgay));
+            ps.setDate(2, Date.valueOf(denNgay));
             ps.setInt(3, top);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new Object[]{
-                            rs.getString("MaDV"),
-                            rs.getString("TenDV"),
-                            rs.getInt("TongSoLuong"),
-                            rs.getDouble("TongDoanhThu")
-                    });
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("MaDV", rs.getString("MaDV"));
+                    row.put("TenDV", rs.getString("TenDV"));
+                    row.put("TongSoLuong", rs.getInt("TongSoLuong"));
+                    row.put("TongDoanhThu", rs.getDouble("TongDoanhThu"));
+                    list.add(row);
                 }
             }
+
+            return list;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("ThongkeDAO.thongKeDichVuBanChay error", e);
         }
-        return list;
     }
 
-    // Helper dùng chung cho 3 query trả List<ThongKeDoanhThu>
-    private List<ThongKeDoanhThu> queryThongKe(String sql,
-                                               LocalDateTime tu,
-                                               LocalDateTime den) throws Exception {
-        List<ThongKeDoanhThu> list = new ArrayList<>();
+    // ====== 20.4 Thống kê tổng quan (Map) ======
+    // Tổng số máy / đang dùng / trống, tổng KH / KH hoạt động, số phiên đang chơi,
+    // doanh thu hôm nay, doanh thu tháng này
+    public Map<String, Object> thongKeTongQuan() {
+        Map<String, Object> map = new HashMap<>();
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String qTongMay = "SELECT COUNT(*) FROM maytinh";
+        String qMayDangDung = "SELECT COUNT(*) FROM maytinh WHERE TrangThai='DANGDUNG'";
+        String qMayTrong = "SELECT COUNT(*) FROM maytinh WHERE TrangThai='TRONG'";
 
-            ps.setTimestamp(1, Timestamp.valueOf(tu));
-            ps.setTimestamp(2, Timestamp.valueOf(den));
+        String qTongKH = "SELECT COUNT(*) FROM khachhang";
+        String qKHHoatDong = "SELECT COUNT(*) FROM khachhang WHERE TrangThai='HOATDONG'";
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(new ThongKeDoanhThu(
-                            rs.getString("ThoiGian"),
-                            rs.getDouble("Thu"),
-                            rs.getDouble("Chi")
-                    ));
+        String qPhienDangChoi = "SELECT COUNT(*) FROM phiensudung WHERE TrangThai='DANGCHOI'";
+
+        String qDoanhThuHomNay =
+                "SELECT COALESCE(SUM(ThanhToan),0) FROM hoadon " +
+                        "WHERE TrangThai='DATHANHTOAN' AND DATE(NgayLap)=CURDATE()";
+
+        String qDoanhThuThangNay =
+                "SELECT COALESCE(SUM(ThanhToan),0) FROM hoadon " +
+                        "WHERE TrangThai='DATHANHTOAN' " +
+                        "AND YEAR(NgayLap)=YEAR(CURDATE()) AND MONTH(NgayLap)=MONTH(CURDATE())";
+
+        try (Connection conn = DBConnection.getConnection()) {
+            map.put("TongSoMay", scalarInt(conn, qTongMay));
+            map.put("SoMayDangDung", scalarInt(conn, qMayDangDung));
+            map.put("SoMayTrong", scalarInt(conn, qMayTrong));
+
+            map.put("TongSoKH", scalarInt(conn, qTongKH));
+            map.put("SoKHHoatDong", scalarInt(conn, qKHHoatDong));
+
+            map.put("SoPhienDangChoi", scalarInt(conn, qPhienDangChoi));
+
+            map.put("DoanhThuHomNay", scalarDouble(conn, qDoanhThuHomNay));
+            map.put("DoanhThuThangNay", scalarDouble(conn, qDoanhThuThangNay));
+
+            return map;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("ThongkeDAO.thongKeTongQuan error", e);
+        }
+    }
+
+    public List<Map<String, Object>> thongKeTheo12Thang(int nam) {
+        Map<Integer, Double> doanhThuMap = new HashMap<>();
+        Map<Integer, Double> chiPhiMap = new HashMap<>();
+
+        String sqlDoanhThu =
+                "SELECT MONTH(NgayLap) AS Thang, COALESCE(SUM(ThanhToan),0) AS TongDoanhThu " +
+                        "FROM hoadon " +
+                        "WHERE TrangThai='DATHANHTOAN' AND YEAR(NgayLap)=? " +
+                        "GROUP BY MONTH(NgayLap)";
+
+        String sqlChiPhi =
+                "SELECT MONTH(NgayNhap) AS Thang, COALESCE(SUM(TongTien),0) AS TongChiPhi " +
+                        "FROM phieunhaphang " +
+                        "WHERE TrangThai='DANHAP' AND YEAR(NgayNhap)=? " +
+                        "GROUP BY MONTH(NgayNhap)";
+
+        try (Connection conn = DBConnection.getConnection()) {
+
+            try (PreparedStatement ps = conn.prepareStatement(sqlDoanhThu)) {
+                ps.setInt(1, nam);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        doanhThuMap.put(rs.getInt("Thang"), rs.getDouble("TongDoanhThu"));
+                    }
                 }
             }
+
+            try (PreparedStatement ps = conn.prepareStatement(sqlChiPhi)) {
+                ps.setInt(1, nam);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        chiPhiMap.put(rs.getInt("Thang"), rs.getDouble("TongChiPhi"));
+                    }
+                }
+            }
+
+            List<Map<String, Object>> list = new ArrayList<>();
+            for (int thang = 1; thang <= 12; thang++) {
+                double thu = doanhThuMap.getOrDefault(thang, 0.0);
+                double chi = chiPhiMap.getOrDefault(thang, 0.0);
+                double loiNhuan = thu - chi;
+
+                Map<String, Object> row = new HashMap<>();
+                row.put("Thang", thang);
+                row.put("ThoiGian", "Tháng " + thang + "/" + nam);
+                row.put("TongDoanhThu", thu);
+                row.put("TongNhapHang", chi);
+                row.put("LoiNhuan", loiNhuan);
+
+                list.add(row);
+            }
+
+            return list;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("ThongkeDAO.thongKeTheo12Thang error", e);
         }
-        return list;
     }
 
-    public double doanhThuHomNay() throws Exception {
-        String sql = "SELECT COALESCE(SUM(ThanhToan),0) FROM HoaDon WHERE DATE(ThoiDiemThanhToan) = CURRENT_DATE";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
+    private int scalarInt(Connection conn, String sql) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            return rs.next() ? rs.getDouble(1) : 0;
+            rs.next();
+            return rs.getInt(1);
         }
     }
 
-    public double doanhThuThang(int thang, int nam) throws Exception {
-        String sql = """
-                SELECT COALESCE(SUM(ThanhToan),0)
-                FROM HoaDon
-                WHERE MONTH(ThoiDiemThanhToan) = ? AND YEAR(ThoiDiemThanhToan) = ?
-                """;
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, thang);
-            ps.setInt(2, nam);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getDouble(1) : 0;
-            }
+    private double scalarDouble(Connection conn, String sql) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            rs.next();
+            return rs.getDouble(1);
         }
     }
 }
+
+

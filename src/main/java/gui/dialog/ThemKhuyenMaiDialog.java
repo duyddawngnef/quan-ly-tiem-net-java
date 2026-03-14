@@ -9,181 +9,160 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ResourceBundle;
 
 public class ThemKhuyenMaiDialog implements Initializable {
 
-    @FXML private Label lblDialogTitle;
-    @FXML private Label lblError;
-    @FXML private Button btnSave;
-
-    @FXML private TextField txtMaCTKM;
-    @FXML private TextField txtTenCT;
-    @FXML private ComboBox<String> cboLoaiKM;
-    @FXML private TextField txtGiaTriKM;
-    @FXML private TextField txtDieuKienToiThieu;
-    @FXML private DatePicker dateNgayBatDau;
-    @FXML private DatePicker dateNgayKetThuc;
+    @FXML private Label    lblTitle;
+    @FXML private Label    lblDialogTitle;
+    @FXML private TextField  txtMaKM;
+    @FXML private TextField  txtTenKM;
+    @FXML private ComboBox<String> cboLoai;
+    @FXML private TextField  txtGiaTri;
+    @FXML private TextField  txtNapToiThieu;
+    @FXML private DatePicker datTuNgay;
+    @FXML private DatePicker datDenNgay;
+    @FXML private TextArea   txtMoTa;
     @FXML private ComboBox<String> cboTrangThai;
+    @FXML private Label      lblGiaTriUnit;
+    @FXML private Label      lblError;
+    @FXML private Button     btnSave;
 
     private final KhuyenMaiBUS khuyenMaiBUS = new KhuyenMaiBUS();
+    private ChuongTrinhKhuyenMai entity;
     private boolean isEditMode = false;
-    private ChuongTrinhKhuyenMai currentEntity;
     private Runnable onSaveCallback;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (cboLoaiKM != null)
-            cboLoaiKM.getItems().setAll("PHANTRAM", "SOTIEN", "TANGGIO");
-        if (cboTrangThai != null)
-            cboTrangThai.getItems().setAll("HOATDONG", "NGUNG");
-
-        if (cboLoaiKM != null) {
-            cboLoaiKM.setOnAction(e -> updateGiaTriHint());
+        if (cboLoai != null) {
+            cboLoai.getItems().setAll("PHANTRAM", "SOTIEN", "TANGGIO");
+            cboLoai.setValue("PHANTRAM");
+            cboLoai.setOnAction(e -> updateUnit());
         }
+        if (cboTrangThai != null) {
+            cboTrangThai.getItems().setAll("HOATDONG", "CHUABD", "HETHAN");
+            cboTrangThai.setValue("HOATDONG");
+        }
+        if (datTuNgay  != null) datTuNgay.setValue(LocalDate.now());
+        if (datDenNgay != null) datDenNgay.setValue(LocalDate.now().plusMonths(1));
+        updateUnit();
     }
 
-    private void updateGiaTriHint() {
-        if (cboLoaiKM == null || txtGiaTriKM == null) return;
-        String loai = cboLoaiKM.getValue();
-        if (loai == null) return;
-        switch (loai) {
-            case "PHANTRAM":
-                txtGiaTriKM.setPromptText("VD: 10 (= 10%)");
-                break;
-            case "SOTIEN":
-                txtGiaTriKM.setPromptText("VD: 50000 (= 50,000 VNĐ)");
-                break;
-            case "TANGGIO":
-                txtGiaTriKM.setPromptText("VD: 1.5 (= 1.5 giờ)");
-                break;
-        }
+    private void updateUnit() {
+        if (cboLoai == null || lblGiaTriUnit == null) return;
+        lblGiaTriUnit.setText(switch (cboLoai.getValue() != null ? cboLoai.getValue() : "") {
+            case "PHANTRAM" -> "%";
+            case "SOTIEN"   -> "₫";
+            case "TANGGIO"  -> "giờ";
+            default -> "";
+        });
     }
 
-    public void setEntity(Object entity) {
-        if (entity instanceof ChuongTrinhKhuyenMai) {
-            currentEntity = (ChuongTrinhKhuyenMai) entity;
-            isEditMode = true;
-            if (lblDialogTitle != null) lblDialogTitle.setText("Cập nhật khuyến mãi");
-            if (txtMaCTKM != null) txtMaCTKM.setEditable(false);
-            populateFields(currentEntity);
-        } else {
-            currentEntity = null;
-            isEditMode = false;
-            if (lblDialogTitle != null) lblDialogTitle.setText("Thêm chương trình khuyến mãi");
-            if (txtMaCTKM       != null) {
-                txtMaCTKM.setText(khuyenMaiBUS.generateMaCTKM());
-                txtMaCTKM.setEditable(false);
+    public void setEntity(ChuongTrinhKhuyenMai km) {
+        this.entity     = km;
+        this.isEditMode = (km != null);
+        String titleText = isEditMode ? "Sửa Khuyến Mãi" : "Thêm Khuyến Mãi";
+        if (lblTitle      != null) lblTitle.setText(titleText);
+        if (lblDialogTitle != null) lblDialogTitle.setText(titleText);
+
+        if (isEditMode) {
+            if (txtMaKM  != null) { txtMaKM.setText(km.getMaCTKM()); txtMaKM.setDisable(true); }
+            if (txtTenKM != null) txtTenKM.setText(km.getTenCT());
+            if (cboLoai  != null) cboLoai.setValue(km.getLoaiKM());
+            if (txtGiaTri != null) txtGiaTri.setText(String.valueOf(km.getGiaTriKM()));
+            if (txtNapToiThieu != null) txtNapToiThieu.setText(String.valueOf(km.getDieuKienToiThieu()));
+            if (datTuNgay != null) {
+                LocalDateTime ngayBD = km.getNgayBatDau();
+                datTuNgay.setValue(ngayBD != null ? ngayBD.toLocalDate() : LocalDate.now());
             }
-            if (cboLoaiKM    != null) cboLoaiKM.setValue("PHANTRAM");
-            if (cboTrangThai != null) cboTrangThai.setValue("HOATDONG");
-            if (dateNgayBatDau  != null) dateNgayBatDau.setValue(LocalDate.now());
-            if (dateNgayKetThuc != null) dateNgayKetThuc.setValue(LocalDate.now().plusDays(30));
+            if (datDenNgay != null) {
+                LocalDateTime ngayKT = km.getNgayKetThuc();
+                datDenNgay.setValue(ngayKT != null ? ngayKT.toLocalDate() : LocalDate.now().plusMonths(1));
+            }
+            if (cboTrangThai != null) cboTrangThai.setValue(km.getTrangThai());
+            updateUnit();
         }
     }
 
-    public void setOnSaveCallback(Runnable callback) {
-        this.onSaveCallback = callback;
-    }
-
-    private void populateFields(ChuongTrinhKhuyenMai km) {
-        if (txtMaCTKM           != null) txtMaCTKM.setText(km.getMaCTKM());
-        if (txtTenCT            != null) txtTenCT.setText(km.getTenCT());
-        if (cboLoaiKM           != null) cboLoaiKM.setValue(km.getLoaiKM());
-        if (txtGiaTriKM         != null) txtGiaTriKM.setText(String.valueOf(km.getGiaTriKM()));
-        if (txtDieuKienToiThieu != null) txtDieuKienToiThieu.setText(String.valueOf((long) km.getDieuKienToiThieu()));
-        if (dateNgayBatDau  != null && km.getNgayBatDau()  != null)
-            dateNgayBatDau.setValue(km.getNgayBatDau());
-        if (dateNgayKetThuc != null && km.getNgayKetThuc() != null)
-            dateNgayKetThuc.setValue(km.getNgayKetThuc());
-        if (cboTrangThai != null) cboTrangThai.setValue(km.getTrangThai());
-    }
+    public void setOnSaveCallback(Runnable cb) { this.onSaveCallback = cb; }
 
     @FXML
     public void handleSave() {
         clearError();
-        if (!validateFields()) return;
+        String tenKM = txtTenKM != null ? txtTenKM.getText().trim() : "";
+        if (tenKM.isEmpty()) { setError("Tên khuyến mãi không được để trống"); return; }
+
+        double giaTri;
         try {
-            ChuongTrinhKhuyenMai km = buildEntity();
-            if (isEditMode) {
-                khuyenMaiBUS.suaKhuyenMai(km);
-            } else {
-                khuyenMaiBUS.themKhuyenMai(km);
-            }
+            String rawGT = txtGiaTri != null ? txtGiaTri.getText().replace(",", "").trim() : "0";
+            giaTri = Double.parseDouble(rawGT);
+            if (giaTri <= 0) { setError("Giá trị KM phải > 0"); return; }
+        } catch (NumberFormatException e) { setError("Giá trị không hợp lệ"); return; }
+
+        double napMin = 0;
+        try {
+            String rawMin = txtNapToiThieu != null ? txtNapToiThieu.getText().replace(",", "").trim() : "0";
+            napMin = Double.parseDouble(rawMin.isEmpty() ? "0" : rawMin);
+        } catch (NumberFormatException ignored) {}
+
+        LocalDate tuNgayDate  = datTuNgay  != null ? datTuNgay.getValue()  : LocalDate.now();
+        LocalDate denNgayDate = datDenNgay != null ? datDenNgay.getValue() : LocalDate.now().plusMonths(1);
+        if (tuNgayDate  == null) tuNgayDate  = LocalDate.now();
+        if (denNgayDate == null) denNgayDate = tuNgayDate.plusMonths(1);
+        if (!denNgayDate.isAfter(tuNgayDate)) {
+            setError("Ngày kết thúc phải sau ngày bắt đầu");
+            return;
+        }
+
+        LocalDateTime tuNgayDT  = tuNgayDate.atStartOfDay();
+        LocalDateTime denNgayDT = denNgayDate.atTime(LocalTime.of(23, 59, 59));
+
+        ChuongTrinhKhuyenMai km = isEditMode ? entity : new ChuongTrinhKhuyenMai();
+        if (!isEditMode && txtMaKM != null) {
+            String maKM = txtMaKM.getText().trim();
+            if (!maKM.isEmpty()) km.setMaCTKM(maKM);
+        }
+        km.setTenCT(tenKM);
+        km.setLoaiKM(cboLoai != null ? cboLoai.getValue() : "PHANTRAM");
+        km.setGiaTriKM(giaTri);
+        km.setDieuKienToiThieu(napMin);
+        km.setNgayBatDau(tuNgayDT);
+        km.setNgayKetThuc(denNgayDT);
+        km.setTrangThai(cboTrangThai != null ? cboTrangThai.getValue() : "HOATDONG");
+
+        try {
+            if (isEditMode) khuyenMaiBUS.suaKhuyenMai(km);
+            else khuyenMaiBUS.themKhuyenMai(km);
+
             if (onSaveCallback != null) onSaveCallback.run();
             closeDialog();
         } catch (Exception e) {
-            showError(e.getMessage());
+            setError(e.getMessage());
         }
-    }
-
-    private ChuongTrinhKhuyenMai buildEntity() {
-        ChuongTrinhKhuyenMai km = isEditMode ? currentEntity : new ChuongTrinhKhuyenMai();
-        if (txtMaCTKM != null) km.setMaCTKM(txtMaCTKM.getText().trim());
-        if (txtTenCT  != null) km.setTenCT(txtTenCT.getText().trim());
-        if (cboLoaiKM != null) km.setLoaiKM(cboLoaiKM.getValue());
-        if (txtGiaTriKM != null) {
-            try { km.setGiaTriKM(Double.parseDouble(txtGiaTriKM.getText().trim())); }
-            catch (NumberFormatException ignored) {}
-        }
-        if (txtDieuKienToiThieu != null) {
-            try { km.setDieuKienToiThieu(Double.parseDouble(txtDieuKienToiThieu.getText().replace(",", "").trim())); }
-            catch (NumberFormatException ignored) {}
-        }
-        if (dateNgayBatDau  != null && dateNgayBatDau.getValue()  != null)
-            km.setNgayBatDau(dateNgayBatDau.getValue());
-        if (dateNgayKetThuc != null && dateNgayKetThuc.getValue() != null)
-            km.setNgayKetThuc(dateNgayKetThuc.getValue());
-        if (cboTrangThai != null) km.setTrangThai(cboTrangThai.getValue());
-        return km;
-    }
-
-    private boolean validateFields() {
-        if (txtMaCTKM != null && txtMaCTKM.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập mã CTKM"); return false;
-        }
-        if (txtTenCT != null && txtTenCT.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên CTKM"); return false;
-        }
-        if (cboLoaiKM != null && cboLoaiKM.getValue() == null) {
-            showError("Vui lòng chọn loại khuyến mãi"); return false;
-        }
-        if (txtGiaTriKM != null) {
-            try {
-                double val = Double.parseDouble(txtGiaTriKM.getText().trim());
-                if (val <= 0) { showError("Giá trị KM phải lớn hơn 0"); return false; }
-            } catch (NumberFormatException e) {
-                showError("Giá trị KM không hợp lệ"); return false;
-            }
-        }
-        if (txtDieuKienToiThieu != null && !txtDieuKienToiThieu.getText().trim().isEmpty()) {
-            try {
-                double val = Double.parseDouble(txtDieuKienToiThieu.getText().replace(",", "").trim());
-                if (val < 0) { showError("Điều kiện tối thiểu phải >= 0"); return false; }
-            } catch (NumberFormatException e) {
-                showError("Điều kiện tối thiểu không hợp lệ"); return false;
-            }
-        }
-        if (dateNgayBatDau != null && dateNgayKetThuc != null
-                && dateNgayBatDau.getValue() != null && dateNgayKetThuc.getValue() != null
-                && !dateNgayKetThuc.getValue().isAfter(dateNgayBatDau.getValue())) {
-            showError("Ngày kết thúc phải sau ngày bắt đầu"); return false;
-        }
-        return true;
     }
 
     @FXML
-    public void handleCancel() { closeDialog(); }
-
-    private void showError(String msg) {
-        if (lblError != null) { lblError.setText(msg); lblError.setVisible(true); }
+    public void handleCancel() {
+        closeDialog();
     }
 
-    private void clearError() {
-        if (lblError != null) { lblError.setText(""); lblError.setVisible(false); }
-    }
+    private void setError(String msg)  { if (lblError != null) lblError.setText(msg); }
+    private void clearError()          { if (lblError != null) lblError.setText(""); }
 
     private void closeDialog() {
-        ((Stage) btnSave.getScene().getWindow()).close();
+        Stage stage = null;
+        if (btnSave != null && btnSave.getScene() != null) stage = (Stage) btnSave.getScene().getWindow();
+        else if (txtTenKM != null && txtTenKM.getScene() != null) stage = (Stage) txtTenKM.getScene().getWindow();
+        else if (txtMaKM != null && txtMaKM.getScene() != null) stage = (Stage) txtMaKM.getScene().getWindow();
+        if (stage != null) stage.close();
+    }
+
+    private Stage getStage() {
+        if (btnSave  != null && btnSave.getScene()  != null) return (Stage) btnSave.getScene().getWindow();
+        if (txtTenKM != null && txtTenKM.getScene() != null) return (Stage) txtTenKM.getScene().getWindow();
+        return null;
     }
 }

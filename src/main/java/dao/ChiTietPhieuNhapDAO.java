@@ -2,110 +2,188 @@ package dao;
 
 import entity.ChiTietPhieuNhap;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ChiTietPhieuNhapDAO {
 
-    // phương thức getByPhieu
-    public ArrayList<ChiTietPhieuNhap> getByPhieu(String maPhieuNhap) {
-        ArrayList<ChiTietPhieuNhap> danhSach = new ArrayList<>();
-        String sql = "SELECT * FROM ChiTietPhieuNhap WHERE maPhieuNhap = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, maPhieuNhap);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                ChiTietPhieuNhap ctpn = new ChiTietPhieuNhap(
-                        rs.getString("maCTPN"),
-                        rs.getString("maPhieuNhap"),
-                        rs.getString("maDV"),
-                        rs.getInt("soLuong"),
-                        rs.getDouble("giaNhap"),
-                        rs.getDouble("thanhTien"));
-                danhSach.add(ctpn);
-            }
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return danhSach;
-    }
-
-    // phương thức insert
-    public boolean insert(ChiTietPhieuNhap ctpn) {
-        String sql = "INSERT INTO ChiTietPhieuNhap (maCTPN, maPhieuNhap, maDV, soLuong, giaNhap, thanhTien) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, ctpn.getMaCTPN());
-            pstmt.setString(2, ctpn.getMaPhieuNhap());
-            pstmt.setString(3, ctpn.getMaDV());
-            pstmt.setInt(4, ctpn.getSoLuong());
-            pstmt.setDouble(5, ctpn.getGiaNhap());
-            pstmt.setDouble(6, ctpn.getThanhTien());
-
-            int rows = pstmt.executeUpdate();
-
-            return rows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // cập nhật số lượng tồn
-    public boolean updateSoLuongTon(Connection conn, String maDV, int soLuong) throws SQLException {
-
-        String sql = "UPDATE DichVu SET soLuongTon = soLuongTon + ?, trangThai = 'CONHANG' WHERE maDV = ?";
-
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-        pstmt.setInt(1, soLuong);
-        pstmt.setString(2, maDV);
-
-        return pstmt.executeUpdate() > 0;
-    }
-
-    // Tạo mã ctpn tự động
-    public String generateMaCTPN() {
-        String sql = "SELECT maCTPN FROM ChiTietPhieuNhap ORDER BY maCTPN DESC LIMIT 1";
-
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery()) {
+    // ====== Helpers ======
+    private String genMaCTPN(Connection conn) throws SQLException {
+        // Format: CTPN001, CTPN002,...
+        String sql = "SELECT MAX(MaCTPN) FROM chitietphieunhap WHERE MaCTPN LIKE 'CTPN%'";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
-                String lastId = rs.getString("maCTPN");
-                int num = Integer.parseInt(lastId.replace("CTPN", "")) + 1;
-                return String.format("CTPN%03d", num);
+                String max = rs.getString(1);
+                if (max != null) {
+                    int num = Integer.parseInt(max.substring(4)); // bỏ "CTPN"
+                    return "CTPN" + String.format("%03d", num + 1);
+                }
+            }
+            return "CTPN001";
+        }
+    }
+    /* tạo mã tự động cuả team
+    public String generateMaKH() {
+        String sql = "SELECT MaKH FROM khachhang ORDER BY MaKH DESC LIMIT 1";
+
+        try (
+                Connection conn = DBConnection.getConnection();
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery(sql)
+        ) {
+            if (rs.next()) {
+                String lastMa = rs.getString("MaKH");  // VD: "KH015"
+                int num = Integer.parseInt(lastMa.substring(2));  // 15
+                return String.format("KH%03d", num + 1);  // "KH016"
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return "CTPN001";
+        return "KH001";  // Nếu chưa có dữ liệu
+    }
+} */
+    private void validateForInsert(ChiTietPhieuNhap ct) {
+        if (ct == null) throw new IllegalArgumentException("ChiTietPhieuNhap null");
+
+        if (ct.getMaPhieuNhap() == null || ct.getMaPhieuNhap().trim().isEmpty())
+            throw new IllegalArgumentException("MaPhieuNhap không hợp lệ");
+
+        if (ct.getMaDV() == null || ct.getMaDV().trim().isEmpty())
+            throw new IllegalArgumentException("MaDV không hợp lệ");
+
+        if (ct.getSoLuong() <= 0)
+            throw new IllegalArgumentException("SoLuong phải > 0");
+
+        // double: chỉ check >= 0
+        if (ct.getGiaNhap() < 0)
+            throw new IllegalArgumentException("GiaNhap phải >= 0");
     }
 
-    // Xóa chi tiết phiếu nhập theo maCTPN
-    public boolean delete(String maCTPN) {
-        String sql = "DELETE FROM ChiTietPhieuNhap WHERE maCTPN = ?";
+    // ====== Query ======
+    public List<ChiTietPhieuNhap> getByMaPhieuNhap(Connection conn, String maPN) {
+        String sql = "SELECT MaCTPN, MaPhieuNhap, MaDV, SoLuong, GiaNhap, ThanhTien " +
+                "FROM chitietphieunhap WHERE MaPhieuNhap=? ORDER BY MaCTPN";
 
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            pstmt.setString(1, maCTPN);
-            return pstmt.executeUpdate() > 0;
+        List<ChiTietPhieuNhap> list = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maPN);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(map(rs));
+            }
+            return list;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException("ChiTietPhieuNhapDAO.getByMaPhieuNhap(conn) error", e);
         }
+    }
+
+    public ChiTietPhieuNhap getById(String maCTPN) {
+        String sql = "SELECT MaCTPN, MaPhieuNhap, MaDV, SoLuong, GiaNhap, ThanhTien " +
+                "FROM chitietphieunhap WHERE MaCTPN=?";
+
+        Connection conn = DBConnection.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maCTPN);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return map(rs);
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("ChiTietPhieuNhapDAO.getById error", e);
+        }
+    }
+    // ====== Thêm hàm này để gọi từ BUS ======
+    public List<ChiTietPhieuNhap> getByMaPhieu(String maPhieu) {
+        String sql = "SELECT MaCTPN, MaPhieuNhap, MaDV, SoLuong, GiaNhap, ThanhTien " +
+                "FROM chitietphieunhap WHERE MaPhieuNhap=? ORDER BY MaCTPN";
+
+        List<ChiTietPhieuNhap> list = new ArrayList<>();
+        // Tự động lấy kết nối từ DBConnection (không cần truyền từ ngoài vào)
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maPhieu);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Sử dụng lại hàm map(rs) có sẵn ở cuối file của bạn
+                    list.add(map(rs));
+                }
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException("Lỗi ChiTietPhieuNhapDAO.getByMaPhieu: " + e.getMessage(), e);
+        }
+    }
+    // ====== Insert ======
+    /**
+     * Insert 1 chi tiết (dùng trong transaction của PhieuNhapHangDAO)
+     * - MaCTPN tự sinh
+     * - ThanhTien = SoLuong * GiaNhap
+     */
+    public String insert(Connection conn, ChiTietPhieuNhap ct) throws SQLException {
+        validateForInsert(ct);
+
+        String maCTPN = genMaCTPN(conn);
+
+        // double: tính tiền trực tiếp
+        double thanhTien = ct.getGiaNhap() * ct.getSoLuong();
+
+        String sql = "INSERT INTO chitietphieunhap(MaCTPN, MaPhieuNhap, MaDV, SoLuong, GiaNhap, ThanhTien) " +
+                "VALUES(?,?,?,?,?,?)";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maCTPN);
+            ps.setString(2, ct.getMaPhieuNhap());
+            ps.setString(3, ct.getMaDV());
+            ps.setInt(4, ct.getSoLuong());
+            ps.setDouble(5, ct.getGiaNhap());
+            ps.setDouble(6, thanhTien);
+            ps.executeUpdate();
+        }
+
+        // gán lại vào entity để bên ngoài dùng tiếp
+        ct.setMaCTPN(maCTPN);
+        ct.setThanhTien(thanhTien);
+        return maCTPN;
+    }
+
+    /**
+     * Insert nhiều chi tiết (cũng dùng trong transaction)
+     */
+    public void insertBatch(Connection conn, List<ChiTietPhieuNhap> list) throws SQLException {
+        if (list == null || list.isEmpty())
+            throw new IllegalArgumentException("Danh sách chi tiết rỗng");
+
+        for (ChiTietPhieuNhap ct : list) {
+            insert(conn, ct);
+        }
+    }
+
+    // ====== Not allowed per nghiệp vụ ======
+    public void updateNotAllowed() {
+        throw new UnsupportedOperationException("Không cho phép sửa ChiTietPhieuNhap. Chỉ thao tác qua PhieuNhapHangDAO.");
+    }
+
+    public void deleteNotAllowed() {
+        throw new UnsupportedOperationException("Không cho phép xóa ChiTietPhieuNhap. Chỉ thao tác qua PhieuNhapHangDAO.");
+    }
+
+    // ====== Mapper ======
+    private ChiTietPhieuNhap map(ResultSet rs) throws SQLException {
+        ChiTietPhieuNhap ct = new ChiTietPhieuNhap();
+        ct.setMaCTPN(rs.getString("MaCTPN"));
+        ct.setMaPhieuNhap(rs.getString("MaPhieuNhap"));
+        ct.setMaDV(rs.getString("MaDV"));
+        ct.setSoLuong(rs.getInt("SoLuong"));
+
+        // double: lấy dữ liệu bằng getDouble
+        ct.setGiaNhap(rs.getDouble("GiaNhap"));
+        ct.setThanhTien(rs.getDouble("ThanhTien"));
+        return ct;
     }
 }

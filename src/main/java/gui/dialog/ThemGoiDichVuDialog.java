@@ -12,197 +12,105 @@ import java.util.ResourceBundle;
 
 public class ThemGoiDichVuDialog implements Initializable {
 
-    @FXML
-    private Label lblDialogTitle;
-    @FXML
-    private Label lblError;
-    @FXML
-    private Button btnSave;
-
-    @FXML
-    private TextField txtMaGoi;
-    @FXML
-    private TextField txtTenGoi;
-    @FXML
-    private ComboBox<String> cboLoaiGoi;
-    @FXML
-    private TextField txtSoGio;
-    @FXML
-    private TextField txtNgayHieuLuc;
-    @FXML
-    private TextField txtGiaGoc;
-    @FXML
-    private TextField txtGiaGoi;
-    @FXML
-    private TextField txtApdungKhu;
-    @FXML
-    private ComboBox<String> cboTrangThai;
-    @FXML
-    private TextArea txtMoTa;
+    @FXML private Label    lblTitle;
+    @FXML private TextField txtMaGoi;
+    @FXML private TextField txtTenGoi;
+    @FXML private TextField txtGia;
+    @FXML private TextField txtSoGio;
+    @FXML private TextField txtSoNgayHieuLuc;
+    @FXML private TextArea  txtMoTa;
+    @FXML private ComboBox<String> cboTrangThai;
+    @FXML private ComboBox<String> cboLoaiGoi;
+    @FXML private Label     lblError;
+    @FXML private Button    btnSave;
+    @FXML private Button    btnCancel;
 
     private final GoiDichVuBUS goiDichVuBUS = new GoiDichVuBUS();
+    private GoiDichVu entity;
     private boolean isEditMode = false;
-    private GoiDichVu currentEntity;
     private Runnable onSaveCallback;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (cboLoaiGoi != null)
-            cboLoaiGoi.getItems().setAll("THANG", "TUAN", "NGAY", "GIO");
-        if (cboTrangThai != null)
+        if (cboTrangThai != null) {
             cboTrangThai.getItems().setAll("HOATDONG", "NGUNG");
-    }
-
-    public void setEntity(Object entity) {
-        if (entity instanceof GoiDichVu) {
-            currentEntity = (GoiDichVu) entity;
-            isEditMode = true;
-            if (lblDialogTitle != null)
-                lblDialogTitle.setText("Cập nhật gói dịch vụ");
-            if (txtMaGoi != null)
-                txtMaGoi.setEditable(false);
-            populateFields(currentEntity);
-        } else {
-            currentEntity = null;
-            isEditMode = false;
-            if (lblDialogTitle != null)
-                lblDialogTitle.setText("Thêm gói dịch vụ mới");
-            if (cboTrangThai != null)
-                cboTrangThai.setValue("HOATDONG");
+            cboTrangThai.setValue("HOATDONG");
+        }
+        if (cboLoaiGoi != null) {
+            cboLoaiGoi.getItems().setAll("THUONG", "VIP", "SINH_VIEN", "CUOI_TUAN");
+            cboLoaiGoi.setValue("THUONG");
         }
     }
 
-    public void setOnSaveCallback(Runnable callback) {
-        this.onSaveCallback = callback;
+    public void setEntity(GoiDichVu gdv) {
+        this.entity     = gdv;
+        this.isEditMode = (gdv != null);
+        if (isEditMode) {
+            if (lblTitle    != null) lblTitle.setText("Sửa Gói Dịch Vụ");
+            if (txtMaGoi    != null) { txtMaGoi.setText(gdv.getMagoi()); txtMaGoi.setDisable(true); }
+            if (txtTenGoi   != null) txtTenGoi.setText(gdv.getTengoi());
+            if (txtGia      != null) txtGia.setText(String.valueOf(gdv.getGiagoi()));
+            if (txtSoGio    != null) txtSoGio.setText(String.valueOf(gdv.getSogio()));
+            if (txtSoNgayHieuLuc != null) txtSoNgayHieuLuc.setText(String.valueOf(gdv.getSongayhieuluc()));
+            if (cboLoaiGoi  != null) cboLoaiGoi.setValue(gdv.getLoaigoi());
+            if (cboTrangThai != null) cboTrangThai.setValue(gdv.getTrangthai());
+        } else {
+            if (lblTitle != null) lblTitle.setText("Thêm Gói Dịch Vụ");
+        }
     }
 
-    private void populateFields(GoiDichVu g) {
-        if (txtMaGoi != null)
-            txtMaGoi.setText(g.getMaGoi());
-        if (txtTenGoi != null)
-            txtTenGoi.setText(g.getTenGoi());
-        if (cboLoaiGoi != null)
-            cboLoaiGoi.setValue(g.getLoaiGoi());
-        if (txtSoGio != null)
-            txtSoGio.setText(String.valueOf(g.getSoGio()));
-        if (txtNgayHieuLuc != null)
-            txtNgayHieuLuc.setText(String.valueOf(g.getSoNgayHieuLuc()));
-        if (txtGiaGoc != null)
-            txtGiaGoc.setText(String.valueOf((long) g.getGiaGoc()));
-        if (txtGiaGoi != null)
-            txtGiaGoi.setText(String.valueOf((long) g.getGiaGoi()));
-        if (txtApdungKhu != null)
-            txtApdungKhu.setText(g.getApDungChoKhu());
-        if (cboTrangThai != null)
-            cboTrangThai.setValue(g.getTrangThai());
-    }
+    public void setOnSaveCallback(Runnable cb) { this.onSaveCallback = cb; }
 
     @FXML
     public void handleSave() {
         clearError();
-        if (!validateFields())
-            return;
+        String tenGoi = txtTenGoi != null ? txtTenGoi.getText().trim() : "";
+        if (tenGoi.isEmpty()) { setError("Tên gói không được để trống"); return; }
+        double gia;
         try {
-            GoiDichVu g = buildEntity();
-            if (isEditMode)
-                goiDichVuBUS.suaGoiDichVu(g);
-            else
-                goiDichVuBUS.themGoiDichVu(g);
-            if (onSaveCallback != null)
-                onSaveCallback.run();
+            gia = Double.parseDouble(txtGia != null ? txtGia.getText().replace(",","").trim() : "0");
+            if (gia <= 0) { setError("Giá phải > 0"); return; }
+        } catch (NumberFormatException e) { setError("Giá không hợp lệ"); return; }
+        double soGio;
+        try {
+            soGio = Double.parseDouble(txtSoGio != null ? txtSoGio.getText().trim() : "0");
+            if (soGio <= 0) { setError("Số giờ phải > 0"); return; }
+        } catch (NumberFormatException e) { setError("Số giờ không hợp lệ"); return; }
+        int soNgay;
+        try {
+            soNgay = Integer.parseInt(txtSoNgayHieuLuc != null ? txtSoNgayHieuLuc.getText().trim() : "30");
+        } catch (NumberFormatException e) { soNgay = 30; }
+
+        GoiDichVu gdv = isEditMode ? entity : new GoiDichVu();
+        if (!isEditMode && txtMaGoi != null) gdv.setMagoi(txtMaGoi.getText().trim());
+        gdv.setTengoi(tenGoi);
+        gdv.setGiagoi(gia);
+        gdv.setSogio(soGio);
+        gdv.setSongayhieuluc(soNgay);
+        gdv.setLoaigoi(cboLoaiGoi != null ? cboLoaiGoi.getValue() : "THUONG");
+        gdv.setTrangthai(cboTrangThai != null ? cboTrangThai.getValue() : "HOATDONG");
+
+        try {
+            if (isEditMode) {
+                goiDichVuBUS.suaGoiDichVu(gdv);
+                ThongBaoDialog.showSuccess(getStage(), "Cập nhật gói dịch vụ thành công!");
+            } else {
+                goiDichVuBUS.themGoiDichVu(gdv);
+                ThongBaoDialog.showSuccess(getStage(), "Thêm gói dịch vụ thành công!");
+            }
+            if (onSaveCallback != null) onSaveCallback.run();
             closeDialog();
         } catch (Exception e) {
-            showError(e.getMessage());
+            setError(e.getMessage());
         }
     }
 
-    private GoiDichVu buildEntity() {
-        GoiDichVu g = isEditMode ? currentEntity : new GoiDichVu();
-        if (txtMaGoi != null)
-            g.setMaGoi(txtMaGoi.getText().trim());
-        if (txtTenGoi != null)
-            g.setTenGoi(txtTenGoi.getText().trim());
-        if (cboLoaiGoi != null)
-            g.setLoaiGoi(cboLoaiGoi.getValue());
-        if (txtSoGio != null) {
-            try {
-                g.setSoGio(Double.parseDouble(txtSoGio.getText().trim()));
-            } catch (Exception ignored) {
-            }
-        }
-        if (txtNgayHieuLuc != null) {
-            try {
-                g.setSoNgayHieuLuc(Integer.parseInt(txtNgayHieuLuc.getText().trim()));
-            } catch (Exception ignored) {
-            }
-        }
-        if (txtGiaGoc != null) {
-            try {
-                g.setGiaGoc(Double.parseDouble(txtGiaGoc.getText().replace(",", "").trim()));
-            } catch (Exception ignored) {
-            }
-        }
-        if (txtGiaGoi != null) {
-            try {
-                g.setGiaGoi(Double.parseDouble(txtGiaGoi.getText().replace(",", "").trim()));
-            } catch (Exception ignored) {
-            }
-        }
-        if (txtApdungKhu != null)
-            g.setApDungChoKhu(txtApdungKhu.getText().trim());
-        if (cboTrangThai != null)
-            g.setTrangThai(cboTrangThai.getValue());
-        return g;
-    }
+    @FXML public void handleCancel() { closeDialog(); }
 
-    private boolean validateFields() {
-        if (txtMaGoi != null && txtMaGoi.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập mã gói");
-            return false;
-        }
-        if (txtTenGoi != null && txtTenGoi.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên gói");
-            return false;
-        }
-        if (txtSoGio != null) {
-            try {
-                Double.parseDouble(txtSoGio.getText().trim());
-            } catch (NumberFormatException e) {
-                showError("Số giờ không hợp lệ");
-                return false;
-            }
-        }
-        if (txtGiaGoi != null) {
-            try {
-                Double.parseDouble(txtGiaGoi.getText().replace(",", "").trim());
-            } catch (NumberFormatException e) {
-                showError("Giá gói không hợp lệ");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @FXML
-    public void handleCancel() {
-        closeDialog();
-    }
-
-    private void showError(String msg) {
-        if (lblError != null) {
-            lblError.setText(msg);
-            lblError.setVisible(true);
-        }
-    }
-
-    private void clearError() {
-        if (lblError != null) {
-            lblError.setText("");
-            lblError.setVisible(false);
-        }
-    }
-
-    private void closeDialog() {
-        ((Stage) btnSave.getScene().getWindow()).close();
-    }
+    private void setError(String msg)  { if (lblError != null) lblError.setText(msg); }
+    private void clearError()          { if (lblError != null) lblError.setText(""); }
+    private void closeDialog()         { if (btnCancel != null && btnCancel.getScene() != null)
+                                            ((Stage) btnCancel.getScene().getWindow()).close(); }
+    private Stage getStage()           { return btnSave != null && btnSave.getScene() != null
+                                            ? (Stage) btnSave.getScene().getWindow() : null; }
 }
