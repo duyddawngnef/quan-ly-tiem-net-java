@@ -20,36 +20,43 @@
         <VBox styleClass="dialog-body" spacing="12">
             <VBox spacing="4">
                 <Label text="Mã KM *" styleClass="form-label"/>
-                <TextField fx:id="txtMaCTKM" promptText="VD: NOEL2026" styleClass="text-field" maxWidth="Infinity"/>
+                <TextField fx:id="txtMaKM" promptText="VD: NOEL2026" styleClass="text-field" maxWidth="Infinity"/>
+                <Label fx:id="lbltxtMaKMError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
                 <Label text="Tên chương trình *" styleClass="form-label"/>
-                <TextField fx:id="txtTenCT" promptText="VD: Khuyến mãi Noel" styleClass="text-field" maxWidth="Infinity"/>
+                <TextField fx:id="txtTenKM" promptText="VD: Khuyến mãi Noel" styleClass="text-field" maxWidth="Infinity"/>
+                <Label fx:id="lbltxtTenKMError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
                 <Label text="Loại KM *" styleClass="form-label"/>
-                <ComboBox fx:id="cboLoaiKM" promptText="Chọn loại (%, tiền)" styleClass="combo-box" maxWidth="Infinity"/>
+                <ComboBox fx:id="cboLoai" promptText="Chọn loại (%, tiền)" styleClass="combo-box" maxWidth="Infinity"/>
+                <Label fx:id="lblcboLoaiError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
                 <Label text="Giá trị *" styleClass="form-label"/>
-                <TextField fx:id="txtGiaTriKM" promptText="VD: 20 (%) hoặc 50000 (VNĐ)" styleClass="text-field" maxWidth="Infinity"/>
+                <TextField fx:id="txtGiaTri" promptText="VD: 20 (%) hoặc 50000 (VNĐ)" styleClass="text-field" maxWidth="Infinity"/>
+                <Label fx:id="lbltxtGiaTriError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
                 <Label text="Nạp tối thiểu (VNĐ)" styleClass="form-label"/>
-                <TextField fx:id="txtDieuKienToiThieu" promptText="VD: 100000" styleClass="text-field" maxWidth="Infinity"/>
+                <TextField fx:id="txtNapToiThieu" promptText="VD: 100000" styleClass="text-field" maxWidth="Infinity"/>
+                <Label fx:id="lbltxtNapToiThieuError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
                 <Label text="Từ ngày *" styleClass="form-label"/>
-                <DatePicker fx:id="dateNgayBatDau" promptText="Chọn ngày bắt đầu" maxWidth="Infinity"/>
+                <DatePicker fx:id="datTuNgay" promptText="Chọn ngày bắt đầu" maxWidth="Infinity"/>
+                <Label fx:id="lbldatTuNgayError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
                 <Label text="Đến ngày *" styleClass="form-label"/>
-                <DatePicker fx:id="dateNgayKetThuc" promptText="Chọn ngày kết thúc" maxWidth="Infinity"/>
+                <DatePicker fx:id="datDenNgay" promptText="Chọn ngày kết thúc" maxWidth="Infinity"/>
+                <Label fx:id="lbldatDenNgayError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
-                <Label text="Trạng thái *" styleClass="form-label"/>
-                <ComboBox fx:id="cboTrangThai" promptText="Chọn trạng thái"
-                          styleClass="combo-box" maxWidth="Infinity"/>
+                <Label text="Mô tả" styleClass="form-label"/>
+                <TextArea fx:id="txtMoTa" promptText="Mô tả chương trình..." styleClass="text-field" maxWidth="Infinity" prefRowCount="3" wrapText="true"/>
+                <Label fx:id="lbltxtMoTaError" styleClass="error-label" text=""/>
             </VBox>
 
             <Label fx:id="lblError" styleClass="error-label" text="" wrapText="true"/>

@@ -260,6 +260,7 @@ public class ChuongTrinhKhuyenMaiDAO {
 
             pstmt.setString(1, maCTKM);
             ResultSet rs = pstmt.executeQuery();
+
             if (rs.next()) {
                 return rs.getInt(1) > 0;
             }
@@ -329,8 +330,8 @@ public class ChuongTrinhKhuyenMaiDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     // ===== 16. TẮT CHƯƠNG TRÌNH =====
@@ -419,6 +420,7 @@ public class ChuongTrinhKhuyenMaiDAO {
             pstmt.setTimestamp(3, Timestamp.valueOf(denNgay));
             pstmt.setTimestamp(4, Timestamp.valueOf(tuNgay));
             ResultSet rs = pstmt.executeQuery();
+
             while (rs.next()) {
                 Object[] row = new Object[5];
                 row[0] = rs.getString("MaCTKM");
@@ -428,6 +430,7 @@ public class ChuongTrinhKhuyenMaiDAO {
                 row[4] = rs.getDouble("TongKM");
                 result.add(row);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
