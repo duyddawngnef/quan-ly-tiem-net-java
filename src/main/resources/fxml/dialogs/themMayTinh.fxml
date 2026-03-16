@@ -20,7 +20,7 @@
         <VBox styleClass="dialog-body" spacing="12">
             <VBox spacing="4">
                 <Label text="Mã máy *" styleClass="form-label"/>
-                <TextField fx:id="txtMaMay" promptText="VD: PC001" styleClass="text-field" maxWidth="Infinity"/>
+                <TextField fx:id="txtMaMay" promptText="VD: MAY001" styleClass="text-field" maxWidth="Infinity"/>
                 <Label fx:id="lbltxtMaMayError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">

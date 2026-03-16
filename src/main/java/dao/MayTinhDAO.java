@@ -143,7 +143,7 @@ public class MayTinhDAO {
         if(!ValidateMaKhu(mt.getMakhu())) {
             throw new IllegalArgumentException("Mã khu không tồn tại hoặc khu không hoạt động");
         }
-        String sql="UPDATE maytinh SET TenMay=?, MaKhu=?, CauHinh=?, TrangThai=? ";
+        String sql="UPDATE maytinh SET TenMay=?, MaKhu=?, CauHinh=?, TrangThai=? WHERE MaMay=?";
         try{
             Connection conn=DBConnection.getConnection();
             PreparedStatement pstmt= conn.prepareStatement(sql);
@@ -151,6 +151,7 @@ public class MayTinhDAO {
             pstmt.setString(2,mt.getMakhu());
             pstmt.setString(3,mt.getCauhinh());
             pstmt.setString(4,mt.getTrangthai());
+            pstmt.setString(5,mt.getMamay());
             pstmt.executeUpdate();
             pstmt.close();
         }catch(SQLException e) {
