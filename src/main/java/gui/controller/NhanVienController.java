@@ -34,7 +34,7 @@ public class NhanVienController implements Initializable {
     @FXML private Button btnLamMoi;
 
     @FXML private TableView<NhanVien> tableView;
-    @FXML private TableColumn<NhanVien, String> colMaNV, colHoTen, colSDT, colTenDN, colChucVu, colTrangThai, colNgayVaoLam;
+    @FXML private TableColumn<NhanVien, String> colMaNV, colHoTen, colTenDN, colChucVu, colTrangThai;
 
     @FXML private Label lblTotal;
 
@@ -70,11 +70,11 @@ public class NhanVienController implements Initializable {
             });
         }
 
-        if (colSDT != null) colSDT.setCellValueFactory(new PropertyValueFactory<>("sodienthoai"));
+
         if (colTenDN != null) colTenDN.setCellValueFactory(new PropertyValueFactory<>("tendangnhap"));
         if (colChucVu != null) colChucVu.setCellValueFactory(new PropertyValueFactory<>("chucvu"));
         if (colTrangThai != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
-        if (colNgayVaoLam != null) colNgayVaoLam.setCellValueFactory(new PropertyValueFactory<>("ngayvaolam"));
+
     }
 
     private void setupComboBoxes() {
@@ -177,7 +177,7 @@ public class NhanVienController implements Initializable {
     private void openDialog(NhanVien nv) {
         try {
             // Đã sửa lại đường dẫn chuẩn, loại bỏ chữ src/main/resources
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/themNhanVien.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dialogs/themNhanVien.fxml"));
             Parent root = loader.load();
 
             ThemNhanVienDialog ctrl = loader.getController();

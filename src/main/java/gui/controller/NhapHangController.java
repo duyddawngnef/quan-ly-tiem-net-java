@@ -263,7 +263,7 @@ public class NhapHangController implements Initializable {
                 return;
             }
 
-            List<DichVuItem> dsDichVu = getDanhSachDichVuConHang();
+            List<DichVuItem> dsDichVu = getDanhSachDichVuNhapHang();
             if (dsDichVu.isEmpty()) {
                 ThongBaoDialogHelper.showError(tablePhieu.getScene(), "Không có dịch vụ còn hàng để chọn.");
                 return;
@@ -575,9 +575,11 @@ public class NhapHangController implements Initializable {
         return s == null ? "-" : s;
     }
 
-    private List<DichVuItem> getDanhSachDichVuConHang() throws Exception {
+    private List<DichVuItem> getDanhSachDichVuNhapHang() throws Exception {
         String sql = "SELECT MaDV, TenDV, DonGia, DonViTinh, SoLuongTon, TrangThai " +
-                "FROM dichvu WHERE TrangThai = 'CONHANG' ORDER BY MaDV";
+                "FROM dichvu " +
+                "WHERE TrangThai IN ('CONHANG', 'HETHANG', 'NGUNGBAN') " +
+                "ORDER BY MaDV";
 
         List<DichVuItem> list = new ArrayList<>();
 
@@ -596,7 +598,7 @@ public class NhapHangController implements Initializable {
                 ));
             }
         } catch (Exception e) {
-            throw new Exception("Lỗi lấy danh sách dịch vụ: " + e.getMessage());
+            throw new Exception("Lỗi lấy danh sách dịch vụ nhập hàng: " + e.getMessage());
         }
 
         return list;

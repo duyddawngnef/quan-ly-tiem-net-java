@@ -30,6 +30,7 @@ public class KhuyenMaiController implements Initializable {
     @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTenKM;
     @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colLoai;
     @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colGiaTri;
+    @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colNapToiThieu;
     @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTuNgay;
     @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colDenNgay;
     @FXML private TableColumn<ChuongTrinhKhuyenMai, String> colTrangThai;
@@ -65,6 +66,7 @@ public class KhuyenMaiController implements Initializable {
         if (colTenKM     != null) colTenKM.setCellValueFactory(new PropertyValueFactory<>("tenCT"));
         if (colLoai      != null) colLoai.setCellValueFactory(new PropertyValueFactory<>("tenLoaiKM"));
         if (colGiaTri    != null) colGiaTri.setCellValueFactory(new PropertyValueFactory<>("giaTriKMFormatted"));
+        if (colNapToiThieu != null) colNapToiThieu.setCellValueFactory(new PropertyValueFactory<>("dieuKienToiThieuFormatted"));
         if (colTuNgay    != null) colTuNgay.setCellValueFactory(new PropertyValueFactory<>("ngayBatDauFormatted"));
         if (colDenNgay   != null) colDenNgay.setCellValueFactory(new PropertyValueFactory<>("ngayKetThucFormatted"));
         if (colTrangThai != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("tenTrangThai"));

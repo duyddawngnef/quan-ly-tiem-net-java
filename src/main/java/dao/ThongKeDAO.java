@@ -230,6 +230,51 @@ public class ThongkeDAO {
             return rs.getDouble(1);
         }
     }
+    public List<Object[]> thongKeTopKhachHang(int nam, int top) {
+        List<Object[]> list = new ArrayList<>();
+
+        String sql =
+                "SELECT " +
+                        "    CONCAT(kh.Ho, ' ', kh.Ten) AS HoTen, " +
+                        "    COUNT(DISTINCT h.MaPhien) AS SoPhien, " +
+                        "    COALESCE(SUM(ps.TongGio), 0) AS TongGio, " +
+                        "    COALESCE(SUM(h.ThanhToan), 0) AS TongChiTieu " +
+                        "FROM khachhang kh " +
+                        "LEFT JOIN hoadon h " +
+                        "       ON h.MaKH = kh.MaKH " +
+                        "      AND h.TrangThai = 'DATHANHTOAN' " +
+                        "      AND YEAR(h.NgayLap) = ? " +
+                        "LEFT JOIN phiensudung ps " +
+                        "       ON ps.MaPhien = h.MaPhien " +
+                        "GROUP BY kh.MaKH, kh.Ho, kh.Ten " +
+                        "ORDER BY TongChiTieu DESC, SoPhien DESC, TongGio DESC, kh.MaKH " +
+                        "LIMIT ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, nam);
+            ps.setInt(2, top);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                int stt = 1;
+                while (rs.next()) {
+                    Object[] row = new Object[5];
+                    row[0] = stt++;
+                    row[1] = rs.getString("HoTen");
+                    row[2] = rs.getInt("SoPhien");
+                    row[3] = rs.getDouble("TongGio");
+                    row[4] = rs.getDouble("TongChiTieu");
+                    list.add(row);
+                }
+            }
+
+            return list;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("ThongkeDAO.thongKeTopKhachHang error", e);
+        }
+    }
 }
 
 

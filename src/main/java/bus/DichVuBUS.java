@@ -22,11 +22,10 @@ public class DichVuBUS {
         return result;
     }
 
-    // LẤY CÁC DỊCH VỤ CÒN HÀNG (Phân quyền: Khách hàng)
+    // LẤY CÁC DỊCH VỤ CÒN HÀNG (Phân quyền: Khách hàng hoặc Nhân viên)
     public List<DichVu> getDichVuConHang() throws Exception {
-        // KÍCH HOẠT PHÂN QUYỀN
+        // Chỉ cần đăng nhập (KhachHang hoặc NhanVien đều được)
         PermissionHelper.requireLogin();
-        PermissionHelper.requireNhanVien();
 
         List<DichVu> list = dvDAO.getAll();
         Iterator<DichVu> it = list.iterator();

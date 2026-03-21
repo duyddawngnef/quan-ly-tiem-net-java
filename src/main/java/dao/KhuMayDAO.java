@@ -106,7 +106,7 @@ public class   KhuMayDAO {
             PreparedStatement pstmt=conn.prepareStatement(sql);
 
 
-            pstmt.setString(1,km.getMakhu());
+            pstmt.setString(1,makhumay);
             pstmt.setString(2,km.getTenkhu());
             pstmt.setDouble(3,km.getGiacoso());
             pstmt.setInt(4,km.getSomaytoida());
@@ -233,7 +233,7 @@ public class   KhuMayDAO {
 
 
     private  boolean hasActiveSession (String MaKhu ){
-        String sql = "SELECT COUNT(*) FROM maytinh WHERE MaKhu = ? AND TrangThai = 'DANGCHOI'";
+        String sql = "SELECT COUNT(*) FROM maytinh WHERE MaKhu = ? AND TrangThai = 'DANGDUNG'";
         try{
             Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);

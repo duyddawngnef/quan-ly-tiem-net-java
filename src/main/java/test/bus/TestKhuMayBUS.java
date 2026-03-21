@@ -10,13 +10,11 @@ import java.util.List;
 /**
  * KhuMayBUSTest - Test lớp KhuMayBUS
  *
- * Sử dụng: Java thuần (không cần JUnit, Mockito)
- * Kết nối: DB thật
- * Chạy: Run trực tiếp file này
+ * Sử dụng: Java thuần (không cần JUnit, Mockito) Kết nối: DB thật Chạy: Run
+ * trực tiếp file này
  *
- * Dữ liệu DB hiện có:
- * - Khu HOATDONG: KHU004, KHU3, KHU002, KHU006
- * - Khu NGUNG: KHU005, KHU001
+ * Dữ liệu DB hiện có: - Khu HOATDONG: KHU004, KHU3, KHU002, KHU006 - Khu NGUNG:
+ * KHU005, KHU001
  */
 public class TestKhuMayBUS {
 
@@ -70,7 +68,6 @@ public class TestKhuMayBUS {
     }
 
     // ============== HÀM HỖ TRỢ ==============
-
     private static void printTestHeader(String testName) {
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.println("  📝 " + testName);
@@ -615,7 +612,9 @@ public class TestKhuMayBUS {
     // DỌN DẸP DỮ LIỆU TEST
     // ============================================================
     private static void cleanupKhu(String maKhu) {
-        if (maKhu == null) return;
+        if (maKhu == null) {
+            return;
+        }
         try {
             loginQuanLy();
             khuMayBUS.xoaKhuMay(maKhu);
@@ -643,7 +642,7 @@ public class TestKhuMayBUS {
         if (failedTests == 0) {
             System.out.println("║  🎉 TẤT CẢ TEST ĐỀU PASS!                      ║");
         } else {
-            System.out.printf("║  ⚠️  CÓ %d TEST FAIL - CẦN KIỂM TRA LẠI!        ║%n", failedTests);
+            System.out.printf("║    CÓ %d TEST FAIL - CẦN KIỂM TRA LẠI!        ║%n", failedTests);
         }
         System.out.println("╚══════════════════════════════════════════════════╝");
     }

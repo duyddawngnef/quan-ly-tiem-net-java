@@ -15,6 +15,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.application.Platform;
+import javafx.stage.FileChooser;
+import java.io.File;
+import utils.ThongKeExcelExporter;
 
 
 import java.net.URL;
@@ -142,6 +145,7 @@ public class ThongKeController implements Initializable {
         }
 
         // Tab 3
+        // Tab 3
         if (colTopSTT != null) {
             colTopSTT.setCellValueFactory(c ->
                     new SimpleStringProperty(readArray(c.getValue(), 0)));
@@ -159,7 +163,7 @@ public class ThongKeController implements Initializable {
 
         if (colTopThoiGian != null) {
             colTopThoiGian.setCellValueFactory(c ->
-                    new SimpleStringProperty(readArray(c.getValue(), 3)));
+                    new SimpleStringProperty(fmtHours(readArrayObject(c.getValue(), 3))));
         }
 
         if (colTopTongTien != null) {
@@ -330,10 +334,7 @@ public class ThongKeController implements Initializable {
 
             if (nam == null) return;
 
-            LocalDateTime from = LocalDate.of(nam, 1, 1).atStartOfDay();
-            LocalDateTime to = LocalDate.of(nam, 12, 31).atTime(23, 59, 59);
-
-            List<Object[]> data = hoaDonBUS.topKhachHangChiTieu(n, from, to);
+            List<Object[]> data = thongKeBUS.thongKeTopKhachHang(nam, n);
 
             if (tableTop != null) {
                 tableTop.setItems(FXCollections.observableArrayList(data));
@@ -346,11 +347,111 @@ public class ThongKeController implements Initializable {
 
     @FXML
     public void handleXuatExcel() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo");
-        alert.setHeaderText(null);
-        alert.setContentText("Chức năng xuất Excel đang phát triển.");
-        alert.showAndWait();
+        try {
+            String loai = cboLoaiTK != null ? cboLoaiTK.getValue() : "Từ ngày đến ngày";
+
+            LocalDate from;
+            LocalDate to;
+            List<Map<String, Object>> exportData;
+            double tongThu;
+            double tongChi;
+            double tongLoiNhuan;
+
+            if ("Theo tháng".equals(loai)) {
+                LocalDate mocNam = (dateFrom != null && dateFrom.getValue() != null)
+                        ? dateFrom.getValue()
+                        : LocalDate.now();
+
+                int nam = mocNam.getYear();
+                from = LocalDate.of(nam, 1, 1);
+                to = LocalDate.of(nam, 12, 31);
+
+                exportData = thongKeBUS.thongKeTheo12Thang(nam);
+
+                tongThu = exportData.stream()
+                        .mapToDouble(r -> getDouble(r, "TongDoanhThu"))
+                        .sum();
+
+                tongChi = exportData.stream()
+                        .mapToDouble(r -> getDouble(r, "TongNhapHang"))
+                        .sum();
+
+                tongLoiNhuan = exportData.stream()
+                        .mapToDouble(r -> getDouble(r, "LoiNhuan"))
+                        .sum();
+
+            } else {
+                from = (dateFrom != null && dateFrom.getValue() != null)
+                        ? dateFrom.getValue()
+                        : LocalDate.now().withDayOfMonth(1);
+
+                to = (dateTo != null && dateTo.getValue() != null)
+                        ? dateTo.getValue()
+                        : LocalDate.now();
+
+                Map<String, Object> data = thongKeBUS.thongKeDoanhThu(from, to);
+
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("ThoiGian", from + " → " + to);
+                row.put("TongDoanhThu", data.get("TongDoanhThu"));
+                row.put("TongNhapHang", data.getOrDefault("TongNhapHang", 0));
+                row.put("LoiNhuan", data.getOrDefault("LoiNhuan", 0));
+
+                exportData = List.of(row);
+
+                tongThu = getDouble(data, "TongDoanhThu");
+                tongChi = getDouble(data, "TongNhapHang");
+                tongLoiNhuan = getDouble(data, "LoiNhuan");
+            }
+
+            Map<String, Object> tongQuan = thongKeBUS.thongKeTongQuan();
+            int soPhienDangChoi = (int) Math.round(getDouble(tongQuan, "SoPhienDangChoi"));
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Lưu báo cáo Excel");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)", "*.xlsx")
+            );
+            fileChooser.setInitialFileName(
+                    "BaoCaoThongKe_" + LocalDate.now().toString() + ".xlsx"
+            );
+
+            File file = fileChooser.showSaveDialog(
+                    chartContainer != null && chartContainer.getScene() != null
+                            ? chartContainer.getScene().getWindow()
+                            : null
+            );
+
+            if (file == null) {
+                return;
+            }
+
+            if (!file.getName().toLowerCase().endsWith(".xlsx")) {
+                file = new File(file.getAbsolutePath() + ".xlsx");
+            }
+
+            ThongKeExcelExporter.exportThongKe(
+                    file,
+                    "BÁO CÁO THỐNG KÊ TIỆM NET",
+                    loai,
+                    from,
+                    to,
+                    exportData,
+                    tongThu,
+                    tongChi,
+                    tongLoiNhuan,
+                    soPhienDangChoi
+            );
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Thành công");
+            alert.setHeaderText(null);
+            alert.setContentText("Xuất file Excel thành công:\n" + file.getAbsolutePath());
+            alert.showAndWait();
+
+        } catch (Exception e) {
+            showError("Lỗi xuất Excel", e.getMessage());
+        }
     }
 
     @FXML
@@ -660,6 +761,14 @@ public class ThongKeController implements Initializable {
             return Double.parseDouble(String.valueOf(val));
         } catch (Exception e) {
             return 0.0;
+        }
+    }
+    private String fmtHours(Object val) {
+        if (val == null) return "0.00";
+        try {
+            return String.format("%.2f", ((Number) val).doubleValue());
+        } catch (Exception e) {
+            return String.valueOf(val);
         }
     }
 }

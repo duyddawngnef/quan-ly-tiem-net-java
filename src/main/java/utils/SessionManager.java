@@ -1,16 +1,17 @@
 package utils;
 
+import entity.KhachHang;
 import entity.NhanVien;
 
 /**
  * SessionManager - Quản lý phiên đăng nhập của người dùng
  *
- * Class này lưu trữ thông tin nhân viên hiện tại đang đăng nhập vào hệ thống.
- * Chỉ hỗ trợ tài khoản Nhân viên (QUANLY, NHANVIEN).
+ * Hỗ trợ 3 loại tài khoản: QUANLY, NHANVIEN, KHACHHANG.
+ * Tại một thời điểm chỉ một trong hai (NhanVien hoặc KhachHang) được đăng nhập.
  *
  * @author QuanLyTiemNet Team
- * @version 2.0
- * @since 2026-03-13
+ * @version 3.0
+ * @since 2026-03-19
  */
 public class SessionManager {
 
@@ -22,7 +23,12 @@ public class SessionManager {
     private static NhanVien currentNhanVien = null;
 
     /**
-     * Loại tài khoản: "QUANLY" | "NHANVIEN"
+     * Khách hàng đang đăng nhập (KHACHHANG)
+     */
+    private static KhachHang currentKhachHang = null;
+
+    /**
+     * Loại tài khoản: "QUANLY" | "NHANVIEN" | "KHACHHANG"
      */
     private static String loaiTaiKhoan = null;
 
@@ -59,11 +65,36 @@ public class SessionManager {
             throw new IllegalArgumentException("Chức vụ không hợp lệ: " + chucVu);
         }
 
+        // Xóa session KhachHang nếu có
+        currentKhachHang = null;
         currentNhanVien = nv;
         loaiTaiKhoan = chucVu; // "QUANLY" hoặc "NHANVIEN"
         loginTimestamp = System.currentTimeMillis();
 
         System.out.println("[SessionManager] Đăng nhập thành công: " + nv.getTen() + " (" + chucVu + ")");
+    }
+
+    /**
+     * Lưu thông tin khách hàng đăng nhập
+     *
+     * @param kh KhachHang đăng nhập (phải có trạng thái HOATDONG)
+     * @throws IllegalArgumentException nếu kh null hoặc tài khoản bị khóa
+     */
+    public static void setCurrentKhachHang(KhachHang kh) {
+        if (kh == null) {
+            throw new IllegalArgumentException("KhachHang không được null");
+        }
+        if (kh.isNgung()) {
+            throw new IllegalArgumentException("Tài khoản khách hàng đã bị khóa");
+        }
+
+        // Xóa session NhanVien nếu có
+        currentNhanVien = null;
+        currentKhachHang = kh;
+        loaiTaiKhoan = "KHACHHANG";
+        loginTimestamp = System.currentTimeMillis();
+
+        System.out.println("[SessionManager] Khách hàng đăng nhập thành công: " + kh.getHo() + " " + kh.getTen() + " (KHACHHANG)");
     }
 
     // ============== METHODS LẤY THÔNG TIN ==============
@@ -78,9 +109,18 @@ public class SessionManager {
     }
 
     /**
+     * Lấy thông tin khách hàng hiện tại
+     *
+     * @return KhachHang đang đăng nhập hoặc null
+     */
+    public static KhachHang getCurrentKhachHang() {
+        return currentKhachHang;
+    }
+
+    /**
      * Lấy loại tài khoản hiện tại
      *
-     * @return "QUANLY" | "NHANVIEN" | null
+     * @return "QUANLY" | "NHANVIEN" | "KHACHHANG" | null
      */
     public static String getLoaiTaiKhoan() {
         return loaiTaiKhoan;
@@ -96,13 +136,25 @@ public class SessionManager {
     }
 
     /**
-     * Lấy họ tên người dùng hiện tại
+     * Lấy mã khách hàng hiện tại
      *
-     * @return Họ tên nhân viên hoặc "Chưa đăng nhập" nếu chưa đăng nhập
+     * @return Mã khách hàng hoặc null nếu chưa đăng nhập / không phải KH
+     */
+    public static String getCurrentMaKH() {
+        return currentKhachHang != null ? currentKhachHang.getMakh() : null;
+    }
+
+    /**
+     * Lấy họ tên người dùng hiện tại (NhanVien hoặc KhachHang)
+     *
+     * @return Họ tên hoặc "Chưa đăng nhập"
      */
     public static String getCurrentUserName() {
         if (currentNhanVien != null) {
             return currentNhanVien.getTen();
+        }
+        if (currentKhachHang != null) {
+            return currentKhachHang.getTen();
         }
         return "Chưa đăng nhập";
     }
@@ -127,7 +179,7 @@ public class SessionManager {
      * @return true nếu có nhân viên đang đăng nhập
      */
     public static boolean isLoggedIn() {
-        return currentNhanVien != null;
+        return currentNhanVien != null || currentKhachHang != null;
     }
 
     /**
@@ -146,6 +198,15 @@ public class SessionManager {
      */
     public static boolean isNhanVien() {
         return "QUANLY".equals(loaiTaiKhoan) || "NHANVIEN".equals(loaiTaiKhoan);
+    }
+
+    /**
+     * Kiểm tra người dùng hiện tại có phải KHACHHANG không
+     *
+     * @return true nếu là KHACHHANG
+     */
+    public static boolean isKhachHang() {
+        return "KHACHHANG".equals(loaiTaiKhoan);
     }
 
     /**
@@ -176,6 +237,7 @@ public class SessionManager {
         long sessionDuration = getSessionDurationMinutes();
 
         currentNhanVien = null;
+        currentKhachHang = null;
         loaiTaiKhoan = null;
         loginTimestamp = 0;
 
@@ -189,6 +251,7 @@ public class SessionManager {
      */
     public static void clearSession() {
         currentNhanVien = null;
+        currentKhachHang = null;
         loaiTaiKhoan = null;
         loginTimestamp = 0;
     }
@@ -206,6 +269,7 @@ public class SessionManager {
         System.out.println("║ Loại TK:    " + (loaiTaiKhoan != null ? loaiTaiKhoan : "N/A"));
         System.out.println("║ Người dùng: " + getCurrentUserName());
         System.out.println("║ Mã NV:      " + (getCurrentMaNV() != null ? getCurrentMaNV() : "N/A"));
+        System.out.println("║ Mã KH:      " + (getCurrentMaKH() != null ? getCurrentMaKH() : "N/A"));
         System.out.println("║ Thời gian:  " + getSessionDurationMinutes() + " phút");
         System.out.println("╚════════════════════════════════════════╝");
     }
@@ -235,8 +299,14 @@ public class SessionManager {
         if (!isLoggedIn()) {
             return false;
         }
-        return currentNhanVien.getManv() != null &&
-                currentNhanVien.getChucvu() != null;
+        if (currentNhanVien != null) {
+            return currentNhanVien.getManv() != null &&
+                    currentNhanVien.getChucvu() != null;
+        }
+        if (currentKhachHang != null) {
+            return currentKhachHang.getMakh() != null;
+        }
+        return false;
     }
 
     /**

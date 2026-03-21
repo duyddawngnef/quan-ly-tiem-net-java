@@ -1,4 +1,5 @@
 package test.dao;
+
 import dao.KhuMayDAO;
 import entity.KhuMay;
 import java.util.List;
@@ -12,11 +13,11 @@ public class TestKhuMayDAO {
         List<KhuMay> list = dao.getAll();
         for (KhuMay km : list) {
             System.out.println(
-                    km.getMakhu() + " | " +
-                            km.getTenkhu() + " | " +
-                            km.getGiacoso() + " | " +
-                            km.getSomaytoida() + " | " +
-                            km.getTrangthai()
+                    km.getMakhu() + " | "
+                    + km.getTenkhu() + " | "
+                    + km.getGiacoso() + " | "
+                    + km.getSomaytoida() + " | "
+                    + km.getTrangthai()
             );
         }
 
@@ -66,7 +67,7 @@ public class TestKhuMayDAO {
             System.out.println("KHU001: " + e.getMessage());
         }
 
-        // ⚠️ Trường hợp có máy nhưng KHÔNG DANGCHOI (KHU005)
+        //  Trường hợp có máy nhưng KHÔNG DANGCHOI (KHU005)
         try {
             dao.delete("KHU005");
             System.out.println("Xóa mềm KHU005 thành công!");

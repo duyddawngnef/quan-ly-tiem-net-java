@@ -189,8 +189,8 @@ public class HoaDonBUS {
             }
 
             // Trừ tiền từ tài khoản
-            kh.setSodu(kh.getSodu() - hoaDon.getThanhToan());
-            khachHangDAO.update(kh);
+            double soDuMoi = kh.getSodu() - hoaDon.getThanhToan();
+            khachHangDAO.updateSoDu(kh.getMakh(), soDuMoi);
         }
 
         // 5. Cập nhật trạng thái hóa đơn
@@ -214,12 +214,56 @@ public class HoaDonBUS {
         return hoaDon;
     }
 
-    //Lấy chi tiết hóa đơn
+    //Lấy chi tiết hóa đơn (có fallback từ SuDungDichVu nếu chưa có chi tiết)
     public List<ChiTietHoaDon> xemChiTietHoaDon(String maHD) throws Exception {
         if (maHD == null || maHD.trim().isEmpty()) {
             throw new Exception("Mã hóa đơn không hợp lệ");
         }
-        return chiTietHoaDonDAO.timTheoHoaDon(maHD);
+
+        // 1. Thử lấy từ bảng chitiethoadon
+        List<ChiTietHoaDon> chiTiet = chiTietHoaDonDAO.timTheoHoaDon(maHD);
+
+        // 2. Nếu không có chi tiết, fallback lấy từ SuDungDichVu theo maPhien
+        if (chiTiet == null || chiTiet.isEmpty()) {
+            chiTiet = new ArrayList<>();
+            HoaDon hoaDon = hoaDonDAO.timTheoMa(maHD);
+            if (hoaDon != null && hoaDon.getMaPhien() != null) {
+                // Thêm chi tiết giờ chơi
+                if (hoaDon.getTienGioChoi() > 0) {
+                    ChiTietHoaDon ctGioChoi = new ChiTietHoaDon();
+                    ctGioChoi.setMaCTHD("--");
+                    ctGioChoi.setMaHD(maHD);
+                    ctGioChoi.setLoaiChiTiet("GIOCHOI");
+                    ctGioChoi.setMoTa("Giờ chơi");
+                    ctGioChoi.setSoLuong(1);
+                    ctGioChoi.setDonGia(hoaDon.getTienGioChoi());
+                    ctGioChoi.setThanhTien(hoaDon.getTienGioChoi());
+                    chiTiet.add(ctGioChoi);
+                }
+
+                // Thêm dịch vụ đã order từ SuDungDichVu
+                try {
+                    List<SuDungDichVu> danhSachDV = suDungDichVuDAO.geyByPhien(hoaDon.getMaPhien());
+                    if (danhSachDV != null) {
+                        for (SuDungDichVu sdDV : danhSachDV) {
+                            ChiTietHoaDon ctDV = new ChiTietHoaDon();
+                            ctDV.setMaCTHD("--");
+                            ctDV.setMaHD(maHD);
+                            ctDV.setLoaiChiTiet("DICHVU");
+                            ctDV.setMoTa("Dịch vụ: " + sdDV.getMadv());
+                            ctDV.setSoLuong(sdDV.getSoluong());
+                            ctDV.setDonGia(sdDV.getDongia());
+                            ctDV.setThanhTien(sdDV.getThanhtien());
+                            chiTiet.add(ctDV);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("[xemChiTietHoaDon] Lỗi lấy dịch vụ từ SuDungDichVu: " + e.getMessage());
+                }
+            }
+        }
+
+        return chiTiet;
     }
 
    // Lấy danh sách hóa đơn của khách hàng
