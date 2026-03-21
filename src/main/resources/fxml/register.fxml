@@ -16,7 +16,7 @@
 
                 <!-- Header -->
                 <VBox alignment="CENTER" spacing="6" styleClass="register-header-padding">
-                    <Label text="📝" styleClass="register-icon"/>
+                    <Label text="&#xe3c9;" styleClass="register-icon, icon-xl"/>
                     <Label text="ĐĂNG KÝ TÀI KHOẢN" styleClass="login-title"/>
                     <Label text="Tạo tài khoản khách hàng mới" styleClass="login-subtitle"/>
                 </VBox>

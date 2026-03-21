@@ -3,6 +3,40 @@
    Light Theme - Professional Office Style
    ========================================= */
 
+/* === MATERIAL DESIGN ICONS FONT === */
+@font-face {
+    font-family: 'Material Icons';
+    src: url('../fonts/MaterialIcons-Regular.ttf');
+}
+
+/* Base icon: dùng cho label icon độc lập */
+.icon {
+    -fx-font-family: "Material Icons";
+    -fx-font-size: 18px;
+    -fx-text-fill: #1565C0;
+}
+
+/* Icon cho page header (lớn, màu xanh chủ đạo) */
+.icon-lg {
+    -fx-font-family: "Material Icons";
+    -fx-font-size: 26px;
+    -fx-text-fill: #1976D2;
+}
+
+/* Icon cho logo/register (rất lớn) */
+.icon-xl {
+    -fx-font-family: "Material Icons";
+    -fx-font-size: 34px;
+    -fx-text-fill: #1565C0;
+}
+
+/* Icon nhỏ bên trong button - kế thừa màu text của button */
+.icon-sm {
+    -fx-font-family: "Material Icons";
+    -fx-font-size: 15px;
+    -fx-text-fill: inherit;
+}
+
 /* === ROOT VARIABLES === */
 * {
     -fx-primary: #1565C0;

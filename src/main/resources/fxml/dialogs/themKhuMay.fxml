@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.dialog.ThemKhuMayDialog"
+      spacing="12" style="-fx-padding: 18;">
+
+    <Label fx:id="lblTitle" text="Thêm Khu Máy"
+           style="-fx-font-size:18px; -fx-font-weight:bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" prefWidth="120"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Mã khu:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtMaKhu" promptText="VD: K001"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Tên khu:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtTenKhu" promptText="VD: Khu A"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Giá cơ sở:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtGiaCoSo" promptText="VD: 10000"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Số máy tối đa:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtSoMayToiDa" promptText="VD: 30"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Trạng thái:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cboTrangThai" prefWidth="200"
+                  GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label fx:id="lblError" text="" style="-fx-text-fill: #d32f2f;"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="btnCancel" text="Hủy" onAction="#handleCancel"/>
+        <Button fx:id="btnSave" text="Lưu" defaultButton="true" onAction="#handleSave"/>
+    </HBox>
+</VBox>

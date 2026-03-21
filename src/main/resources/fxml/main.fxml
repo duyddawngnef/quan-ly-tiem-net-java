@@ -17,8 +17,8 @@
             <!-- Logo -->
             <VBox styleClass="sidebar-logo-area" spacing="4" focusTraversable="false">
                 <HBox spacing="10" alignment="CENTER_LEFT" focusTraversable="false">
-                    <Label text="🖥" focusTraversable="false"
-                           styleClass="sidebar-logo-icon-label"/>
+                    <Label text="&#xe30b;" focusTraversable="false"
+                           styleClass="sidebar-logo-icon-label, icon-lg"/>
                     <VBox spacing="2" focusTraversable="false">
                         <Label text="TIỆM NET" styleClass="sidebar-logo-text" focusTraversable="false"/>
                         <Label text="Quản lý hệ thống" styleClass="sidebar-logo-sub" focusTraversable="false"/>
@@ -46,46 +46,115 @@
                 <VBox spacing="2" focusTraversable="false"
                       styleClass="sidebar-scroll-content">
 
+                    <!-- ========== MENU NHÂN VIÊN / QUẢN LÝ ========== -->
+
                     <!-- DASHBOARD -->
-                    <Label text="TỔNG QUAN" styleClass="sidebar-section-label" focusTraversable="false"/>
-                    <Button fx:id="btnSoDoMay" text="🗺  Sơ đồ máy"
-                            styleClass="menu-button" onAction="#loadSoDoMay"/>
+                    <Label fx:id="lblSectionTongQuan" text="TỔNG QUAN" styleClass="sidebar-section-label" focusTraversable="false"/>
+                    <Button fx:id="btnSoDoMay" styleClass="menu-button" onAction="#loadSoDoMay">
+                        <graphic><Label text="&#xe9b0;" styleClass="icon-sm"/></graphic>
+                        <text>  Sơ đồ máy</text>
+                    </Button>
 
                     <!-- VẬN HÀNH -->
-                    <Label text="VẬN HÀNH" styleClass="sidebar-section-label" focusTraversable="false"/>
-                    <Button fx:id="btnPhienSuDung" text="⏱  Phiên sử dụng"
-                            styleClass="menu-button" onAction="#loadPhienSuDung"/>
-                    <Button fx:id="btnNapTien" text="💳  Nạp tiền"
-                            styleClass="menu-button" onAction="#loadNapTien"/>
-                    <Button fx:id="btnHoaDon" text="🧾  Hóa đơn"
-                            styleClass="menu-button" onAction="#loadHoaDon"/>
+                    <Label fx:id="lblSectionVanHanh" text="VẬN HÀNH" styleClass="sidebar-section-label" focusTraversable="false"/>
+                    <Button fx:id="btnPhienSuDung" styleClass="menu-button" onAction="#loadPhienSuDung">
+                        <graphic><Label text="&#xe192;" styleClass="icon-sm"/></graphic>
+                        <text>  Phiên sử dụng</text>
+                    </Button>
+                    <Button fx:id="btnNapTien" styleClass="menu-button" onAction="#loadNapTien">
+                        <graphic><Label text="&#xe850;" styleClass="icon-sm"/></graphic>
+                        <text>  Nạp tiền</text>
+                    </Button>
+                    <Button fx:id="btnHoaDon" styleClass="menu-button" onAction="#loadHoaDon">
+                        <graphic><Label text="&#xe8b0;" styleClass="icon-sm"/></graphic>
+                        <text>  Hóa đơn</text>
+                    </Button>
 
-                    <!-- DỊCH VỤ -->
-                    <Label text="DỊCH VỤ" styleClass="sidebar-section-label" focusTraversable="false"/>
-                    <Button fx:id="btnDichVu" text="🥤  Dịch vụ"
-                            styleClass="menu-button" onAction="#loadDichVu"/>
-                    <Button fx:id="btnGoiDichVu" text="📦  Gói dịch vụ"
-                            styleClass="menu-button" onAction="#loadGoiDichVu"/>
-                    <Button fx:id="btnKhuyenMai" text="🎁  Khuyến mãi"
-                            styleClass="menu-button" onAction="#loadKhuyenMai"/>
-                    <Button fx:id="btnNhapHang" text="📥  Nhập hàng"
-                            styleClass="menu-button" onAction="#loadNhapHang"/>
+                    <!-- DỊCH VỤ (NhanVien) -->
+                    <Label fx:id="lblSectionDichVuNV" text="DỊCH VỤ" styleClass="sidebar-section-label" focusTraversable="false"/>
+                    <Button fx:id="btnDichVu" styleClass="menu-button" onAction="#loadDichVu">
+                        <graphic><Label text="&#xe63d;" styleClass="icon-sm"/></graphic>
+                        <text>  Dịch vụ</text>
+                    </Button>
+                    <Button fx:id="btnGoiDichVu" styleClass="menu-button" onAction="#loadGoiDichVu">
+                        <graphic><Label text="&#xe8f7;" styleClass="icon-sm"/></graphic>
+                        <text>  Gói dịch vụ</text>
+                    </Button>
+                    <Button fx:id="btnGoiDichVuKH" styleClass="menu-button" onAction="#loadGoiDichVuKH">
+                        <graphic><Label text="&#xe89a;" styleClass="icon-sm"/></graphic>
+                        <text>  Gói DV khách hàng</text>
+                    </Button>
+                    <Button fx:id="btnKhuyenMai" styleClass="menu-button" onAction="#loadKhuyenMai">
+                        <graphic><Label text="&#xe54e;" styleClass="icon-sm"/></graphic>
+                        <text>  Khuyến mãi</text>
+                    </Button>
+                    <Button fx:id="btnNhapHang" styleClass="menu-button" onAction="#loadNhapHang">
+                        <graphic><Label text="&#xe179;" styleClass="icon-sm"/></graphic>
+                        <text>  Nhập hàng</text>
+                    </Button>
 
                     <!-- QUẢN LÝ -->
-                    <Label text="QUẢN LÝ" styleClass="sidebar-section-label" focusTraversable="false"/>
-                    <Button fx:id="btnKhachHang" text="👥  Khách hàng"
-                            styleClass="menu-button" onAction="#loadKhachHang"/>
-                    <Button fx:id="btnNhanVien" text="🏢  Nhân viên"
-                            styleClass="menu-button" onAction="#loadNhanVien"/>
-                    <Button fx:id="btnMayTinh" text="💻  Máy tính"
-                            styleClass="menu-button" onAction="#loadMayTinh"/>
-                    <Button fx:id="btnKhuMay" text="🗂  Khu máy"
-                            styleClass="menu-button" onAction="#loadKhuMay"/>
+                    <Label fx:id="lblSectionQuanLy" text="QUẢN LÝ" styleClass="sidebar-section-label" focusTraversable="false"/>
+                    <Button fx:id="btnKhachHang" styleClass="menu-button" onAction="#loadKhachHang">
+                        <graphic><Label text="&#xf233;" styleClass="icon-sm"/></graphic>
+                        <text>  Khách hàng</text>
+                    </Button>
+                    <Button fx:id="btnNhanVien" styleClass="menu-button" onAction="#loadNhanVien">
+                        <graphic><Label text="&#xf02e;" styleClass="icon-sm"/></graphic>
+                        <text>  Nhân viên</text>
+                    </Button>
+                    <Button fx:id="btnMayTinh" styleClass="menu-button" onAction="#loadMayTinh">
+                        <graphic><Label text="&#xe30b;" styleClass="icon-sm"/></graphic>
+                        <text>  Máy tính</text>
+                    </Button>
+                    <Button fx:id="btnKhuMay" styleClass="menu-button" onAction="#loadKhuMay">
+                        <graphic><Label text="&#xe5c3;" styleClass="icon-sm"/></graphic>
+                        <text>  Khu máy</text>
+                    </Button>
 
                     <!-- BÁO CÁO -->
-                    <Label text="BÁO CÁO" styleClass="sidebar-section-label" focusTraversable="false"/>
-                    <Button fx:id="btnThongKe" text="📊  Thống kê"
-                            styleClass="menu-button" onAction="#loadThongKe"/>
+                    <Label fx:id="lblSectionBaoCao" text="BÁO CÁO" styleClass="sidebar-section-label" focusTraversable="false"/>
+                    <Button fx:id="btnThongKe" styleClass="menu-button" onAction="#loadThongKe">
+                        <graphic><Label text="&#xe26b;" styleClass="icon-sm"/></graphic>
+                        <text>  Thống kê</text>
+                    </Button>
+
+                    <!-- ========== MENU KHÁCH HÀNG (ẩn mặc định) ========== -->
+
+                    <!-- TÀI KHOẢN -->
+                    <Label fx:id="lblSectionTaiKhoan" text="TÀI KHOẢN CỦA TÔI"
+                           styleClass="sidebar-section-label" focusTraversable="false"
+                           visible="false" managed="false"/>
+                    <Button fx:id="btnThongTinKH" styleClass="menu-button" onAction="#loadThongTinKhachHang"
+                            visible="false" managed="false">
+                        <graphic><Label text="&#xe7fd;" styleClass="icon-sm"/></graphic>
+                        <text>  Thông tin &amp; Số dư</text>
+                    </Button>
+
+                    <!-- SỬ DỤNG -->
+                    <Label fx:id="lblSectionSuDung" text="SỬ DỤNG"
+                           styleClass="sidebar-section-label" focusTraversable="false"
+                           visible="false" managed="false"/>
+                    <Button fx:id="btnPhienCuaToi" styleClass="menu-button" onAction="#loadPhienCuaToi"
+                            visible="false" managed="false">
+                        <graphic><Label text="&#xe192;" styleClass="icon-sm"/></graphic>
+                        <text>  Phiên của tôi</text>
+                    </Button>
+                    <Button fx:id="btnGoiCuaToi" styleClass="menu-button" onAction="#loadGoiCuaToi"
+                            visible="false" managed="false">
+                        <graphic><Label text="&#xe8f7;" styleClass="icon-sm"/></graphic>
+                        <text>  Gói dịch vụ của tôi</text>
+                    </Button>
+
+                    <!-- ĐẶT DỊCH VỤ -->
+                    <Label fx:id="lblSectionOrderKH" text="DỊCH VỤ"
+                           styleClass="sidebar-section-label" focusTraversable="false"
+                           visible="false" managed="false"/>
+                    <Button fx:id="btnDatDichVu" styleClass="menu-button" onAction="#loadDatDichVu"
+                            visible="false" managed="false">
+                        <graphic><Label text="&#xe63d;" styleClass="icon-sm"/></graphic>
+                        <text>  Đặt dịch vụ</text>
+                    </Button>
 
                 </VBox>
             </ScrollPane>
@@ -95,8 +164,11 @@
                   styleClass="sidebar-logout-area">
                 <Separator focusTraversable="false"
                            styleClass="sidebar-logout-separator"/>
-                <Button text="🔓  Đăng xuất" styleClass="menu-button, logout-button"
-                        onAction="#handleLogout"/>
+                <Button styleClass="menu-button, logout-button"
+                        onAction="#handleLogout">
+                    <graphic><Label text="&#xe9ba;" styleClass="icon-sm"/></graphic>
+                    <text>  Đăng xuất</text>
+                </Button>
             </VBox>
 
         </VBox>

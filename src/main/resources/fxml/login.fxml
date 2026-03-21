@@ -10,12 +10,12 @@
            stylesheets="@../css/login.css"
            styleClass="login-root">
 
-    <VBox styleClass="login-card" alignment="CENTER" spacing="14">
+    <VBox styleClass="login-card" alignment="CENTER" spacing="16">
 
         <!-- Logo -->
         <VBox styleClass="login-logo-area" alignment="CENTER" spacing="6">
             <StackPane styleClass="login-logo-circle">
-                <Label text="🖥" styleClass="login-logo-icon"/>
+                <Label text="&#xe30b;" styleClass="login-logo-icon, icon-xl"/>
             </StackPane>
             <Label text="TIỆM NET ONLINE" styleClass="login-app-name"/>
             <Label text="Hệ thống quản lý tiệm Internet" styleClass="login-app-sub"/>
@@ -23,25 +23,46 @@
 
         <Separator/>
 
-        <Label text="ĐĂNG NHẬP" styleClass="login-title"/>
-        <Label text="Vui lòng nhập thông tin đăng nhập" styleClass="login-subtitle"/>
+        <!-- Tab chọn loại tài khoản (Khách hàng | Nhân viên) -->
+        <HBox styleClass="login-role-toggle" alignment="CENTER" maxWidth="320">
+            <Button fx:id="btnTabKhachHang"
+                    styleClass="login-role-btn, login-role-btn-active"
+                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                    onAction="#handleSelectKhachHang">
+                <graphic><Label text="&#xe7fd;" styleClass="icon-sm"/></graphic>
+                <text>  Khách hàng</text>
+            </Button>
+            <Button fx:id="btnTabNhanVien"
+                    styleClass="login-role-btn"
+                    maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                    onAction="#handleSelectNhanVien">
+                <graphic><Label text="&#xe869;" styleClass="icon-sm"/></graphic>
+                <text>  Nhân viên</text>
+            </Button>
+        </HBox>
 
-        <!-- Username -->
-        <VBox spacing="4">
-            <Label text="Tên đăng nhập" styleClass="form-label"/>
-            <HBox styleClass="login-field-icon-box" alignment="CENTER_LEFT" spacing="8">
-                <Label text="👤" styleClass="login-icon"/>
+        <!-- Label "Tên đăng nhập" dynamic -->
+        <VBox >
+            <Label text="Tên đăng nhập" styleClass="login-subtitle"
+                   maxWidth="320" />
+
+            <!-- Username -->
+            <HBox styleClass="login-field-icon-box" alignment="CENTER_LEFT" spacing="8" maxWidth="320">
+                <Label fx:id="lblUsernameIcon" text="&#xe7fd;" styleClass="login-icon, icon"/>
                 <TextField fx:id="txtUsername" promptText="Nhập tên đăng nhập"
                            styleClass="login-text-field" HBox.hgrow="ALWAYS"/>
             </HBox>
         </VBox>
 
-        <!-- Password -->
-        <VBox spacing="4">
-            <Label text="Mật khẩu" styleClass="form-label"/>
-            <HBox styleClass="login-field-icon-box" alignment="CENTER_LEFT" spacing="8">
-                <Label text="🔒" styleClass="login-icon"/>
-                <PasswordField fx:id="txtPassword" promptText="Nhập mật khẩu"
+        <!--  fx:id="lblFormTitle"-->
+
+        <VBox>
+            <Label text="Mật khẩu" styleClass="login-subtitle"
+                   maxWidth="320" />
+            <!-- Password -->
+            <HBox styleClass="login-field-icon-box" alignment="CENTER_LEFT" spacing="8" maxWidth="320">
+                <Label text="&#xe897;" styleClass="login-icon, icon"/>
+                <PasswordField fx:id="txtPassword" promptText="Mật khẩu"
                                styleClass="login-text-field" HBox.hgrow="ALWAYS"/>
             </HBox>
         </VBox>
@@ -49,11 +70,19 @@
         <!-- Error -->
         <Label fx:id="lblError" styleClass="login-error-label" text="" wrapText="true" maxWidth="320"/>
 
-        <!-- Login Button -->
-        <Button fx:id="btnLogin" text="ĐĂNG NHẬP" styleClass="login-btn"
-                maxWidth="Infinity" onAction="#handleLogin"/>
+        <!-- Một nút Đăng nhập duy nhất -->
+        <Button fx:id="btnLogin" text="Đăng nhập"
+                styleClass="login-btn" maxWidth="320"
+                onAction="#handleLogin"/>
 
-        <Label text="© 2026 Quản Lý Tiệm Net v1.0" styleClass="login-footer"/>
+        <!-- Link đăng ký -->
+        <HBox alignment="CENTER" spacing="4">
+            <Label text="Chưa có tài khoản?" styleClass="login-app-sub"/>
+            <Button text="Đăng ký ngay" styleClass="login-link-btn"
+                    onAction="#handleMoDangKy"/>
+        </HBox>
+
+        <Label text="© 2026 Quản Lý Tiệm Net v2.0" styleClass="login-footer"/>
 
     </VBox>
 </StackPane>

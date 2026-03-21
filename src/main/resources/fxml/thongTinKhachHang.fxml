@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.controller.ThongTinKhachHangController"
+      styleClass="manager-page-root" spacing="20">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <!-- TIÊU ĐỀ -->
+    <VBox spacing="4">
+        <Label text="THÔNG TIN TÀI KHOẢN" styleClass="manager-title"/>
+        <Label text="Thông tin cá nhân và số dư của bạn" styleClass="manager-subtitle"/>
+    </VBox>
+
+    <!-- Card thông tin + số dư -->
+    <HBox spacing="20">
+
+        <!-- Card thông tin cá nhân -->
+        <VBox spacing="12" HBox.hgrow="ALWAYS" styleClass="form-panel">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="&#xe7fd;" styleClass="icon"/>
+                <Label text="THÔNG TIN CÁ NHÂN" styleClass="form-title-dark"/>
+            </HBox>
+            <Separator/>
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Họ và tên:" styleClass="form-field-label" minWidth="130"/>
+                <Label fx:id="lblHoTen" text="" styleClass="manager-subtitle"/>
+            </HBox>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Tên đăng nhập:" styleClass="form-field-label" minWidth="130"/>
+                <Label fx:id="lblTenDangNhap" text="" styleClass="manager-subtitle"/>
+            </HBox>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Số điện thoại:" styleClass="form-field-label" minWidth="130"/>
+                <Label fx:id="lblSdt" text="" styleClass="manager-subtitle"/>
+            </HBox>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Mã khách hàng:" styleClass="form-field-label" minWidth="130"/>
+                <Label fx:id="lblMaKH" text="" styleClass="manager-subtitle"/>
+            </HBox>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Trạng thái:" styleClass="form-field-label" minWidth="130"/>
+                <Label fx:id="lblTrangThai" text="" styleClass="manager-subtitle"/>
+            </HBox>
+        </VBox>
+
+        <!-- Card số dư -->
+        <VBox spacing="12" prefWidth="280" styleClass="form-panel">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="&#xe850;" styleClass="icon"/>
+                <Label text="SỐ DƯ TÀI KHOẢN" styleClass="form-title-dark"/>
+            </HBox>
+            <Separator/>
+            <VBox alignment="CENTER" spacing="8" VBox.vgrow="ALWAYS">
+                <Label fx:id="lblSoDu" text="0 ₫"
+                       style="-fx-font-size:32; -fx-font-weight:bold; -fx-text-fill:#1565c0;"/>
+                <Label text="Số dư hiện tại" styleClass="manager-subtitle"/>
+            </VBox>
+        </VBox>
+
+    </HBox>
+
+    <!-- Lịch sử nạp tiền -->
+    <VBox spacing="8" VBox.vgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="LỊCH SỬ NẠP TIỀN" styleClass="manager-title"/>
+            <Button styleClass="btn-gray" onAction="#loadNapTien" fx:id="btn_load">
+                <graphic><Label text="&#xe5d5;" styleClass="icon-sm"/></graphic>
+                <text>  Làm mới</text>
+            </Button>
+        </HBox>
+
+        <TableView fx:id="tableNapTien" VBox.vgrow="ALWAYS" styleClass="manager-table">
+            <columns>
+                <TableColumn fx:id="colMaGD"    text="Mã GD"      prefWidth="110" styleClass="col-center"/>
+                <TableColumn fx:id="colNgayNap"  text="Ngày nạp"   prefWidth="150" styleClass="col-center"/>
+                <TableColumn fx:id="colSoTien"   text="Số tiền"    prefWidth="130" styleClass="col-center"/>
+                <TableColumn fx:id="colNhanVien" text="Nhân viên"  prefWidth="140" styleClass="col-center"/>
+                <TableColumn fx:id="colGhiChu"   text="Ghi chú"   prefWidth="200" styleClass="col-center"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TableView>
+        <Label fx:id="lblTongNap" text="" styleClass="manager-total"/>
+    </VBox>
+
+</VBox>

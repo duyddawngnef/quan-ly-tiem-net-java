@@ -4,8 +4,8 @@
 <?import javafx.geometry.*?>
 
 <HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-       fx:controller="gui.controller.GoiDichVuController" spacing="20"
-       styleClass="manager-page-root">
+      fx:controller="gui.controller.GoiDichVuController" spacing="20"
+      styleClass="manager-page-root">
 
        <!-- LEFT -->
        <VBox spacing="15" HBox.hgrow="ALWAYS">
@@ -18,41 +18,42 @@
               </VBox>
 
               <HBox spacing="10" alignment="CENTER_LEFT"
-                     styleClass="manager-toolbar">
+                    styleClass="manager-toolbar">
                      <TextField fx:id="txtSearch" prefWidth="230" onKeyReleased="#handleSearch"
-                            styleClass="manager-search" />
+                                styleClass="manager-search" />
                      <ComboBox fx:id="cboFilterLoai" prefWidth="160" onAction="#handleFilterLoai"
-                            styleClass="manager-combo" />
+                               styleClass="manager-combo" />
                      <Pane HBox.hgrow="ALWAYS" />
                      <Button fx:id="btnThem" onAction="#handleThem"
-                            styleClass="btn-blue" />
+                             styleClass="btn-blue" />
                      <Button fx:id="btnXoa" onAction="#handleXoa" disable="true"
-                            styleClass="btn-red-manager" />
+                             styleClass="btn-red-manager" />
                      <Button fx:id="btnKhoiPhuc" onAction="#handleKhoiPhuc" disable="true"
-                            styleClass="btn-amber" />
+                             styleClass="btn-amber" />
+                     <Button fx:id="btnXuatExcel" onAction="#handleXuatExcel" />
                      <Button fx:id="btnLamMoi" onAction="#handleLamMoi"
-                            styleClass="btn-gray" />
+                             styleClass="btn-gray" />
               </HBox>
 
               <TableView fx:id="tableView" VBox.vgrow="ALWAYS" onMouseClicked="#handleRowClick"
-                     styleClass="manager-table">
+                         styleClass="manager-table">
                      <columns>
                             <TableColumn fx:id="colMaGoi" prefWidth="90"
-                                   styleClass="col-center" />
+                                         styleClass="col-center" />
                             <TableColumn fx:id="colTenGoi" prefWidth="200"
-                                   styleClass="col-center-left" />
+                                         styleClass="col-center-left" />
                             <TableColumn fx:id="colLoaiGoi" prefWidth="120"
-                                   styleClass="col-center" />
+                                         styleClass="col-center" />
                             <TableColumn fx:id="colSoGio" prefWidth="80"
-                                   styleClass="col-center" />
+                                         styleClass="col-center" />
                             <TableColumn fx:id="colSoNgay" prefWidth="80"
-                                   styleClass="col-center" />
+                                         styleClass="col-center" />
                             <TableColumn fx:id="colGiaGoc" prefWidth="110"
-                                   styleClass="col-center" />
+                                         styleClass="col-center" />
                             <TableColumn fx:id="colGiaGoi" prefWidth="110"
-                                   styleClass="col-center" />
+                                         styleClass="col-center" />
                             <TableColumn fx:id="colTrangThai" prefWidth="130"
-                                   styleClass="col-center" />
+                                         styleClass="col-center" />
                      </columns>
                      <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -68,9 +69,9 @@
 
        <!-- RIGHT: Form - an mac dinh -->
        <ScrollPane fx:id="paneDetail" prefWidth="340" minWidth="300"
-              fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-              visible="false" managed="false"
-              styleClass="form-panel">
+                   fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                   visible="false" managed="false"
+                   styleClass="form-panel">
 
               <VBox spacing="16" styleClass="form-panel-content">
 
@@ -81,67 +82,67 @@
                             <Label fx:id="lblMaGoi" text="."
                                    styleClass="form-field-label" />
                             <TextField fx:id="detailMaGoi" editable="false"
-                                   styleClass="field-readonly" />
+                                       styleClass="field-readonly" />
                      </VBox>
 
                      <VBox spacing="4">
                             <Label fx:id="lblTenGoi" text="."
                                    styleClass="form-field-label" />
                             <TextField fx:id="detailTenGoi"
-                                   styleClass="field-input" />
+                                       styleClass="field-input" />
                      </VBox>
 
                      <VBox spacing="4">
                             <Label fx:id="lblLoaiGoi" text="."
                                    styleClass="form-field-label" />
                             <ComboBox fx:id="detailLoaiGoi" maxWidth="Infinity"
-                                   styleClass="manager-combo" />
+                                      styleClass="manager-combo" />
                      </VBox>
 
                      <VBox spacing="4">
                             <Label fx:id="lblSoGio" text="."
                                    styleClass="form-field-label" />
                             <TextField fx:id="detailSoGio"
-                                   styleClass="field-input" />
+                                       styleClass="field-input" />
                      </VBox>
 
                      <VBox spacing="4">
                             <Label fx:id="lblSoNgay" text="."
                                    styleClass="form-field-label" />
                             <TextField fx:id="detailSoNgay"
-                                   styleClass="field-input" />
+                                       styleClass="field-input" />
                      </VBox>
 
                      <VBox spacing="4">
                             <Label fx:id="lblGiaGoc" text="."
                                    styleClass="form-field-label" />
                             <TextField fx:id="detailGiaGoc"
-                                   styleClass="field-input" />
+                                       styleClass="field-input" />
                      </VBox>
 
                      <VBox spacing="4">
                             <Label fx:id="lblGiaGoi" text="."
                                    styleClass="form-field-label" />
                             <TextField fx:id="detailGiaGoi"
-                                   styleClass="field-input" />
+                                       styleClass="field-input" />
                      </VBox>
 
                      <VBox spacing="4">
                             <Label fx:id="lblTrangThai" text="."
                                    styleClass="form-field-label" />
                             <ComboBox fx:id="detailTrangThai" maxWidth="Infinity"
-                                   styleClass="manager-combo" />
+                                      styleClass="manager-combo" />
                      </VBox>
 
                      <Pane prefHeight="8" />
 
                      <HBox spacing="10">
                             <Button fx:id="btnLuu" onAction="#handleLuuDetail"
-                                   HBox.hgrow="ALWAYS" maxWidth="Infinity" visible="false"
-                                   styleClass="btn-save" />
+                                    HBox.hgrow="ALWAYS" maxWidth="Infinity" visible="false"
+                                    styleClass="btn-save" />
                             <Button fx:id="btnHuy" onAction="#handleHuyDetail"
-                                   HBox.hgrow="ALWAYS" maxWidth="Infinity" visible="false"
-                                   styleClass="btn-cancel" />
+                                    HBox.hgrow="ALWAYS" maxWidth="Infinity" visible="false"
+                                    styleClass="btn-cancel" />
                      </HBox>
 
               </VBox>
