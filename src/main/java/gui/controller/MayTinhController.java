@@ -55,7 +55,7 @@ public class MayTinhController implements Initializable {
         setupTableColumns();
         setupTableSelection();
         if (cboTrangThai != null) {
-            cboTrangThai.getItems().setAll("Tất cả", "TRONG", "DANGDUNG", "BAOTRI", "TATMAY");
+            cboTrangThai.getItems().setAll("Tất cả", "TRONG", "DANGDUNG", "BAOTRI", "NGUNG");
             cboTrangThai.setValue("Tất cả");
             cboTrangThai.setOnAction(e -> applyFilter());
         }

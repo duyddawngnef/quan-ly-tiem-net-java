@@ -20,7 +20,7 @@ public class ThemMayTinhDialog implements Initializable {
     @FXML private Label    lblTitle;
     @FXML private TextField txtMaMay;
     @FXML private TextField txtTenMay;
-    @FXML private TextField txtCauHinh;
+    @FXML private TextArea txtCauHinh;
     @FXML private ComboBox<KhuMay> cboKhuMay;
     @FXML private TextField txtGiaMoiGio;
     @FXML private ComboBox<String> cboTrangThai;
@@ -127,8 +127,8 @@ public class ThemMayTinhDialog implements Initializable {
 
     private void setError(String msg)  { if (lblError != null) lblError.setText(msg); }
     private void clearError()          { if (lblError != null) lblError.setText(""); }
-    private void closeDialog()         { if (btnCancel != null && btnCancel.getScene() != null)
-                                            ((Stage) btnCancel.getScene().getWindow()).close(); }
+    private void closeDialog()         { if (btnSave != null && btnSave.getScene() != null)
+                                            ((Stage) btnSave.getScene().getWindow()).close(); }
     private Stage getStage()           { return btnSave != null && btnSave.getScene() != null
                                             ? (Stage) btnSave.getScene().getWindow() : null; }
 
