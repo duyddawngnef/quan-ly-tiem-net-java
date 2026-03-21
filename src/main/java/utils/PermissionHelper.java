@@ -72,6 +72,21 @@ public class PermissionHelper {
         }
     }
 
+    /**
+     * Yêu cầu phải là KHACHHANG
+     *
+     * @throws Exception nếu không phải KHACHHANG
+     */
+    public static void requireKhachHang() throws Exception {
+        if (!SessionManager.isLoggedIn()) {
+            throw new Exception("Vui lòng đăng nhập để thực hiện chức năng này");
+        }
+
+        if (!SessionManager.isKhachHang()) {
+            throw new Exception("Chức năng này chỉ dành cho Khách hàng");
+        }
+    }
+
 
 
     // ============== METHODS LẤY THÔNG TIN VỚI VALIDATION ==============
@@ -101,6 +116,36 @@ public class PermissionHelper {
             throw new Exception("Không thể xác định mã nhân viên");
         }
         return maNV;
+    }
+
+
+
+    // ============== METHODS LẤY THÔNG TIN KHÁCH HÀNG VỚI VALIDATION ==============
+
+    /**
+     * Lấy thông tin khách hàng hiện tại (đã validate)
+     *
+     * @return KhachHang đang đăng nhập
+     * @throws Exception nếu không phải KHACHHANG hoặc chưa đăng nhập
+     */
+    public static entity.KhachHang getCurrentKhachHang() throws Exception {
+        requireKhachHang();
+        return SessionManager.getCurrentKhachHang();
+    }
+
+    /**
+     * Lấy mã khách hàng hiện tại (đã validate)
+     *
+     * @return Mã khách hàng (đảm bảo không null)
+     * @throws Exception nếu không phải KHACHHANG hoặc chưa đăng nhập
+     */
+    public static String getCurrentMaKH() throws Exception {
+        requireKhachHang();
+        String maKH = SessionManager.getCurrentMaKH();
+        if (maKH == null || maKH.trim().isEmpty()) {
+            throw new Exception("Không thể xác định mã khách hàng");
+        }
+        return maKH;
     }
 
 
@@ -311,6 +356,7 @@ public class PermissionHelper {
         System.out.println("║ Loại TK:       " + SessionManager.getLoaiTaiKhoan());
         System.out.println("║ Là QUANLY:     " + SessionManager.isQuanLy());
         System.out.println("║ Là NHANVIEN:   " + SessionManager.isNhanVien());
+        System.out.println("║ Là KHACHHANG:  " + SessionManager.isKhachHang());
         System.out.println("║ Quyền Admin:   " + SessionManager.hasAdminPermission());
         System.out.println("║ Quyền Staff:   " + SessionManager.hasStaffPermission());
         System.out.println("╚════════════════════════════════════════╝");

@@ -227,26 +227,20 @@ public class ChuongTrinhKhuyenMaiDAO {
 
     // ===== 11. LẤY CHƯƠNG TRÌNH TỐT NHẤT CHO SỐ TIỀN =====
     public ChuongTrinhKhuyenMai timChuongTrinhTotNhat(double soTienNap) {
-        String sql = "SELECT * FROM chuongtrinhkhuyenmai " +
-                "WHERE TrangThai = 'HOATDONG' " +
-                "AND NgayBatDau <= NOW() AND NgayKetThuc >= NOW() " +
-                "AND DieuKienToiThieu <= ? " +
-                "ORDER BY GiaTriKM DESC LIMIT 1";
+        List<ChuongTrinhKhuyenMai> danhSach = timChuongTrinhPhuHop(soTienNap);
+        if (danhSach == null || danhSach.isEmpty()) return null;
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        ChuongTrinhKhuyenMai totNhat = null;
+        double giaTriCaoNhat = -1;
 
-            pstmt.setDouble(1, soTienNap);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return taoDoiTuongTuResultSet(rs);
+        for (ChuongTrinhKhuyenMai km : danhSach) {
+            double giaTriThucTe = tinhGiaTriKhuyenMai(km.getMaCTKM(), soTienNap);
+            if (giaTriThucTe > giaTriCaoNhat) {
+                giaTriCaoNhat = giaTriThucTe;
+                totNhat = km;
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return null;
+        return totNhat;
     }
 
     // ===== 12. KIỂM TRA CHƯƠNG TRÌNH CÒN HIỆU LỰC =====

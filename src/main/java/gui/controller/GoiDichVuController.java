@@ -13,7 +13,14 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -29,7 +36,7 @@ public class GoiDichVuController implements Initializable {
     // === TOOLBAR ===
     @FXML private TextField        txtSearch;
     @FXML private ComboBox<String> cboFilterLoai;
-    @FXML private Button           btnThem, btnXoa, btnKhoiPhuc, btnLamMoi;
+    @FXML private Button           btnThem, btnXoa, btnKhoiPhuc, btnLamMoi, btnXuatExcel;
 
     // === FORM ===
     @FXML private ScrollPane       paneDetail;
@@ -47,7 +54,6 @@ public class GoiDichVuController implements Initializable {
     private final ObservableList<GoiDichVu> masterList = FXCollections.observableArrayList();
     private FilteredList<GoiDichVu> filteredList;
 
-    // Trạng thái form: NONE | THEM | SUA
     private enum FormMode { NONE, THEM, SUA }
     private FormMode formMode = FormMode.NONE;
     private GoiDichVu selectedGoi = null;
@@ -68,9 +74,7 @@ public class GoiDichVuController implements Initializable {
         });
     }
 
-    // Set toàn bộ text tiếng Việt từ Java tránh lỗi encoding FXML
     private void setupVietnameseText() {
-        // Tiêu đề cột
         if (colMaGoi    != null) colMaGoi.setText("Mã gói");
         if (colTenGoi   != null) colTenGoi.setText("Tên gói");
         if (colLoaiGoi  != null) colLoaiGoi.setText("Loại gói");
@@ -80,14 +84,29 @@ public class GoiDichVuController implements Initializable {
         if (colGiaGoi   != null) colGiaGoi.setText("Giá bán");
         if (colTrangThai!= null) colTrangThai.setText("Trạng thái");
 
-        // Toolbar
-        if (txtSearch   != null) txtSearch.setPromptText("🔍 Tìm theo tên, mã...");
-        if (btnThem     != null) btnThem.setText("+ Thêm");
-        if (btnXoa      != null) btnXoa.setText("Xóa");
-        if (btnKhoiPhuc != null) btnKhoiPhuc.setText("Khôi phục");
-        if (btnLamMoi   != null) btnLamMoi.setText("Làm mới");
+        if (txtSearch    != null) txtSearch.setPromptText("🔍 Tìm theo tên, mã...");
+        if (btnThem      != null) btnThem.setText("+ Thêm");
+        if (btnXoa       != null) btnXoa.setText("Xóa");
+        if (btnKhoiPhuc  != null) btnKhoiPhuc.setText("Khôi phục");
+        if (btnLamMoi    != null) btnLamMoi.setText("Làm mới");
+        if (btnXuatExcel != null) {
+            btnXuatExcel.setText("📥 Xuất Excel");
+            String baseStyle = "-fx-background-color:#16A34A; -fx-text-fill:white; "
+                    + "-fx-font-weight:bold; -fx-padding:8 16; "
+                    + "-fx-background-radius:6; -fx-cursor:hand;";
+            btnXuatExcel.setStyle(baseStyle);
+            btnXuatExcel.setOnMouseEntered(e -> btnXuatExcel.setStyle(
+                    "-fx-background-color:#15803D; -fx-text-fill:white; "
+                            + "-fx-font-weight:bold; -fx-padding:8 16; "
+                            + "-fx-background-radius:6; -fx-cursor:hand;"));
+            btnXuatExcel.setOnMouseExited(e  -> btnXuatExcel.setStyle(baseStyle));
+            btnXuatExcel.setOnMousePressed(e -> btnXuatExcel.setStyle(
+                    "-fx-background-color:#166534; -fx-text-fill:white; "
+                            + "-fx-font-weight:bold; -fx-padding:8 16; "
+                            + "-fx-background-radius:6; -fx-cursor:hand;"));
+            btnXuatExcel.setOnMouseReleased(e -> btnXuatExcel.setStyle(baseStyle));
+        }
 
-        // Labels trong form
         if (lblFormTitle != null) lblFormTitle.setText("Thông tin gói dịch vụ");
         if (lblMaGoi     != null) lblMaGoi.setText("Mã gói");
         if (lblTenGoi    != null) lblTenGoi.setText("Tên gói");
@@ -98,11 +117,9 @@ public class GoiDichVuController implements Initializable {
         if (lblGiaGoi    != null) lblGiaGoi.setText("Giá bán (VNĐ)");
         if (lblTrangThai != null) lblTrangThai.setText("Trạng thái");
 
-        // Buttons form
         if (btnLuu != null) btnLuu.setText("Lưu");
         if (btnHuy != null) btnHuy.setText("Hủy");
 
-        // Prompt text
         if (detailMaGoi  != null) detailMaGoi.setPromptText("Tự động");
         if (detailTenGoi != null) detailTenGoi.setPromptText("Nhập tên gói...");
         if (detailSoGio  != null) detailSoGio.setPromptText("Ví dụ: 10");
@@ -121,7 +138,6 @@ public class GoiDichVuController implements Initializable {
         colGiaGoi.setCellValueFactory(new PropertyValueFactory<>("giagoi"));
         colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
 
-        // Canh giữa + hiển thị tiếng Việt
         setCenterCell(colMaGoi,     v -> v);
         setCenterCell(colTenGoi,    v -> v);
         setCenterCell(colLoaiGoi,   v -> loaiGoiText(v));
@@ -157,7 +173,6 @@ public class GoiDichVuController implements Initializable {
     }
 
     private void setupComboBoxes() {
-        // ComboBox lọc
         if (cboFilterLoai != null) {
             cboFilterLoai.getItems().setAll("Tất cả", "THEOGIO", "THEONGAY", "THEOTUAN", "THEOTHANG");
             cboFilterLoai.setValue("Tất cả");
@@ -176,7 +191,6 @@ public class GoiDichVuController implements Initializable {
             cboFilterLoai.setOnAction(e -> handleFilterLoai());
         }
 
-        // ComboBox loại gói trong form
         if (detailLoaiGoi != null) {
             detailLoaiGoi.getItems().setAll("THEOGIO", "THEONGAY", "THEOTUAN", "THEOTHANG");
             detailLoaiGoi.setCellFactory(lv -> new ListCell<>() {
@@ -193,7 +207,6 @@ public class GoiDichVuController implements Initializable {
             });
         }
 
-        // ComboBox trạng thái trong form
         if (detailTrangThai != null) {
             detailTrangThai.getItems().setAll("HOATDONG", "NGUNG");
             detailTrangThai.setCellFactory(lv -> new ListCell<>() {
@@ -211,24 +224,22 @@ public class GoiDichVuController implements Initializable {
         }
     }
 
-    // Chuyển mã -> tiếng Việt
-    private String trangThaiText(String code) {
+    private String loaiGoiText(String code) {
         return switch (code) {
-            case "HOATDONG" -> "Hoạt động";
-            case "NGUNG"    -> "Ngừng hoạt động";
             case "Tất cả"   -> "Tất cả";
+            case "THEOGIO"  -> "Theo giờ";
+            case "THEONGAY" -> "Theo ngày";
+            case "THEOTUAN" -> "Theo tuần";
+            case "THEOTHANG"-> "Theo tháng";
             default         -> code;
         };
     }
 
-    private String loaiGoiText(String code) {
+    private String trangThaiText(String code) {
         return switch (code) {
-            case "THEOGIO"    -> "Theo giờ";
-            case "THEONGAY"   -> "Theo ngày";
-            case "THEOTUAN"   -> "Theo tuần";
-            case "THEOTHANG"  -> "Theo tháng";
-            case "Tất cả"     -> "Tất cả";
-            default           -> code;
+            case "HOATDONG" -> "Hoạt động";
+            case "NGUNG"    -> "Ngừng";
+            default         -> code;
         };
     }
 
@@ -250,8 +261,8 @@ public class GoiDichVuController implements Initializable {
     @FXML
     public void handleSearch() {
         if (filteredList == null) return;
-        String kw    = txtSearch      != null ? txtSearch.getText().toLowerCase().trim() : "";
-        String loai  = cboFilterLoai  != null ? cboFilterLoai.getValue() : "Tất cả";
+        String kw   = txtSearch     != null ? txtSearch.getText().toLowerCase().trim() : "";
+        String loai = cboFilterLoai != null ? cboFilterLoai.getValue() : "Tất cả";
         filteredList.setPredicate(g -> {
             boolean matchKw = kw.isEmpty()
                     || g.getTengoi().toLowerCase().contains(kw)
@@ -308,7 +319,7 @@ public class GoiDichVuController implements Initializable {
             resetForm();
             loadData();
         } catch (Exception e) {
-            showError(e.getMessage()); // Giữ nguyên form khi lỗi
+            showError(e.getMessage());
         }
     }
 
@@ -356,6 +367,104 @@ public class GoiDichVuController implements Initializable {
         if (cboFilterLoai!= null) cboFilterLoai.setValue("Tất cả");
         resetForm();
         loadData();
+    }
+
+    // =====================================================================
+    // XUẤT EXCEL
+    // Xuất đúng các cột đang hiển thị trên bảng:
+    //   Mã gói | Tên gói | Loại gói | Số giờ | Hiệu lực (ngày) | Giá gốc | Giá bán | Trạng thái
+    // Dữ liệu lấy từ filteredList (tôn trọng bộ lọc hiện tại).
+    // =====================================================================
+    @FXML
+    public void handleXuatExcel() {
+        if (filteredList == null || filteredList.isEmpty()) {
+            showError("Không có dữ liệu để xuất!");
+            return;
+        }
+
+        Stage owner = (Stage) tableView.getScene().getWindow();
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Lưu file Excel");
+        fileChooser.setInitialFileName("DanhSachGoiDichVu.xlsx");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", "*.xlsx"));
+        File file = fileChooser.showSaveDialog(owner);
+        if (file == null) return;
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Danh sach goi dich vu");
+
+            // --- Style: Header ---
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            headerStyle.setBorderTop(BorderStyle.THIN);
+            headerStyle.setBorderLeft(BorderStyle.THIN);
+            headerStyle.setBorderRight(BorderStyle.THIN);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+
+            // --- Style: Data ---
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setBorderBottom(BorderStyle.THIN);
+            dataStyle.setBorderTop(BorderStyle.THIN);
+            dataStyle.setBorderLeft(BorderStyle.THIN);
+            dataStyle.setBorderRight(BorderStyle.THIN);
+
+            // --- Style: Số (căn phải) ---
+            CellStyle numberStyle = workbook.createCellStyle();
+            numberStyle.cloneStyleFrom(dataStyle);
+            numberStyle.setAlignment(HorizontalAlignment.RIGHT);
+
+            // --- Hàng tiêu đề (khớp đúng thứ tự cột trên bảng) ---
+            String[] headers = {
+                    "Mã gói", "Tên gói", "Loại gói",
+                    "Số giờ", "Hiệu lực (ngày)",
+                    "Giá gốc (VNĐ)", "Giá bán (VNĐ)", "Trạng thái"
+            };
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // --- Hàng dữ liệu ---
+            int rowIdx = 1;
+            for (GoiDichVu g : filteredList) {
+                Row row = sheet.createRow(rowIdx++);
+
+                Cell c0 = row.createCell(0); c0.setCellValue(g.getMagoi());           c0.setCellStyle(dataStyle);
+                Cell c1 = row.createCell(1); c1.setCellValue(g.getTengoi());          c1.setCellStyle(dataStyle);
+                // Hiển thị loại gói bằng tiếng Việt như trên bảng
+                Cell c2 = row.createCell(2); c2.setCellValue(loaiGoiText(g.getLoaigoi())); c2.setCellStyle(dataStyle);
+                Cell c3 = row.createCell(3); c3.setCellValue(g.getSogio());           c3.setCellStyle(numberStyle);
+                Cell c4 = row.createCell(4); c4.setCellValue(g.getSongayhieuluc());   c4.setCellStyle(numberStyle);
+                Cell c5 = row.createCell(5); c5.setCellValue(g.getGiagoc());          c5.setCellStyle(numberStyle);
+                Cell c6 = row.createCell(6); c6.setCellValue(g.getGiagoi());          c6.setCellStyle(numberStyle);
+                // Hiển thị trạng thái bằng tiếng Việt như trên bảng
+                Cell c7 = row.createCell(7); c7.setCellValue(trangThaiText(g.getTrangthai())); c7.setCellStyle(dataStyle);
+            }
+
+            // --- Tự động căn độ rộng cột ---
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // --- Ghi file ---
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                workbook.write(fos);
+            }
+
+            ThongBaoDialog.showSuccess(owner, "Xuất Excel thành công!\n" + file.getAbsolutePath());
+
+        } catch (Exception e) {
+            showError("Xuất Excel thất bại: " + e.getMessage());
+        }
     }
 
     // === HELPERS ===
@@ -410,7 +519,6 @@ public class GoiDichVuController implements Initializable {
         return g;
     }
 
-    // === Helper canh giữa ===
     private void setCenterCell(TableColumn<GoiDichVu, String> col,
                                java.util.function.Function<String, String> mapper) {
         col.setCellFactory(c -> new TableCell<>() {

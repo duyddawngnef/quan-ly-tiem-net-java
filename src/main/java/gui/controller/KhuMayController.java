@@ -2,6 +2,7 @@ package gui.controller;
 
 import bus.KhuMayBUS;
 import entity.KhuMay;
+import gui.dialog.ThemKhuMayDialog;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -23,19 +24,31 @@ import java.util.ResourceBundle;
 
 public class KhuMayController implements Initializable {
 
-    @FXML private TableView<KhuMay> tableView;
-    @FXML private TableColumn<KhuMay, String>  colMaKhu;        // ← SỬA khớp FXML
-    @FXML private TableColumn<KhuMay, String>  colTenKhu;       // ← SỬA khớp FXML
-    @FXML private TableColumn<KhuMay, String>  colSoMay;        // ← SỬA khớp FXML (hiển thị số máy)
-    @FXML private TableColumn<KhuMay, String>  colMoTa;         // ← SỬA khớp FXML
-    @FXML private TableColumn<KhuMay, String>  colTrangThai;
+    @FXML
+    private TableView<KhuMay> tableView;
+    @FXML
+    private TableColumn<KhuMay, String> colMaKhu;        // ← SỬA khớp FXML
+    @FXML
+    private TableColumn<KhuMay, String> colTenKhu;       // ← SỬA khớp FXML
+    @FXML
+    private TableColumn<KhuMay, String> colSoMay;        // ← SỬA khớp FXML (hiển thị số máy)
+    @FXML
+    private TableColumn<KhuMay, String> colMoTa;         // ← SỬA khớp FXML
+    @FXML
+    private TableColumn<KhuMay, String> colTrangThai;
 
-    @FXML private TextField txtSearch;
-    @FXML private Label lblSubtitle;
-    @FXML private Label lblTotal;
-    @FXML private Label lblSoMay;
-    @FXML private Button btnSua;
-    @FXML private Button btnXoa;
+    @FXML
+    private TextField txtSearch;
+    @FXML
+    private Label lblSubtitle;
+    @FXML
+    private Label lblTotal;
+    @FXML
+    private Label lblSoMay;
+    @FXML
+    private Button btnSua;
+    @FXML
+    private Button btnXoa;
 
     private final KhuMayBUS khuMayBUS = new KhuMayBUS();
     private ObservableList<KhuMay> dataList = FXCollections.observableArrayList();
@@ -50,9 +63,15 @@ public class KhuMayController implements Initializable {
     }
 
     private void setupTableColumns() {
-        if (colMaKhu    != null) colMaKhu.setCellValueFactory(new PropertyValueFactory<>("makhu"));
-        if (colTenKhu   != null) colTenKhu.setCellValueFactory(new PropertyValueFactory<>("tenkhu"));
-        if (colTrangThai != null) colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
+        if (colMaKhu != null) {
+            colMaKhu.setCellValueFactory(new PropertyValueFactory<>("makhu"));
+        }
+        if (colTenKhu != null) {
+            colTenKhu.setCellValueFactory(new PropertyValueFactory<>("tenkhu"));
+        }
+        if (colTrangThai != null) {
+            colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangthai"));
+        }
 
         // Cột Số máy: hiển thị số máy trong khu (gọi BUS đếm)
         if (colSoMay != null) {
@@ -97,22 +116,32 @@ public class KhuMayController implements Initializable {
         tableView.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             selectedItem = n;
             boolean has = n != null;
-            if (btnSua != null) btnSua.setDisable(!has);
-            if (btnXoa != null) btnXoa.setDisable(!has);
+            if (btnSua != null) {
+                btnSua.setDisable(!has);
+            }
+            if (btnXoa != null) {
+                btnXoa.setDisable(!has);
+            }
 
             // Gọi onRowSelected khi chọn dòng
             onRowSelected(n);
         });
-        if (btnSua != null) btnSua.setDisable(true);
-        if (btnXoa != null) btnXoa.setDisable(true);
+        if (btnSua != null) {
+            btnSua.setDisable(true);
+        }
+        if (btnXoa != null) {
+            btnXoa.setDisable(true);
+        }
     }
 
     /**
-     * Xử lý khi chọn 1 dòng trong bảng
-     * Gọi KhuMayBUS.demSoMayTrongKhu(maKhu) để hiển thị số máy
+     * Xử lý khi chọn 1 dòng trong bảng Gọi KhuMayBUS.demSoMayTrongKhu(maKhu) để
+     * hiển thị số máy
      */
     private void onRowSelected(KhuMay khuMay) {
-        if (lblSoMay == null) return;
+        if (lblSoMay == null) {
+            return;
+        }
 
         if (khuMay == null) {
             lblSoMay.setText("");
@@ -123,7 +152,7 @@ public class KhuMayController implements Initializable {
             int soMay = khuMayBUS.demSoMayTrongKhu(khuMay.getMakhu());
             lblSoMay.setText("📊 Khu " + khuMay.getTenkhu() + ": " + soMay + " máy");
         } catch (Exception e) {
-            lblSoMay.setText("⚠️ Không thể đếm số máy: " + e.getMessage());
+            lblSoMay.setText(" Không thể đếm số máy: " + e.getMessage());
         }
     }
 
@@ -142,27 +171,37 @@ public class KhuMayController implements Initializable {
     @FXML
     public void handleSearch() {
         String keyword = txtSearch != null ? txtSearch.getText().toLowerCase().trim() : "";
-        if (filteredList == null) return;
+        if (filteredList == null) {
+            return;
+        }
         filteredList.setPredicate(item -> keyword.isEmpty()
-                || (item.getMakhu()   != null && item.getMakhu().toLowerCase().contains(keyword))
-                || (item.getTenkhu()  != null && item.getTenkhu().toLowerCase().contains(keyword)));
+                || (item.getMakhu() != null && item.getMakhu().toLowerCase().contains(keyword))
+                || (item.getTenkhu() != null && item.getTenkhu().toLowerCase().contains(keyword)));
         updateSubtitle();
     }
 
     @FXML
-    public void handleThem() { openDialog(null); }
+    public void handleThem() {
+        openDialog(null);
+    }
 
     @FXML
     public void handleSua() {
-        if (selectedItem == null) return;
+        if (selectedItem == null) {
+            return;
+        }
         openDialog(selectedItem);
     }
 
     @FXML
     public void handleXoa() {
-        if (selectedItem == null) return;
+        if (selectedItem == null) {
+            return;
+        }
         Stage owner = (Stage) tableView.getScene().getWindow();
-        if (!gui.dialog.XacNhanDialog.showDelete(owner, selectedItem.getTenkhu())) return;
+        if (!gui.dialog.XacNhanDialog.showDelete(owner, selectedItem.getTenkhu())) {
+            return;
+        }
         try {
             khuMayBUS.xoaKhuMay(selectedItem.getMakhu());
             ThongBaoDialogHelper.showSuccess(tableView.getScene(), "Đã xóa khu máy!");
@@ -174,7 +213,9 @@ public class KhuMayController implements Initializable {
 
     @FXML
     public void handleLamMoi() {
-        if (txtSearch != null) txtSearch.clear();
+        if (txtSearch != null) {
+            txtSearch.clear();
+        }
         loadData();
     }
 
@@ -182,11 +223,9 @@ public class KhuMayController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dialogs/themKhuMay.fxml"));
             Parent root = loader.load();
-            Object ctrl = loader.getController();
-            try {
-                ctrl.getClass().getMethod("setEntity", Object.class).invoke(ctrl, entity);
-                ctrl.getClass().getMethod("setOnSaveCallback", Runnable.class).invoke(ctrl, (Runnable) this::loadData);
-            } catch (NoSuchMethodException ignored) {}
+            ThemKhuMayDialog ctrl = loader.getController();
+            ctrl.setEntity(entity);
+            ctrl.setOnSaveCallback(this::loadData);  // ← đơn giản, gọi thẳng
 
             Stage stage = new Stage(StageStyle.UNDECORATED);
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -200,7 +239,11 @@ public class KhuMayController implements Initializable {
 
     private void updateSubtitle() {
         int total = filteredList != null ? filteredList.size() : 0;
-        if (lblSubtitle != null) lblSubtitle.setText("Tổng: " + total + " bản ghi");
-        if (lblTotal    != null) lblTotal.setText("Tổng: " + total + " bản ghi");
+        if (lblSubtitle != null) {
+            lblSubtitle.setText("Tổng: " + total + " bản ghi");
+        }
+        if (lblTotal != null) {
+            lblTotal.setText("Tổng: " + total + " bản ghi");
+        }
     }
 }

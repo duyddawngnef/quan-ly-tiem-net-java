@@ -267,43 +267,37 @@ public class NhanVienDAO {
     - NV khác: Chỉ sửa được thông tin của mình (trừ ChucVu)
      */
     public boolean update(NhanVien nv, NhanVien nguoiThucHien){
-
         NhanVien existing = getById(nv.getManv());
 
-        //kiểm tra nhân viên tồn tại
+        // kiểm tra nhân viên tồn tại
         if(existing == null){
             throw new RuntimeException("Nhân viên không tồn tại !");
         }
 
-        //nhân viên đã nghỉ việc
-        if(existing.isNghiViec()){
-            throw new RuntimeException("Nhân viên đã nghỉ việc, không thể sửa !");
-        }
-
-        //Kiểm tra quyền
+        // Kiểm tra quyền
         if(nguoiThucHien == null){
             throw new RuntimeException("Người thực hiện không hợp lệ !");
         }
 
-        //Nếu không phải QUANLY thì chỉ được sửa thông tin của chính mình
+        // Nếu không phải QUANLY thì chỉ được sửa thông tin của chính mình
         if(!nguoiThucHien.isQuanLy()){
             if(!nguoiThucHien.getManv().equals(nv.getManv())){
                 throw new RuntimeException("Bạn chỉ có thể sửa thông tin của chính mình !");
             }
-            //Không cho sửa chức vụ
             if(!existing.getChucvu().equals(nv.getChucvu())){
                 throw new RuntimeException("Bạn không có quyền thay đổi chức vụ !");
             }
+            if(!existing.getTrangthai().equals(nv.getTrangthai())){
+                throw new RuntimeException("Bạn không có quyền tự thay đổi trạng thái làm việc !");
+            }
         }
 
-        //kiểm tra Valid
         validateNhanVien(nv,false);
 
-
-        String sql = "UPDATE nhanvien SET Ho = ?, Ten = ?, ChucVu = ?, MatKhau = ? WHERE MaNV = ? AND TrangThai = 'DANGLAMVIEC'";
+        // ĐÃ SỬA: Thêm TrangThai = ? và bỏ điều kiện cứng TrangThai = 'DANGLAMVIEC' ở cuối
+        String sql = "UPDATE nhanvien SET Ho = ?, Ten = ?, ChucVu = ?, MatKhau = ?, TrangThai = ? WHERE MaNV = ?";
 
         try{
-
             Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
@@ -311,7 +305,8 @@ public class NhanVienDAO {
             pstmt.setString(2, nv.getTen());
             pstmt.setString(3, nv.getChucvu());
             pstmt.setString(4, nv.getMatkhau());
-            pstmt.setString(5, nv.getManv());
+            pstmt.setString(5, nv.getTrangthai()); // Lưu trạng thái mới xuống Database
+            pstmt.setString(6, nv.getManv());
 
             int row = pstmt.executeUpdate();
             pstmt.close();
@@ -323,7 +318,6 @@ public class NhanVienDAO {
             throw new RuntimeException("Lỗi update NhanVien: " + e.getMessage());
         }
     }
-
     /*
     ======================XÓA NHÂN VIÊN (SOFT DELETE)==============
     - Chỉ QUANLY mới được xóa

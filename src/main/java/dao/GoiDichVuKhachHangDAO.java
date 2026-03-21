@@ -253,4 +253,34 @@ public class GoiDichVuKhachHangDAO{
                 + " | NgayMua: " + gdv.getNgaymua() + " | NgayHetHan: " + gdv.getNgayhethan() + " | GiaMua: "
                 + gdv.getGiamua() + " | TrangThai: " + gdv.getTrangthai());
     }
+
+    public List<GoiDichVuKhachHang> getAll() {
+        List<GoiDichVuKhachHang> danhSach = new ArrayList<>();
+        String sql = "SELECT * FROM goidichvu_khachhang ORDER BY NgayMua DESC";
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                String magoikh     = rs.getString("MaGoiKH");
+                String makh        = rs.getString("MaKH");
+                String magoi       = rs.getString("MaGoi");
+                String manv        = rs.getString("MaNV");
+                double sogiobandau = rs.getDouble("SoGioBanDau");
+                double sogioconlai = rs.getDouble("SoGioConLai");
+                LocalDateTime ngaymua    = rs.getTimestamp("NgayMua").toLocalDateTime();
+                LocalDateTime ngayhethan = rs.getTimestamp("NgayHetHan").toLocalDateTime();
+                double giamua      = rs.getDouble("GiaMua");
+                String trangthai   = rs.getString("TrangThai");
+                danhSach.add(new GoiDichVuKhachHang(magoikh, makh, magoi, manv,
+                        sogiobandau, sogioconlai, ngaymua, ngayhethan, giamua, trangthai));
+            }
+        } catch (SQLException e) {
+            System.err.println("[LỖI GETALL - GoiDichVuKhachHangDAO]: " + e.getMessage());
+            return new ArrayList<>();
+        } finally {
+            DBConnection.closeConnection();
+        }
+        return danhSach;
+    }
 }

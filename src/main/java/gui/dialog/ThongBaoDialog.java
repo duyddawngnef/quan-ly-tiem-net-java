@@ -14,26 +14,33 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Reusable notification dialog.
- * Usage:
- *   ThongBaoDialog.showSuccess(stage, "Thêm thành công!");
- *   ThongBaoDialog.showError(stage,   "Lỗi: ...");
- *   ThongBaoDialog.showWarning(stage, "Cảnh báo: ...");
- *   ThongBaoDialog.showInfo(stage,    "Thông báo: ...");
+ * Reusable notification dialog. Usage: ThongBaoDialog.showSuccess(stage, "Thêm
+ * thành công!"); ThongBaoDialog.showError(stage, "Lỗi: ...");
+ * ThongBaoDialog.showWarning(stage, "Cảnh báo: ...");
+ * ThongBaoDialog.showInfo(stage, "Thông báo: ...");
  */
 public class ThongBaoDialog implements Initializable {
 
-    @FXML private HBox  headerBox;
-    @FXML private Label lblHeaderIcon;
-    @FXML private Label lblTitle;
-    @FXML private Label lblBigIcon;
-    @FXML private Label lblMessage;
-    @FXML private Button btnOK;
+    @FXML
+    private HBox headerBox;
+    @FXML
+    private Label lblHeaderIcon;
+    @FXML
+    private Label lblTitle;
+    @FXML
+    private Label lblBigIcon;
+    @FXML
+    private Label lblMessage;
+    @FXML
+    private Button btnOK;
 
-    public enum Type { SUCCESS, ERROR, WARNING, INFO }
+    public enum Type {
+        SUCCESS, ERROR, WARNING, INFO
+    }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {}
+    public void initialize(URL location, ResourceBundle resources) {
+    }
 
     public void setup(String title, String message, Type type) {
         lblTitle.setText(title);
@@ -51,7 +58,7 @@ public class ThongBaoDialog implements Initializable {
             }
             case WARNING -> {
                 lblHeaderIcon.setText("⚠");
-                lblBigIcon.setText("⚠️");
+                lblBigIcon.setText("");
                 headerBox.setStyle("-fx-background-color:#F57C00; -fx-background-radius: 10 10 0 0; -fx-padding:16 24;");
             }
             default -> {
@@ -68,7 +75,6 @@ public class ThongBaoDialog implements Initializable {
     }
 
     // ===== Static factory methods =====
-
     public static void showSuccess(Stage owner, String msg) {
         show(owner, "Thành công", msg, Type.SUCCESS);
     }
@@ -88,14 +94,16 @@ public class ThongBaoDialog implements Initializable {
     public static void show(Stage owner, String title, String message, Type type) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                ThongBaoDialog.class.getResource("/fxml/dialogs/thongBao.fxml"));
+                    ThongBaoDialog.class.getResource("/fxml/dialogs/thongBao.fxml"));
             Parent root = loader.load();
             ThongBaoDialog controller = loader.getController();
             controller.setup(title, message, type);
 
             Stage stage = new Stage(StageStyle.UNDECORATED);
             stage.initModality(Modality.APPLICATION_MODAL);
-            if (owner != null) stage.initOwner(owner);
+            if (owner != null) {
+                stage.initOwner(owner);
+            }
             stage.setScene(new Scene(root));
             stage.setResizable(false);
             stage.centerOnScreen();
@@ -103,10 +111,14 @@ public class ThongBaoDialog implements Initializable {
         } catch (Exception e) {
             // Fallback to standard JavaFX Alert
             Alert.AlertType alertType = switch (type) {
-                case SUCCESS -> Alert.AlertType.INFORMATION;
-                case ERROR   -> Alert.AlertType.ERROR;
-                case WARNING -> Alert.AlertType.WARNING;
-                default      -> Alert.AlertType.INFORMATION;
+                case SUCCESS ->
+                    Alert.AlertType.INFORMATION;
+                case ERROR ->
+                    Alert.AlertType.ERROR;
+                case WARNING ->
+                    Alert.AlertType.WARNING;
+                default ->
+                    Alert.AlertType.INFORMATION;
             };
             Alert alert = new Alert(alertType);
             alert.setHeaderText(null);

@@ -49,6 +49,20 @@ public class ThemKhuyenMaiDialog implements Initializable {
         if (datTuNgay  != null) datTuNgay.setValue(LocalDate.now());
         if (datDenNgay != null) datDenNgay.setValue(LocalDate.now().plusMonths(1));
         updateUnit();
+        if (txtMaKM != null) {
+            txtMaKM.setDisable(true);
+            txtMaKM.setPromptText("Tự động tạo");
+        }
+        if (txtGiaTri != null) {
+            txtGiaTri.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (!newVal.matches("\\d*\\.?\\d*")) txtGiaTri.setText(oldVal);
+            });
+        }
+        if (txtNapToiThieu != null) {
+            txtNapToiThieu.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (!newVal.matches("\\d*\\.?\\d*")) txtNapToiThieu.setText(oldVal);
+            });
+        }
     }
 
     private void updateUnit() {
@@ -69,7 +83,10 @@ public class ThemKhuyenMaiDialog implements Initializable {
         if (lblDialogTitle != null) lblDialogTitle.setText(titleText);
 
         if (isEditMode) {
-            if (txtMaKM  != null) { txtMaKM.setText(km.getMaCTKM()); txtMaKM.setDisable(true); }
+            if (txtMaKM != null) {
+                txtMaKM.setText(km.getMaCTKM());
+                txtMaKM.setDisable(true);
+            }
             if (txtTenKM != null) txtTenKM.setText(km.getTenCT());
             if (cboLoai  != null) cboLoai.setValue(km.getLoaiKM());
             if (txtGiaTri != null) txtGiaTri.setText(String.valueOf(km.getGiaTriKM()));
@@ -121,10 +138,6 @@ public class ThemKhuyenMaiDialog implements Initializable {
         LocalDateTime denNgayDT = denNgayDate.atTime(LocalTime.of(23, 59, 59));
 
         ChuongTrinhKhuyenMai km = isEditMode ? entity : new ChuongTrinhKhuyenMai();
-        if (!isEditMode && txtMaKM != null) {
-            String maKM = txtMaKM.getText().trim();
-            if (!maKM.isEmpty()) km.setMaCTKM(maKM);
-        }
         km.setTenCT(tenKM);
         km.setLoaiKM(cboLoai != null ? cboLoai.getValue() : "PHANTRAM");
         km.setGiaTriKM(giaTri);

@@ -1,3 +1,4 @@
+
 package  dao;
 import dao.DBConnection;
 
@@ -7,6 +8,7 @@ import entity.MayTinh;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MayTinhDAO {
     public List<MayTinh> getAll() {
@@ -48,7 +50,7 @@ public class MayTinhDAO {
             pstmt.setString(1,MaMay);
             ResultSet rs=pstmt.executeQuery();
             if (rs.next()) {
-                 mt = mapResultSetToEntity(rs);
+                mt = mapResultSetToEntity(rs);
             }
             conn.close();;
             pstmt.close();
@@ -59,12 +61,12 @@ public class MayTinhDAO {
         return mt;
     }
     // ham tao ma may
-    public  String generateMaMay(){
+    public  String generateMaMay(Connection conn1){
         String sql = "SELECT MaMay FROM maytinh "+
                 "ORDER BY MaMay DESC LIMIT 1";
         try {
-            Connection conn = DBConnection.getConnection();
-            Statement stmt = conn.createStatement();
+
+            Statement stmt = conn1.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
 
             if(rs.next()){
@@ -73,13 +75,12 @@ public class MayTinhDAO {
                 int num = Integer.parseInt(maMay.substring(3));
                 //FORMAT CHO MÃ KHU
 
-                conn.close();
-                stmt.close();
+
 
                 return String.format("MAY%03d" ,num + 1);
             }
 
-            conn.close();
+            conn1.close();
             stmt.close();
         }catch (SQLException e){
             throw new RuntimeException("Lỗi generateMaMay" + e.getMessage());
@@ -100,14 +101,13 @@ public class MayTinhDAO {
             throw new IllegalArgumentException("Mã khu không tồn tại hoặc khu không hoạt động");
         }
         String sql="INSERT INTO maytinh (MaMay,TenMay,MaKhu,CauHinh,GiaMoiGio,TrangThai)"+"VALUES (?,?,?,?,?,?)";
-        String mamay=generateMaMay();
-        mt.setMamay(mamay);
+
         mt.setTrangthai("TRONG");
         try{
             Connection conn=DBConnection.getConnection();
             PreparedStatement pstmt=conn.prepareStatement(sql);
 
-            pstmt.setString(1,mt.getMamay());
+            pstmt.setString(1,this.generateMaMay(conn));
             pstmt.setString(2,mt.getTenmay());
             pstmt.setString(3,mt.getMakhu());
             pstmt.setString(4,mt.getCauhinh());
@@ -121,40 +121,41 @@ public class MayTinhDAO {
             throw new RuntimeException("Lỗi insert MayTinh : " + e.getMessage());
         }
     }
-    // trong GUI co the tach nut sua gia va sua thong tin khac rieng voi nhau
-    public boolean UpdateGiaMoiGio (String mamay,Double GiaMoiGioMoi) {
-        if(hasActiveSession(mamay)) {
-            throw new IllegalArgumentException("may dang dung ko the sua gia moi gio !");
+        // trong GUI co the tach nut sua gia va sua thong tin khac rieng voi nhau
+        public boolean UpdateGiaMoiGio (String mamay,Double GiaMoiGioMoi) {
+            if(hasActiveSession(mamay)) {
+                throw new IllegalArgumentException("may dang dung ko the sua gia moi gio !");
+            }
+            String sql="UPDATE maytinh SET GiaMoiGio=? WHERE MaMay=?";
+            try {
+                Connection conn=DBConnection.getConnection();
+                PreparedStatement pstmt= conn.prepareStatement(sql);
+                pstmt.setDouble(1,GiaMoiGioMoi);
+                pstmt.setString(2,mamay);
+                pstmt.executeUpdate();
+                pstmt.close();
+            }catch (SQLException e) {
+                throw new RuntimeException("Lỗi update GiaMoiGio : " + e.getMessage());
+            }
+            return true;
         }
-        String sql="UPDATE maytinh SET GiaMoiGio=? WHERE MaMay=?";
-        try {
-            Connection conn=DBConnection.getConnection();
-            PreparedStatement pstmt= conn.prepareStatement(sql);
-            pstmt.setDouble(1,GiaMoiGioMoi);
-            pstmt.setString(2,mamay);
-            pstmt.executeUpdate();
-            pstmt.close();
-        }catch (SQLException e) {
-            throw new RuntimeException("Lỗi update GiaMoiGio : " + e.getMessage());
-        }
-        return true;
-    }
     public boolean UpdateThongTinKhac(MayTinh mt) {
-        if(!ValidateMaKhu(mt.getMakhu())) {
+        if (!ValidateMaKhu(mt.getMakhu())) {
             throw new IllegalArgumentException("Mã khu không tồn tại hoặc khu không hoạt động");
         }
-        String sql="UPDATE maytinh SET TenMay=?, MaKhu=?, CauHinh=?, TrangThai=? WHERE MaMay=?";
-        try{
-            Connection conn=DBConnection.getConnection();
-            PreparedStatement pstmt= conn.prepareStatement(sql);
-            pstmt.setString(1,mt.getTenmay());
-            pstmt.setString(2,mt.getMakhu());
-            pstmt.setString(3,mt.getCauhinh());
-            pstmt.setString(4,mt.getTrangthai());
-            pstmt.setString(5,mt.getMamay());
+        String sql = "UPDATE maytinh SET TenMay=?, MaKhu=?, CauHinh=?, TrangThai=? WHERE MaMay=? ";
+        try {
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, mt.getTenmay());
+            pstmt.setString(2, mt.getMakhu());
+            pstmt.setString(3, mt.getCauhinh());
+            pstmt.setString(4, mt.getTrangthai());
+            pstmt.setString(5, mt.getMamay());
             pstmt.executeUpdate();
             pstmt.close();
-        }catch(SQLException e) {
+
+        } catch (SQLException e) {
             throw new RuntimeException("Lỗi update ThongTinKhac : " + e.getMessage());
         }
         return true;
@@ -197,6 +198,7 @@ public class MayTinhDAO {
         }
     }
 
+
     public boolean duaVaoBaoTri(String maMay) {
         // Chỉ máy đang TRONG mới đưa vào bảo trì được
         return updateTrangThai(maMay, "TRONG", "BAOTRI");
@@ -215,6 +217,7 @@ public class MayTinhDAO {
         // chuyển trạng thái DANGDUNG sang TRONG
         updateTrangThai(maMay, "DANGDUNG", "TRONG");
     }
+
 
     public boolean ngungSuDung(String maMay) {
         String sql = "UPDATE MayTinh SET TrangThai = 'NGUNG' " +
@@ -327,4 +330,5 @@ public class MayTinhDAO {
         }
         return  false;
     }
+
 }

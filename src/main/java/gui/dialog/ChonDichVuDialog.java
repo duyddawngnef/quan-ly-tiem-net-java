@@ -2,7 +2,9 @@ package gui.dialog;
 
 import bus.DichVuBUS;
 import bus.SuDungDichVuBUS;
+import dao.SuDungDichVuDAO;
 import entity.DichVu;
+import entity.KhachHang;
 import entity.PhienSuDung;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -56,11 +58,14 @@ public class ChonDichVuDialog implements Initializable {
 
     private final DichVuBUS       dichVuBUS   = new DichVuBUS();
     private final SuDungDichVuBUS suDungDVBUS = new SuDungDichVuBUS();
+    private final SuDungDichVuDAO suDungDVDAO = new SuDungDichVuDAO();
 
     private ObservableList<DichVu>   dichVuList = FXCollections.observableArrayList();
     private ObservableList<CartItem> cartList   = FXCollections.observableArrayList();
     private DichVu selectedDV;
     private String maPhien;
+    private PhienSuDung phienObj;
+    private double soDuKH = Double.MAX_VALUE; // mặc định không giới hạn nếu không có thông tin
     private Runnable onOrderCallback;
 
     @Override
@@ -121,6 +126,18 @@ public class ChonDichVuDialog implements Initializable {
         this.maPhien = maPhien;
         if (lblPhienInfo != null)
             lblPhienInfo.setText("Phiên: " + (phienInfo != null ? phienInfo : maPhien));
+    }
+
+    /**
+     * Phương thức mới: nhận đủ thông tin phiên và khách để kiểm tra số dư
+     */
+    public void setPhienFull(PhienSuDung phien, KhachHang kh, String phienInfo) {
+        this.phienObj = phien;
+        this.maPhien  = phien != null ? phien.getMaPhien() : null;
+        this.soDuKH   = kh != null ? kh.getSodu() : Double.MAX_VALUE;
+        if (lblPhienInfo != null)
+            lblPhienInfo.setText("Phiên: " + (phienInfo != null ? phienInfo : maPhien)
+                    + "  |  Số dư: " + String.format("%,.0f ₫", this.soDuKH));
     }
 
     public void setOnOrderCallback(Runnable cb) { this.onOrderCallback = cb; }
@@ -220,6 +237,34 @@ public class ChonDichVuDialog implements Initializable {
     public void handleXacNhan() {
         if (cartList.isEmpty()) { setError("Giỏ hàng trống"); return; }
         if (maPhien == null)    { setError("Chưa có thông tin phiên"); return; }
+
+        // Kiểm tra số dư trước khi order
+        if (phienObj != null && soDuKH < Double.MAX_VALUE) {
+            // Tính tiền máy đến hiện tại
+            double tienMay = 0;
+            if (phienObj.getGioBatDau() != null && phienObj.getGiaMoiGio() > 0) {
+                long phut = java.time.temporal.ChronoUnit.MINUTES.between(
+                        phienObj.getGioBatDau(), java.time.LocalDateTime.now());
+                tienMay = (phut / 60.0) * phienObj.getGiaMoiGio();
+            }
+            // Tính tiền dịch vụ đã order trước đó
+            double tienDVDaOrder = 0;
+            try {
+                java.util.List<entity.SuDungDichVu> daDat = suDungDVDAO.geyByPhien(maPhien);
+                if (daDat != null) for (entity.SuDungDichVu sv : daDat) tienDVDaOrder += sv.getThanhtien();
+            } catch (Exception ignored) {}
+            // Tổng giỏ hàng mới
+            double tienGioHang = cartList.stream().mapToDouble(CartItem::getThanhTien).sum();
+
+            double tongCan = tienMay + tienDVDaOrder + tienGioHang;
+            if (soDuKH - tongCan < 0) {
+                setError(String.format(
+                    "⚠ Số dư không đủ! Cần: %,.0f ₫  |  Hiện có: %,.0f ₫  |  Thiếu: %,.0f ₫",
+                    tongCan, soDuKH, tongCan - soDuKH));
+                return;
+            }
+        }
+
         try {
             for (CartItem item : cartList) {
                 // orderDichVu(String maPhien, String madv, int soLuong)

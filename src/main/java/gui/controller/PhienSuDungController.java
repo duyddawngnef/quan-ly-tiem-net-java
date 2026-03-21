@@ -22,6 +22,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -36,23 +38,10 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-/**
- * ============================================================
- *  PhienSuDungController  –  Tầng UI cho Phiên Sử Dụng
- * ============================================================
- *
- *  Controller chỉ làm 3 việc:
- *    1. Nhận sự kiện từ người dùng (click, nhập text…)
- *    2. Gọi BUS để xử lý nghiệp vụ
- *    3. Cập nhật giao diện theo kết quả
- *
- *  Không có Timer/Scheduler ở đây.
- *  Kiểm tra phiên quá hạn xảy ra khi nhấn Refresh.
- */
 public class PhienSuDungController implements Initializable {
 
     // ================================================================
-    //  PHẦN 1: CÁC FXML COMPONENT
+    //  PHẦN 1: FXML COMPONENTS
     // ================================================================
 
     @FXML private TableView<PhienSuDung>           tableView;
@@ -77,19 +66,19 @@ public class PhienSuDungController implements Initializable {
     @FXML private Button           btnOrderDV;
 
     // ================================================================
-    //  PHẦN 2: BUS VÀ DAO PHỤ
+    //  PHẦN 2: BUS & DAO
     // ================================================================
 
     private final PhienSuDungBUS phienBUS = new PhienSuDungBUS(
             new PhienSuDungDAO(), new MayTinhDAO(), new KhachHangDAO(),
             new GoiDichVuKhachHangDAO(), new SuDungDichVuDAO(), new HoaDonDAO());
 
-    // DAO phụ chỉ để lấy danh sách hiển thị trong dialog
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private final MayTinhDAO   mayTinhDAO   = new MayTinhDAO();
+    private final SuDungDichVuDAO suDungDichVuDAO = new SuDungDichVuDAO();
 
     // ================================================================
-    //  PHẦN 3: STATE NỘI BỘ
+    //  PHẦN 3: STATE
     // ================================================================
 
     private final ObservableList<PhienSuDung> dataList     = FXCollections.observableArrayList();
@@ -97,6 +86,13 @@ public class PhienSuDungController implements Initializable {
     private PhienSuDung                       selectedPhien;
     private Timeline                          clockTimeline;
     private Timeline                          cellRefreshTimeline;
+
+    // Cache để tìm kiếm theo tên
+    private List<KhachHang> cacheKhachHang = new java.util.ArrayList<>();
+    private List<MayTinh>   cacheMayTinh   = new java.util.ArrayList<>();
+
+    private static final DateTimeFormatter FMT     = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter FMT_SHORT = DateTimeFormatter.ofPattern("dd/MM HH:mm");
 
     // ================================================================
     //  PHẦN 4: KHỞI TẠO
@@ -107,9 +103,15 @@ public class PhienSuDungController implements Initializable {
         setupComboBox();
         setupTableColumns();
         setupTableSelection();
-        loadData();  // tải dữ liệu (KHÔNG kiểm tra quá hạn ở đây, để MainController làm)
+        loadCache();
+        loadData();
         startClock();
         startCellRefresh();
+    }
+
+    private void loadCache() {
+        try { cacheKhachHang = khachHangDAO.getAll(); } catch (Exception e) { cacheKhachHang = new java.util.ArrayList<>(); }
+        try { cacheMayTinh   = mayTinhDAO.getAll();   } catch (Exception e) { cacheMayTinh   = new java.util.ArrayList<>(); }
     }
 
     private void setupComboBox() {
@@ -121,25 +123,34 @@ public class PhienSuDungController implements Initializable {
     }
 
     // ================================================================
-    //  PHẦN 5: CẤU HÌNH CỘT BẢNG
+    //  PHẦN 5: CỘT BẢNG
     // ================================================================
 
     private void setupTableColumns() {
-        if (colMaPhien   != null) colMaPhien.setCellValueFactory(new PropertyValueFactory<>("maPhien"));
-        if (colMaMay     != null) colMaMay.setCellValueFactory(new PropertyValueFactory<>("maMay"));
-        if (colKhachHang != null) colKhachHang.setCellValueFactory(new PropertyValueFactory<>("maKH"));
-        if (colNhanVien  != null) colNhanVien.setCellValueFactory(new PropertyValueFactory<>("maNV"));
+        if (colMaPhien  != null) colMaPhien.setCellValueFactory(new PropertyValueFactory<>("maPhien"));
+        if (colMaMay    != null) colMaMay.setCellValueFactory(new PropertyValueFactory<>("maMay"));
+        if (colNhanVien != null) colNhanVien.setCellValueFactory(new PropertyValueFactory<>("maNV"));
 
-        // Cột giờ bắt đầu: định dạng lại từ LocalDateTime
+        // Cột KH: hiện "MaKH - Họ Tên"
+        if (colKhachHang != null) {
+            colKhachHang.setCellValueFactory(cell -> {
+                PhienSuDung p = cell.getValue();
+                String ten = cacheKhachHang.stream()
+                        .filter(kh -> kh.getMakh().equals(p.getMaKH()))
+                        .map(kh -> kh.getHo() + " " + kh.getTen())
+                        .findFirst().orElse("");
+                return new SimpleStringProperty(ten.isBlank() ? p.getMaKH() : p.getMaKH() + " - " + ten.trim());
+            });
+        }
+
         if (colGioBD != null) {
             colGioBD.setCellValueFactory(cell -> {
                 PhienSuDung p = cell.getValue();
                 return new SimpleStringProperty(p.getGioBatDau() != null
-                        ? p.getGioBatDau().format(DateTimeFormatter.ofPattern("dd/MM HH:mm")) : "");
+                        ? p.getGioBatDau().format(FMT_SHORT) : "");
             });
         }
 
-        // Cột thời gian: cố định nếu đã kết thúc, realtime nếu đang chơi
         if (colThoiGian != null) {
             colThoiGian.setCellValueFactory(cell -> {
                 PhienSuDung p = cell.getValue();
@@ -153,7 +164,6 @@ public class PhienSuDungController implements Initializable {
             });
         }
 
-        // Cột tiền tạm: realtime cho phiên đang chơi
         if (colTienTam != null) {
             colTienTam.setCellValueFactory(cell -> {
                 PhienSuDung p = cell.getValue();
@@ -166,7 +176,6 @@ public class PhienSuDungController implements Initializable {
             });
         }
 
-        // Cột trạng thái: icon + màu sắc
         if (colTrangThai != null) {
             colTrangThai.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
             colTrangThai.setCellFactory(col -> new TableCell<>() {
@@ -177,7 +186,7 @@ public class PhienSuDungController implements Initializable {
                         setText("🟢 Đang chơi");
                         setStyle("-fx-text-fill:#1565C0; -fx-font-weight:bold;");
                     } else {
-                        setText("🟢 Đã kết thúc");
+                        setText("⚫ Đã kết thúc");
                         setStyle("-fx-text-fill:#555555;");
                     }
                 }
@@ -185,7 +194,6 @@ public class PhienSuDungController implements Initializable {
         }
     }
 
-    /** Xử lý khi click vào hàng: lưu phiên đang chọn, bật/tắt nút */
     private void setupTableSelection() {
         if (tableView == null) return;
         tableView.getSelectionModel().selectedItemProperty().addListener((obs, cu, moi) -> {
@@ -199,7 +207,7 @@ public class PhienSuDungController implements Initializable {
     }
 
     // ================================================================
-    //  PHẦN 6: TẢI VÀ HIỂN THỊ DỮ LIỆU
+    //  PHẦN 6: TẢI DỮ LIỆU
     // ================================================================
 
     public void loadData() {
@@ -233,7 +241,7 @@ public class PhienSuDungController implements Initializable {
     }
 
     // ================================================================
-    //  PHẦN 7: LỌC DỮ LIỆU
+    //  PHẦN 7: TÌM KIẾM & LỌC
     // ================================================================
 
     @FXML public void handleSearch() { applyFilter(); }
@@ -243,19 +251,28 @@ public class PhienSuDungController implements Initializable {
         String kw = txtSearch    != null ? txtSearch.getText().toLowerCase().trim() : "";
         String st = cboTrangThai != null ? cboTrangThai.getValue() : "Tất cả";
         if (filteredList == null) return;
+
         filteredList.setPredicate(p -> {
-            boolean hopKw = kw.isEmpty()
-                    || (p.getMaPhien() != null && p.getMaPhien().toLowerCase().contains(kw))
-                    || (p.getMaMay()   != null && p.getMaMay().toLowerCase().contains(kw))
-                    || (p.getMaKH()    != null && p.getMaKH().toLowerCase().contains(kw));
             boolean hopSt = "Tất cả".equals(st) || st.equals(p.getTrangThai());
-            return hopKw && hopSt;
+            if (!hopSt) return false;
+            if (kw.isEmpty()) return true;
+            if (p.getMaPhien() != null && p.getMaPhien().toLowerCase().contains(kw)) return true;
+            if (p.getMaKH()    != null && p.getMaKH().toLowerCase().contains(kw)) return true;
+            if (p.getMaMay()   != null && p.getMaMay().toLowerCase().contains(kw)) return true;
+            boolean matchTenKH = cacheKhachHang.stream()
+                    .filter(kh -> kh.getMakh().equals(p.getMaKH()))
+                    .anyMatch(kh -> ((kh.getHo() != null ? kh.getHo() : "") + " "
+                            + (kh.getTen() != null ? kh.getTen() : "")).toLowerCase().contains(kw));
+            if (matchTenKH) return true;
+            return cacheMayTinh.stream()
+                    .filter(m -> m.getMamay().equals(p.getMaMay()))
+                    .anyMatch(m -> m.getTenmay() != null && m.getTenmay().toLowerCase().contains(kw));
         });
         updateLabels();
     }
 
     // ================================================================
-    //  PHẦN 8: MỞ PHIÊN
+    //  PHẦN 8: MỞ PHIÊN (về code gốc)
     // ================================================================
 
     @FXML
@@ -268,10 +285,10 @@ public class PhienSuDungController implements Initializable {
             dsMay = mayTinhDAO.getAll().stream()
                     .filter(m -> "TRONG".equals(m.getTrangthai())).collect(Collectors.toList());
         } catch (Exception e) {
-            ThongBaoDialogHelper.showError(tableView.getScene(), "Lỗi tải dữ liệu:\n" + e.getMessage());
+            ThongBaoDialogHelper.showError(tableView.getScene(), "Lỗi tải dữ liệu: " + e.getMessage());
             return;
         }
-        if (dsKH.isEmpty())  { ThongBaoDialogHelper.showError(tableView.getScene(), "Không có khách hàng nào đang hoạt động."); return; }
+        if (dsKH.isEmpty()) { ThongBaoDialogHelper.showError(tableView.getScene(), "Không có khách hàng nào đang hoạt động."); return; }
         if (dsMay.isEmpty()) { ThongBaoDialogHelper.showError(tableView.getScene(), "Không có máy nào đang trống."); return; }
 
         Stage dialog = makeDialog();
@@ -298,7 +315,7 @@ public class PhienSuDungController implements Initializable {
         cboMay.setButtonCell(mayTinhCell());
 
         Label  lblLoi = errLabel();
-        Button btnOk  = primaryBtn("✔  Mở phiên", "#1565C0");
+        Button btnOk  = primaryBtn("▶  Mở phiên", "#1565C0");
         Button btnHuy = secondaryBtn();
         btnHuy.setOnAction(e -> dialog.close());
 
@@ -309,7 +326,7 @@ public class PhienSuDungController implements Initializable {
             KhachHang kh  = cboKH.getValue();
             MayTinh   may = cboMay.getValue();
             if (kh  == null) { lblLoi.setText("⚠ Vui lòng chọn khách hàng!"); return; }
-            if (may == null) { lblLoi.setText("⚠ Vui lòng chọn máy!");         return; }
+            if (may == null) { lblLoi.setText("⚠ Vui lòng chọn máy!"); return; }
             try {
                 PhienSuDung phien = phienBUS.moPhienMoi(kh.getMakh(), may.getMamay());
                 dialog.close();
@@ -317,6 +334,7 @@ public class PhienSuDungController implements Initializable {
                         "✔ Đã mở phiên " + phien.getMaPhien()
                                 + "\nKhách: " + kh.getHo() + " " + kh.getTen()
                                 + "  |  Máy: " + may.getTenmay());
+                loadCache();
                 loadData();
             } catch (Exception ex) {
                 lblLoi.setText("⚠ " + ex.getMessage());
@@ -328,7 +346,7 @@ public class PhienSuDungController implements Initializable {
     }
 
     // ================================================================
-    //  PHẦN 9: KẾT THÚC PHIÊN THỦ CÔNG
+    //  PHẦN 9: KẾT THÚC PHIÊN — hiện dialog thanh toán
     // ================================================================
 
     @FXML
@@ -341,79 +359,209 @@ public class PhienSuDungController implements Initializable {
             ThongBaoDialogHelper.showError(tableView.getScene(), "Phiên này đã kết thúc rồi.");
             return;
         }
-        showKetThucDialog(selectedPhien);
+        showThanhToanDialog(selectedPhien);
     }
 
-    private void showKetThucDialog(PhienSuDung phien) {
+    private void showThanhToanDialog(PhienSuDung phien) {
         long phut = phien.getGioBatDau() != null
                 ? ChronoUnit.MINUTES.between(phien.getGioBatDau(), LocalDateTime.now()) : 0;
-        double tienTam = (phut / 60.0) * phien.getGiaMoiGio();
+        double tienGio = (phut / 60.0) * phien.getGiaMoiGio();
 
-        Stage dialog = makeDialog();
+        // Lấy tên KH
+        String tenKH = cacheKhachHang.stream()
+                .filter(kh -> kh.getMakh().equals(phien.getMaKH()))
+                .map(kh -> kh.getHo() + " " + kh.getTen())
+                .findFirst().orElse(phien.getMaKH());
 
-        GridPane grid = new GridPane();
-        grid.setHgap(16); grid.setVgap(8);
-        grid.setStyle("-fx-background-color:#FFF8F8; -fx-padding:12; -fx-background-radius:6;");
-        addRow(grid, 0, "Mã phiên:",       phien.getMaPhien());
-        addRow(grid, 1, "Khách hàng:",     phien.getMaKH());
-        addRow(grid, 2, "Máy:",            phien.getMaMay());
-        addRow(grid, 3, "Giờ bắt đầu:",   phien.getGioBatDau() != null
-                ? phien.getGioBatDau().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "--");
-        addRow(grid, 4, "Thời gian chơi:", phut / 60 + "h " + String.format("%02dm", phut % 60));
-        addRow(grid, 5, "Tiền tạm tính:",
-                String.format("%,.0f ₫  (@ %,.0f ₫/giờ)", tienTam, phien.getGiaMoiGio()));
+        // Lấy số dư KH (reload từ DB để lấy giá trị mới nhất)
+        double soDuKH = 0;
+        try {
+            KhachHang khTuDB = khachHangDAO.getById(phien.getMaKH());
+            if (khTuDB != null) soDuKH = khTuDB.getSodu();
+        } catch (Exception e) {
+            soDuKH = cacheKhachHang.stream()
+                    .filter(kh -> kh.getMakh().equals(phien.getMaKH()))
+                    .mapToDouble(KhachHang::getSodu).findFirst().orElse(0);
+        }
 
-        Label  lblLoi = errLabel();
-        Button btnOk  = primaryBtn("■  Xác nhận kết thúc", "#C62828");
-        Button btnHuy = secondaryBtn();
+        // Lấy danh sách dịch vụ đã dùng
+        List<entity.SuDungDichVu> dsDichVu = new java.util.ArrayList<>();
+        double tienDichVu = 0;
+        try {
+            dsDichVu = suDungDichVuDAO.geyByPhien(phien.getMaPhien());
+            if (dsDichVu == null) dsDichVu = new java.util.ArrayList<>();
+            for (entity.SuDungDichVu sv : dsDichVu) tienDichVu += sv.getThanhtien();
+        } catch (Exception e) {
+            System.err.println("[ThanhToan] Loi lay dich vu: " + e.getMessage());
+        }
+        double tongCong;
+
+        Stage dialog = makeDialogWide();
+
+        // ── THÔNG TIN PHIÊN ──────────────────────────────────────────
+        VBox secPhien = section("▣  Thông tin phiên");
+        GridPane gridPhien = infoGrid();
+        addInfoRow(gridPhien, 0, "Mã phiên:",    phien.getMaPhien());
+        addInfoRow(gridPhien, 1, "Khách hàng:",  phien.getMaKH() + " - " + tenKH.trim());
+        addInfoRow(gridPhien, 2, "Máy:",         phien.getMaMay());
+        addInfoRow(gridPhien, 3, "Giờ bắt đầu:", phien.getGioBatDau() != null ? phien.getGioBatDau().format(FMT) : "--");
+        addInfoRow(gridPhien, 4, "Thời gian:",   phut / 60 + "h " + String.format("%02dm", phut % 60));
+
+        double gioConLaiTrongGoi = 0;
+        if (phien.getMaGoiKH() != null) {
+            try {
+                entity.GoiDichVuKhachHang goiHT = new dao.GoiDichVuKhachHangDAO().getByID(phien.getMaGoiKH());
+                if (goiHT != null) gioConLaiTrongGoi = goiHT.getSogioconlai();
+            } catch (Exception ignored) {}
+        }
+
+        double gioTuGoi        = Math.min(phut / 60.0, gioConLaiTrongGoi);
+        double gioTuMay        = Math.max(0, phut / 60.0 - gioTuGoi);
+        double tienTheoMayTam  = gioTuMay * phien.getGiaMoiGio();
+
+        if (phien.getMaGoiKH() != null) {
+            addInfoRow(gridPhien, 5, "Gói sử dụng:", phien.getMaGoiKH());
+            long gioG = (long) gioTuGoi;
+            long phutG = (long) Math.round((gioTuGoi - gioG) * 60);
+            addInfoRow(gridPhien, 6, "Giờ từ gói:", gioG + "h" + String.format("%02d", phutG) + "m  (miễn phí)");
+            double conDu = Math.max(0, gioConLaiTrongGoi - gioTuGoi);
+            long gioD = (long) conDu; long phutD = (long) Math.round((conDu - gioD) * 60);
+            addInfoRow(gridPhien, 7, "Giờ còn dư trong gói:", gioD + "h" + String.format("%02d", phutD) + "m");
+            long gioM = (long) gioTuMay; long phutM = (long) Math.round((gioTuMay - gioM) * 60);
+            addInfoRow(gridPhien, 8, "Giờ tính theo máy:", gioM + "h" + String.format("%02d", phutM) + "m"
+                    + "  @ " + String.format("%,.0f ₫/giờ", phien.getGiaMoiGio()));
+            addInfoRow(gridPhien, 9, "Tiền theo máy:", gioTuMay > 0
+                    ? String.format("%,.0f ₫", tienTheoMayTam)
+                    : "0 ₫  (chưa vượt giờ gói)");
+            tienGio = tienTheoMayTam;
+        } else {
+            addInfoRow(gridPhien, 5, "Đơn giá:",  String.format("%,.0f ₫/giờ", phien.getGiaMoiGio()));
+            addInfoRow(gridPhien, 6, "Giờ từ gói:", "0h00m");
+            addInfoRow(gridPhien, 7, "Giờ tính theo máy:", phut / 60 + "h" + String.format("%02dm", phut % 60));
+            addInfoRow(gridPhien, 8, "Tiền giờ:", String.format("%,.0f ₫", tienGio));
+        }
+        secPhien.getChildren().add(gridPhien);
+        tongCong = tienGio + tienDichVu;
+
+        // ── DỊCH VỤ ─────────────────────────────────────────────────
+        VBox secDV = section("☆  Dịch vụ sử dụng");
+        if (dsDichVu.isEmpty()) {
+            Label lblNoDV = new Label("Không có sử dụng dịch vụ");
+            lblNoDV.setStyle("-fx-text-fill:#888; -fx-font-style:italic; -fx-font-size:12px;");
+            secDV.getChildren().add(lblNoDV);
+        } else {
+            GridPane gridDV = infoGrid();
+            addHeaderRow(gridDV, "Tên dịch vụ", "Số lượng", "Đơn giá", "Thành tiền");
+            int rowDV = 1;
+            for (entity.SuDungDichVu sv : dsDichVu) {
+                addDichVuRow(gridDV, rowDV++, sv);
+            }
+            secDV.getChildren().add(gridDV);
+            Label lblTienDV = new Label("Tổng dịch vụ: " + String.format("%,.0f ₫", tienDichVu));
+            lblTienDV.setStyle("-fx-font-weight:bold; -fx-font-size:13px; -fx-text-fill:#e65100;");
+            lblTienDV.setAlignment(Pos.CENTER_RIGHT);
+            lblTienDV.setMaxWidth(Double.MAX_VALUE);
+            secDV.getChildren().add(lblTienDV);
+        }
+
+        // ── TỔNG CỘNG ────────────────────────────────────────────────
+        final double tongCongFinal = tongCong;
+        final double soDuFinal     = soDuKH;
+        Label lblTong = new Label(String.format("TỔNG CỘNG:  %,.0f ₫", tongCongFinal));
+        lblTong.setStyle("-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:white; "
+                + "-fx-background-color:#1565C0; -fx-padding:12 16; -fx-background-radius:8;");
+        lblTong.setMaxWidth(Double.MAX_VALUE);
+
+        // ── THANH TOÁN TỰ ĐỘNG QUA TÀI KHOẢN ──────────────────────
+        VBox secTT = section("▸  Thanh toán tự động");
+
+        VBox panelTaiKhoan = new VBox(8);
+        boolean duTien = soDuFinal >= tongCongFinal;
+
+        if (duTien) {
+            panelTaiKhoan.setStyle("-fx-background-color:#E8F5E9; -fx-padding:14; -fx-background-radius:8;"
+                    + " -fx-border-color:#a5d6a7; -fx-border-radius:8; -fx-border-width:1;");
+            Label lblSoDu = new Label("✅  Số dư hiện tại: " + String.format("%,.0f ₫", soDuFinal));
+            lblSoDu.setStyle("-fx-font-size:13px; -fx-text-fill:#2e7d32; -fx-font-weight:bold;");
+            double conLai = soDuFinal - tongCongFinal;
+            Label lblConLai = new Label("Sau thanh toán còn lại: " + String.format("%,.0f ₫", conLai));
+            lblConLai.setStyle("-fx-font-size:12px; -fx-text-fill:#388E3C;");
+            Label lblNote = new Label("Hệ thống sẽ tự động trừ số tiền từ tài khoản khi xác nhận.");
+            lblNote.setStyle("-fx-font-size:12px; -fx-text-fill:#555; -fx-font-style:italic;");
+            panelTaiKhoan.getChildren().addAll(lblSoDu, lblConLai, lblNote);
+        } else {
+            panelTaiKhoan.setStyle("-fx-background-color:#FFEBEE; -fx-padding:14; -fx-background-radius:8;"
+                    + " -fx-border-color:#ef9a9a; -fx-border-radius:8; -fx-border-width:1;");
+            Label lblSoDu = new Label("⚠  Số dư hiện tại: " + String.format("%,.0f ₫", soDuFinal));
+            lblSoDu.setStyle("-fx-font-size:13px; -fx-text-fill:#C62828; -fx-font-weight:bold;");
+            double conThieu = tongCongFinal - soDuFinal;
+            Label lblThieu = new Label("Thiếu: " + String.format("%,.0f ₫", conThieu));
+            lblThieu.setStyle("-fx-font-size:13px; -fx-text-fill:#C62828; -fx-font-weight:bold;");
+            Label lblNote = new Label("❌ Không thể kết thúc phiên! Số dư không đủ để thanh toán.\nVui lòng yêu cầu khách nạp thêm tiền trước khi kết thúc.");
+            lblNote.setStyle("-fx-font-size:12px; -fx-text-fill:#b71c1c; -fx-font-weight:bold; -fx-wrap-text:true;");
+            lblNote.setMaxWidth(Double.MAX_VALUE);
+            panelTaiKhoan.getChildren().addAll(lblSoDu, lblThieu, lblNote);
+        }
+
+        secTT.getChildren().add(panelTaiKhoan);
+
+        Label  lblLoi     = errLabel();
+        Button btnXacNhan = primaryBtn("✔  Xác nhận thanh toán", "#1b5e20");
+        Button btnHuy     = secondaryBtn();
+        btnHuy.setId("btnHuyTT");
         btnHuy.setOnAction(e -> dialog.close());
 
-        btnOk.setOnAction(e -> {
-            try {
-                PhienSuDung kq = phienBUS.ketThucPhien(phien.getMaPhien());
-                dialog.close();
-                ThongBaoDialogHelper.showSuccess(tableView.getScene(),
-                        String.format("✔ Kết thúc phiên %s\nTổng giờ: %.2f  |  Tiền: %,.0f ₫",
-                                kq.getMaPhien(), kq.getTongGio(), kq.getTienGioChoi()));
-                loadData();
-            } catch (Exception ex) {
-                lblLoi.setText("⚠ " + ex.getMessage());
-            }
-        });
+        if (!duTien) {
+            btnXacNhan.setDisable(true);
+            btnXacNhan.setStyle("-fx-background-color:#BDBDBD; -fx-text-fill:#757575; "
+                    + "-fx-font-weight:bold; -fx-pref-height:36px; -fx-pref-width:210px; -fx-background-radius:6;");
+        }
 
-        dialog.setScene(new Scene(buildRoot("■  Kết Thúc Phiên", "#C62828",
-                new VBox(10, grid, lblLoi), btnOk, btnHuy)));
+        btnXacNhan.setOnAction(e -> doConfirmPayment(phien, dialog, lblLoi));
+
+        // Layout dialog
+        VBox body = new VBox(14, secPhien, new Separator(), secDV, new Separator(),
+                lblTong, new Separator(), secTT, lblLoi);
+        body.setPadding(new Insets(0));
+
+        ScrollPane scroll = new ScrollPane(body);
+        scroll.setFitToWidth(true);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll.setStyle("-fx-background-color:transparent; -fx-background:transparent;");
+        scroll.setPrefHeight(480);
+        scroll.setMaxHeight(javafx.stage.Screen.getPrimary().getVisualBounds().getHeight() * 0.7);
+
+        VBox root = new VBox(14);
+        root.setPadding(new Insets(24));
+        root.setPrefWidth(580);
+        root.setStyle("-fx-background-color:white; -fx-border-color:#E0E0E0; "
+                + "-fx-border-width:1; -fx-border-radius:10; -fx-background-radius:10;");
+        Label titleLbl = new Label("■  Kết Thúc & Thanh Toán");
+        titleLbl.setStyle("-fx-font-size:18px; -fx-font-weight:bold; -fx-text-fill:#C62828;");
+        HBox btnRow = new HBox(10, btnXacNhan, btnHuy);
+        btnRow.setAlignment(Pos.CENTER_RIGHT);
+        root.getChildren().addAll(titleLbl, new Separator(), scroll, new Separator(), btnRow);
+
+        dialog.setScene(new Scene(root));
         dialog.showAndWait();
     }
 
     // ================================================================
-    //  PHẦN 10: REFRESH  ←  ĐIỂM GỌI KIỂM TRA PHIÊN QUÁ HẠN
+    //  PHẦN 10: REFRESH
     // ================================================================
 
-    /**
-     * Nhân viên bấm nút Refresh:
-     *   1. Kiểm tra và kết thúc các phiên quá hạn
-     *   2. Hiển thị thông báo số lượng phiên bị kết thúc (nếu có)
-     *   3. Tải lại bảng dữ liệu
-     */
     @FXML
     public void handleRefresh() {
-        // Reset bộ lọc
         if (txtSearch    != null) txtSearch.clear();
         if (cboTrangThai != null) cboTrangThai.setValue("Tất cả");
-
-        // Kiểm tra phiên quá hạn và kết thúc
         List<PhienSuDung> danhSachDaKetThuc = phienBUS.kiemTraVaKetThucPhienQuaHan();
-
-        // Thông báo nếu có phiên bị kết thúc tự động
         if (!danhSachDaKetThuc.isEmpty()) {
             ThongBaoDialogHelper.showWarning(tableView.getScene(),
                     "⚠ Tự động kết thúc " + danhSachDaKetThuc.size()
-                            + " phiên do khách hàng hết tiền.\n"
-                            + "Hóa đơn đã được tạo tự động.");
+                            + " phiên do khách hàng hết tiền.\nHóa đơn đã được tạo tự động.");
         }
-
-        // Tải lại bảng
+        loadCache();
         loadData();
     }
 
@@ -428,13 +576,37 @@ public class PhienSuDungController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dialogs/chonDichVu.fxml"));
             Parent root = loader.load();
             ChonDichVuDialog ctrl = loader.getController();
-            ctrl.setPhien(selectedPhien.getMaPhien(),
+            // Reload KhachHang từ DB để lấy số dư mới nhất
+            KhachHang khMoiNhat = null;
+            try { khMoiNhat = khachHangDAO.getById(selectedPhien.getMaKH()); } catch (Exception ignored) {}
+            if (khMoiNhat == null) {
+                khMoiNhat = cacheKhachHang.stream()
+                        .filter(kh -> kh.getMakh().equals(selectedPhien.getMaKH()))
+                        .findFirst().orElse(null);
+            }
+            ctrl.setPhienFull(selectedPhien, khMoiNhat,
                     selectedPhien.getMaKH() + " | " + selectedPhien.getMaMay());
             ctrl.setOnOrderCallback(this::loadData);
             Stage stage = new Stage(StageStyle.UNDECORATED);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(tableView.getScene().getWindow());
-            stage.setScene(new Scene(root));
+            Scene orderScene = new Scene(root);
+            // ESC để đóng + tìm nút Hủy trong dialog và gán action đóng stage
+            orderScene.setOnKeyPressed(ke -> {
+                if (ke.getCode() == javafx.scene.input.KeyCode.ESCAPE) stage.close();
+            });
+            // Đảm bảo mọi Button có text chứa "Hủy"/"huy"/"Cancel" đều đóng được stage
+            javafx.application.Platform.runLater(() -> {
+                root.lookupAll(".button").stream()
+                        .filter(n -> n instanceof Button)
+                        .map(n -> (Button) n)
+                        .filter(b -> b.getText() != null && (
+                                b.getText().toLowerCase().contains("h") &&
+                                        (b.getText().contains("ủy") || b.getText().contains("uy")
+                                                || b.getText().toLowerCase().contains("cancel"))))
+                        .forEach(b -> b.setOnAction(ev -> stage.close()));
+            });
+            stage.setScene(orderScene);
             stage.showAndWait();
         } catch (Exception e) {
             ThongBaoDialogHelper.showError(tableView.getScene(), "Không thể mở dialog:\n" + e.getMessage());
@@ -442,10 +614,9 @@ public class PhienSuDungController implements Initializable {
     }
 
     // ================================================================
-    //  PHẦN 12: TIMER GIAO DIỆN
+    //  PHẦN 12: TIMER
     // ================================================================
 
-    /** Đồng hồ realtime HH:mm:ss, cập nhật mỗi giây */
     private void startClock() {
         if (lblLiveTime == null) return;
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -455,13 +626,21 @@ public class PhienSuDungController implements Initializable {
         clockTimeline.play();
     }
 
-    /** Refresh cột thời gian & tiền tạm mỗi 30 giây (không gọi DB) */
     private void startCellRefresh() {
         cellRefreshTimeline = new Timeline(new KeyFrame(Duration.seconds(30),
                 e -> { if (tableView != null) tableView.refresh(); }));
         cellRefreshTimeline.setCycleCount(Timeline.INDEFINITE);
         cellRefreshTimeline.play();
     }
+
+
+
+//    ===================================================
+//    THỐNG KÊ
+//    ==================================================
+
+
+
 
     // ================================================================
     //  PHẦN 13: UI HELPERS
@@ -474,10 +653,230 @@ public class PhienSuDungController implements Initializable {
         return s;
     }
 
+    private Stage makeDialogWide() {
+        Stage s = new Stage(StageStyle.UNDECORATED);
+        s.initModality(Modality.APPLICATION_MODAL);
+        s.initOwner(tableView.getScene().getWindow());
+        return s;
+    }
+
+    private VBox section(String title) {
+        VBox box = new VBox(8);
+        Label lbl = new Label(title);
+        lbl.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:#1565C0; -fx-padding:0 0 4 0;");
+        box.getChildren().add(lbl);
+        return box;
+    }
+
+    private GridPane infoGrid() {
+        GridPane g = new GridPane();
+        g.setHgap(16); g.setVgap(8);
+        g.setPadding(new Insets(10));
+        g.setStyle("-fx-background-color:#f5f7fa; -fx-background-radius:6; -fx-border-color:#e0e0e0; -fx-border-radius:6; -fx-border-width:1;");
+        ColumnConstraints c1 = new ColumnConstraints(150);
+        ColumnConstraints c2 = new ColumnConstraints();
+        c2.setHgrow(Priority.ALWAYS);
+        g.getColumnConstraints().addAll(c1, c2, c2, c2);
+        return g;
+    }
+
+    private void addInfoRow(GridPane g, int row, String label, String value) {
+        Label lbl = new Label(label);
+        lbl.setStyle("-fx-text-fill:#616161; -fx-font-size:12px; -fx-min-width:140;");
+        Label val = new Label(value != null ? value : "--");
+        val.setStyle("-fx-font-weight:bold; -fx-font-size:13px; -fx-text-fill:#212121;");
+        val.setWrapText(true);
+        g.add(lbl, 0, row);
+        g.add(val, 1, row);
+        GridPane.setColumnSpan(val, 3);
+    }
+
+    private void addHeaderRow(GridPane g, String c1, String c2, String c3, String c4) {
+        String style = "-fx-font-weight:bold; -fx-font-size:12px; -fx-text-fill:#333; -fx-padding:0 0 4 0;";
+        Label l1 = new Label(c1); l1.setStyle(style);
+        Label l2 = new Label(c2); l2.setStyle(style);
+        Label l3 = new Label(c3); l3.setStyle(style);
+        Label l4 = new Label(c4); l4.setStyle(style);
+        g.add(l1, 0, 0); g.add(l2, 1, 0); g.add(l3, 2, 0); g.add(l4, 3, 0);
+    }
+
+    private void addDichVuRow(GridPane g, int row, entity.SuDungDichVu sv) {
+        String style = "-fx-font-size:12px; -fx-text-fill:#212121;";
+        Label lTen = new Label(sv.getMadv() != null ? sv.getMadv() : "--");
+        lTen.setStyle(style);
+        Label lSL  = new Label(String.valueOf(sv.getSoluong()));
+        lSL.setStyle(style + " -fx-alignment:CENTER;");
+        Label lGia = new Label(String.format("%,.0f ₫", sv.getDongia()));
+        lGia.setStyle(style);
+        Label lTT  = new Label(String.format("%,.0f ₫", sv.getThanhtien()));
+        lTT.setStyle("-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#e65100;");
+        g.add(lTen, 0, row); g.add(lSL, 1, row); g.add(lGia, 2, row); g.add(lTT, 3, row);
+    }
+
+    /**
+     * Flow QR:
+     * 1. Hiện QR → nút đổi thành "Chọn cách thanh toán này"
+     * 2. Nhấn → nút đổi "Đang chờ chuyển khoản..." đếm 5s
+     * 3. Sau 5s → kết thúc phiên + xuất HĐ + hiện toast + nút "Đã nhận tiền" + btnHuy thành "Thoát"
+     */
+    private void setupQRButton(Button btn, Button btnHuyRef, Timeline[] timerRef,
+                               PhienSuDung phien, Stage dialog,
+                               double tongTien, String phuongThuc, String tenKH) {
+        if (timerRef[0] != null) { timerRef[0].stop(); timerRef[0] = null; }
+        // Reset về trạng thái mặc định của nút Hủy
+        if (btnHuyRef != null) {
+            btnHuyRef.setText("✖  Hủy");
+            btnHuyRef.setStyle("-fx-background-color:#E0E0E0; -fx-pref-height:36px; "
+                    + "-fx-pref-width:90px; -fx-background-radius:6;");
+            btnHuyRef.setOnAction(e -> dialog.close());
+        }
+
+        // Bước 1: nút đổi thành "Chọn cách thanh toán này"
+        btn.setDisable(false);
+        btn.setText("💳  Chọn cách thanh toán này");
+        btn.setStyle("-fx-background-color:#1565C0; -fx-text-fill:white; "
+                + "-fx-font-weight:bold; -fx-pref-height:36px; -fx-pref-width:230px; -fx-background-radius:6;");
+
+        btn.setOnAction(ev -> {
+            // Bước 2: đếm ngược "Đang chờ chuyển khoản..."
+            btn.setDisable(true);
+            btn.setText("⏳  Đang chờ chuyển khoản...");
+            btn.setStyle("-fx-background-color:#78909C; -fx-text-fill:white; "
+                    + "-fx-font-weight:bold; -fx-pref-height:36px; -fx-pref-width:230px; -fx-background-radius:6;");
+
+            final int[] cd = {5};
+            timerRef[0] = new Timeline(new KeyFrame(Duration.seconds(1), e2 -> {
+                cd[0]--;
+                if (cd[0] > 0) {
+                    btn.setText("⏳  Đang chờ... " + cd[0] + "s");
+                } else {
+                    timerRef[0].stop();
+
+                    // Bước 3: kết thúc phiên + xuất HĐ ngay lập tức
+                    try {
+                        phienBUS.ketThucPhien(phien.getMaPhien());
+                    } catch (Exception ex) {
+                        System.err.println("[QR] Loi ket thuc: " + ex.getMessage());
+                    }
+
+                    // Hiện toast thông báo nhận tiền
+                    showPaymentToast(dialog, phien.getMaPhien(), tongTien, phuongThuc, tenKH);
+
+                    // Nút xác nhận → "Đã nhận tiền"
+                    btn.setDisable(false);
+                    btn.setText("✅  Đã nhận tiền thành công");
+                    btn.setStyle("-fx-background-color:#2e7d32; -fx-text-fill:white; "
+                            + "-fx-font-weight:bold; -fx-pref-height:36px; -fx-pref-width:230px; -fx-background-radius:6;");
+                    btn.setOnAction(e3 -> { dialog.close(); loadCache(); loadData(); });
+
+                    // Nút Hủy → "Thoát"
+                    if (btnHuyRef != null) {
+                        btnHuyRef.setText("🚪  Thoát");
+                        btnHuyRef.setStyle("-fx-background-color:#455A64; -fx-text-fill:white; "
+                                + "-fx-font-weight:bold; -fx-pref-height:36px; -fx-pref-width:90px; -fx-background-radius:6;");
+                        btnHuyRef.setOnAction(e3 -> { dialog.close(); loadCache(); loadData(); });
+                    }
+                }
+            }));
+            timerRef[0].setCycleCount(5);
+            timerRef[0].play();
+        });
+    }
+
+
+
+    /** Toast thông báo nhận tiền */
+    private void showPaymentToast(Stage owner, String maPhien, double soTien,
+                                  String phuongThuc, String tenKH) {
+        Stage toast = new Stage(StageStyle.UNDECORATED);
+        toast.initOwner(owner);
+        VBox box = new VBox(6);
+        box.setPadding(new Insets(14, 20, 14, 20));
+        box.setStyle("-fx-background-color:#1b5e20; -fx-background-radius:10;"
+                + " -fx-border-color:#a5d6a7; -fx-border-radius:10; -fx-border-width:1;"
+                + " -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 12, 0, 0, 4);");
+        box.setAlignment(Pos.CENTER_LEFT);
+        Label l1 = new Label("Đã nhận thanh toán");
+        l1.setStyle("-fx-font-size:14px; -fx-font-weight:bold; -fx-text-fill:white;");
+        Label l2 = new Label("Khách hàng: " + (tenKH != null ? tenKH.trim() : "--"));
+        l2.setStyle("-fx-font-size:13px; -fx-text-fill:#c8e6c9; -fx-font-weight:bold;");
+        Label l3 = new Label("Số tiền: " + String.format("%,.0f ₫", soTien));
+        l3.setStyle("-fx-font-size:13px; -fx-text-fill:#c8e6c9;");
+        Label l4 = new Label("Nội dung: Thanh toán hóa đơn " + maPhien);
+        l4.setStyle("-fx-font-size:12px; -fx-text-fill:#a5d6a7;");
+        Label l5 = new Label("Phương thức: " + phuongThuc);
+        l5.setStyle("-fx-font-size:12px; -fx-text-fill:#a5d6a7;");
+        box.getChildren().addAll(l1, l2, l3, l4, l5);
+        toast.setScene(new Scene(box));
+        toast.setOpacity(1.0);
+        javafx.geometry.Rectangle2D screen = javafx.stage.Screen.getPrimary().getVisualBounds();
+        toast.setX(screen.getMaxX() - 380);
+        toast.setY(screen.getMaxY() - 200);
+        toast.show();
+        Timeline fadeTimer = new Timeline(
+                new KeyFrame(Duration.seconds(3.5)),
+                new KeyFrame(Duration.seconds(3.8), ev -> toast.setOpacity(0.6)),
+                new KeyFrame(Duration.seconds(4.1), ev -> toast.setOpacity(0.2)),
+                new KeyFrame(Duration.seconds(4.4), ev -> toast.close())
+        );
+        fadeTimer.play();
+    }
+
+    /** Thực hiện xác nhận thanh toán */
+    private void doConfirmPayment(PhienSuDung phien, Stage dialog, Label lblLoi) {
+        try {
+            phienBUS.ketThucPhien(phien.getMaPhien());
+            dialog.close();
+            loadCache();
+            loadData();
+        } catch (Exception ex) {
+            if (lblLoi != null) lblLoi.setText("Lỗi: " + ex.getMessage());
+        }
+    }
+
+    /** Tạo QR đẹp */
+    private StackPane buildFakeQR(double size) {
+        StackPane pane = new StackPane();
+        pane.setPrefSize(size, size); pane.setMaxSize(size, size);
+        pane.setStyle("-fx-background-color:white; -fx-border-color:#444; -fx-border-width:4;"
+                + " -fx-background-radius:8; -fx-border-radius:8;"
+                + " -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);");
+        int cells = 25;
+        double cs = (size - 8) / cells;
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setTranslateX(4); grid.setTranslateY(4);
+        java.util.Random rnd = new java.util.Random(77);
+        for (int r = 0; r < cells; r++) {
+            for (int c = 0; c < cells; c++) {
+                javafx.scene.shape.Rectangle rect = new javafx.scene.shape.Rectangle(cs - 0.5, cs - 0.5);
+                rect.setArcWidth(1); rect.setArcHeight(1);
+                boolean inTL = r < 7 && c < 7, inTR = r < 7 && c >= cells - 7, inBL = r >= cells - 7 && c < 7;
+                if (inTL || inTR || inBL) {
+                    int lr = inTL ? r : (inTR ? r : r - (cells - 7));
+                    int lc = inTL ? c : (inTR ? c - (cells - 7) : c);
+                    boolean ob = lr == 0 || lr == 6 || lc == 0 || lc == 6;
+                    boolean ib = lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4;
+                    rect.setFill(ob || ib ? Color.BLACK : Color.WHITE);
+                } else {
+                    rect.setFill(rnd.nextInt(10) < 6 ? Color.BLACK : Color.WHITE);
+                }
+                grid.add(rect, c, r);
+            }
+        }
+        double ls = size * 0.18;
+        StackPane logo = new StackPane();
+        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(ls / 2);
+        circle.setFill(Color.web("#1565C0")); circle.setStroke(Color.WHITE); circle.setStrokeWidth(2);
+        Label ll = new Label("QR");
+        ll.setStyle("-fx-font-size:" + (int)(ls * 0.38) + "px; -fx-font-weight:bold; -fx-text-fill:white;");
+        logo.getChildren().addAll(circle, ll);
+        pane.getChildren().addAll(grid, logo);
+        return pane;
+    }
+
     private VBox buildRoot(String title, String color, VBox body, Button btnOk, Button btnHuy) {
         VBox root = new VBox(14);
-        root.setPadding(new Insets(24));
-        root.setPrefWidth(500);
+        root.setPadding(new Insets(24)); root.setPrefWidth(500);
         root.setStyle("-fx-background-color:white; -fx-border-color:#E0E0E0; "
                 + "-fx-border-width:1; -fx-border-radius:8; -fx-background-radius:8;");
         Label lbl = new Label(title);
@@ -504,7 +903,7 @@ public class PhienSuDungController implements Initializable {
     private Button primaryBtn(String text, String color) {
         Button b = new Button(text);
         b.setStyle("-fx-background-color:" + color + "; -fx-text-fill:white; "
-                + "-fx-font-weight:bold; -fx-pref-height:36px; -fx-pref-width:190px; -fx-background-radius:6;");
+                + "-fx-font-weight:bold; -fx-pref-height:36px; -fx-pref-width:210px; -fx-background-radius:6;");
         return b;
     }
 
@@ -513,16 +912,6 @@ public class PhienSuDungController implements Initializable {
         b.setStyle("-fx-background-color:#E0E0E0; -fx-pref-height:36px; "
                 + "-fx-pref-width:90px; -fx-background-radius:6;");
         return b;
-    }
-
-    private void addRow(GridPane grid, int row, String label, String value) {
-        Label lbl = new Label(label);
-        lbl.setStyle("-fx-text-fill:#757575; -fx-font-size:12px;");
-        Label val = new Label(value != null ? value : "--");
-        val.setStyle("-fx-font-weight:bold; -fx-font-size:13px;");
-        grid.add(lbl, 0, row);
-        grid.add(val, 1, row);
-        GridPane.setHgrow(val, Priority.ALWAYS);
     }
 
     private ListCell<KhachHang> khachHangCell() {

@@ -10,15 +10,12 @@ import java.util.List;
 /**
  * TestMayTinhBUS - Test lớp MayTinhBUS
  *
- * Sử dụng: Java thuần (không cần JUnit, Mockito)
- * Kết nối: DB thật
- * Chạy: Run trực tiếp file này
+ * Sử dụng: Java thuần (không cần JUnit, Mockito) Kết nối: DB thật Chạy: Run
+ * trực tiếp file này
  *
- * Dữ liệu DB hiện có:
- * - Khu HOATDONG: KHU004, KHU3, KHU002, KHU006
- * - Khu NGUNG: KHU005, KHU001
- * - Máy TRONG: MAY001, MAY002, MAY005, MAY006, MAY008, MAY009, MAY011, MAY012, MAY014, MAY015
- * - Máy DANGDUNG: MAY003, MAY007, MAY010, MAY013
+ * Dữ liệu DB hiện có: - Khu HOATDONG: KHU004, KHU3, KHU002, KHU006 - Khu NGUNG:
+ * KHU005, KHU001 - Máy TRONG: MAY001, MAY002, MAY005, MAY006, MAY008, MAY009,
+ * MAY011, MAY012, MAY014, MAY015 - Máy DANGDUNG: MAY003, MAY007, MAY010, MAY013
  */
 public class TestMayTinhBUS {
 
@@ -75,7 +72,6 @@ public class TestMayTinhBUS {
     }
 
     // ============== HÀM HỖ TRỢ ==============
-
     private static void printTestHeader(String testName) {
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.println("  📝 " + testName);
@@ -630,7 +626,7 @@ public class TestMayTinhBUS {
             maMayTestTT = mayDaThem.getMamay();
             System.out.println("  🔧 Tạo máy test: " + maMayTestTT + " (TRONG)");
         } catch (Exception e) {
-            System.out.println("  ⚠️ Không tạo được máy test: " + e.getMessage());
+            System.out.println("   Không tạo được máy test: " + e.getMessage());
             System.out.println();
             return;
         } finally {
@@ -771,7 +767,9 @@ public class TestMayTinhBUS {
     // DỌN DẸP DỮ LIỆU TEST
     // ============================================================
     private static void cleanupMay(String maMay) {
-        if (maMay == null) return;
+        if (maMay == null) {
+            return;
+        }
         try {
             loginQuanLy();
             mayTinhBUS.xoaMayTinh(maMay);
@@ -799,7 +797,7 @@ public class TestMayTinhBUS {
         if (failedTests == 0) {
             System.out.println("║  🎉 TẤT CẢ TEST ĐỀU PASS!                      ║");
         } else {
-            System.out.printf("║  ⚠️  CÓ %d TEST FAIL - CẦN KIỂM TRA LẠI!        ║%n", failedTests);
+            System.out.printf("║    CÓ %d TEST FAIL - CẦN KIỂM TRA LẠI!        ║%n", failedTests);
         }
         System.out.println("╚══════════════════════════════════════════════════╝");
     }

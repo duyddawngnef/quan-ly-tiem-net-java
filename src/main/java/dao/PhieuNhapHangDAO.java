@@ -151,7 +151,15 @@ public class PhieuNhapHangDAO {
 
     public void duyetPhieu(String maPN) {
         String lock = "SELECT TrangThai FROM phieunhaphang WHERE MaPhieuNhap=? FOR UPDATE";
-        String updateTon = "UPDATE dichvu SET SoLuongTon = SoLuongTon + ? WHERE MaDV=?";
+        String updateTon = """
+         UPDATE dichvu
+         SET SoLuongTon = SoLuongTon + ?,
+            TrangThai = CASE
+               WHEN SoLuongTon + ? > 0 THEN 'CONHANG'
+               ELSE 'HETHANG'
+            END
+         WHERE MaDV = ?
+         """;
         String updateTT = "UPDATE phieunhaphang SET TrangThai='DANHAP' WHERE MaPhieuNhap=?";
 
         try (Connection conn = DBConnection.getConnection()) {
@@ -175,7 +183,8 @@ public class PhieuNhapHangDAO {
             try (PreparedStatement ps = conn.prepareStatement(updateTon)) {
                 for (ChiTietPhieuNhap ct : cts) {
                     ps.setInt(1, ct.getSoLuong());
-                    ps.setString(2, ct.getMaDV());
+                    ps.setInt(2, ct.getSoLuong());
+                    ps.setString(3, ct.getMaDV());
                     ps.addBatch();
                 }
                 ps.executeBatch();

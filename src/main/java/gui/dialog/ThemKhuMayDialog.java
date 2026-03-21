@@ -5,133 +5,169 @@ import entity.KhuMay;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-        import javafx.stage.Stage;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ThemKhuMayDialog implements Initializable {
 
-    @FXML private Label    lblDialogTitle;
-    @FXML private Label    lblError;
-    @FXML private Button   btnSave;
+    @FXML private Label lblTitle;
 
-    @FXML private TextField         txtMaKhu;
-    @FXML private TextField         txtTenKhu;
-    @FXML private TextField         txtGiaCoso;
-    @FXML private TextField         txtSoMayToiDa;
-    @FXML private ComboBox<String>  cboTrangThai;
+    @FXML private TextField txtMaKhu;
+    @FXML private TextField txtTenKhu;
+    @FXML private TextField txtGiaCoSo;
+    @FXML private TextField txtSoMayToiDa;
+    @FXML private ComboBox<String> cboTrangThai;
+
+    @FXML private Label lblError;
+    @FXML private Button btnSave;
+    @FXML private Button btnCancel;
 
     private final KhuMayBUS khuMayBUS = new KhuMayBUS();
+
+    private KhuMay entity;
     private boolean isEditMode = false;
-    private KhuMay  currentEntity;
     private Runnable onSaveCallback;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (cboTrangThai != null)
-            cboTrangThai.getItems().setAll("HOATDONG", "NGUNG");
+        if (cboTrangThai != null) {
+            cboTrangThai.getItems().setAll("HOATDONG");
+            cboTrangThai.setValue("HOATDONG"); // mặc định hợp lý cho khu mới
+        }
+        clearError();
     }
 
-    // Gọi từ Controller để set entity (null = thêm mới, non-null = sửa)
-    public void setEntity(Object entity) {
-        if (entity instanceof KhuMay) {
-            currentEntity = (KhuMay) entity;
-            isEditMode = true;
-            if (lblDialogTitle != null) lblDialogTitle.setText("Cập nhật khu máy");
-            if (txtMaKhu       != null) txtMaKhu.setEditable(false);
-            populateFields(currentEntity);
+    /** entity == null => INSERT, entity != null => EDIT */
+    public void setEntity(KhuMay km) {
+        this.entity = km;
+        this.isEditMode = (km != null);
+
+        clearError();
+
+        if (isEditMode) {
+            if (lblTitle != null) lblTitle.setText("Sửa Khu Máy");
+
+            if (txtMaKhu != null) {
+                txtMaKhu.setDisable(true);
+                txtMaKhu.setDisable(true); // khóa mã khu khi sửa
+            }
+            if (txtTenKhu != null) txtTenKhu.setText(km.getTenkhu());
+            if (txtGiaCoSo != null) txtGiaCoSo.setText(String.valueOf(km.getGiacoso()));
+            if (txtSoMayToiDa != null) txtSoMayToiDa.setText(String.valueOf(km.getSomaytoida()));
+            if (cboTrangThai != null) cboTrangThai.setDisable(true);
+
         } else {
-            currentEntity = null;
-            isEditMode = false;
-            if (lblDialogTitle != null) lblDialogTitle.setText("Thêm khu máy mới");
-            if (cboTrangThai   != null) cboTrangThai.setValue("HOATDONG");
+            if (lblTitle != null) lblTitle.setText("Thêm Khu Máy");
+
+            if (txtMaKhu != null) {
+                txtMaKhu.clear();
+                txtMaKhu.setDisable(true);
+            }
+            if (txtTenKhu != null) txtTenKhu.clear();
+            if (txtGiaCoSo != null) txtGiaCoSo.clear();
+            if (txtSoMayToiDa != null) txtSoMayToiDa.clear();
+            if (cboTrangThai != null) cboTrangThai.setDisable(true);
         }
     }
 
-    public void setOnSaveCallback(Runnable callback) {
-        this.onSaveCallback = callback;
-    }
-
-    private void populateFields(KhuMay km) {
-        if (txtMaKhu      != null) txtMaKhu.setText(km.getMakhu());
-        if (txtTenKhu     != null) txtTenKhu.setText(km.getTenkhu());
-        if (txtGiaCoso    != null) txtGiaCoso.setText(String.valueOf((long) km.getGiacoso()));
-        if (txtSoMayToiDa != null) txtSoMayToiDa.setText(String.valueOf(km.getSomaytoida()));
-        if (cboTrangThai  != null) cboTrangThai.setValue(km.getTrangthai());
+    public void setOnSaveCallback(Runnable cb) {
+        this.onSaveCallback = cb;
     }
 
     @FXML
     public void handleSave() {
         clearError();
-        if (!validateFields()) return;
+
+        String maKhu = txtMaKhu != null ? txtMaKhu.getText().trim() : "";
+        String tenKhu = txtTenKhu != null ? txtTenKhu.getText().trim() : "";
+
+
+        if (tenKhu.isEmpty()) {
+            setError("Tên khu không được để trống");
+            return;
+        }
+
+        double giaCoSo;
         try {
-            KhuMay km = buildEntity();
-            if (isEditMode) khuMayBUS.suaKhuMay(km);
-            else            khuMayBUS.themKhuMay(km);
+            giaCoSo = Double.parseDouble(txtGiaCoSo != null ? txtGiaCoSo.getText().replace(",", "").trim() : "0");
+            if (giaCoSo < 0) {
+                setError("Giá cơ sở phải >= 0");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            setError("Giá cơ sở không hợp lệ");
+            return;
+        }
+
+        int soMayToiDa;
+        try {
+            soMayToiDa = Integer.parseInt(txtSoMayToiDa != null ? txtSoMayToiDa.getText().trim() : "0");
+            if (soMayToiDa < 0) {
+                setError("Số máy tối đa phải >= 0");
+                return;
+            }
+            if (soMayToiDa > 100) {
+                // khớp ràng buộc BUS.themKhuMay
+                setError("Số máy tối đa trong một khu không được vượt quá 100");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            setError("Số máy tối đa không hợp lệ");
+            return;
+        }
+
+        String trangThai = (cboTrangThai != null && cboTrangThai.getValue() != null)
+                ? cboTrangThai.getValue()
+                : "HOATDONG";
+
+        KhuMay km = isEditMode ? entity : new KhuMay();
+        if (!isEditMode) km.setMakhu(maKhu);
+        km.setTenkhu(tenKhu);
+        km.setGiacoso(giaCoSo);
+        km.setSomaytoida(soMayToiDa);
+        km.setTrangthai(trangThai);
+
+        try {
+            if (isEditMode) {
+                khuMayBUS.suaKhuMay(km);
+                ThongBaoDialog.showSuccess(getStage(), "Cập nhật khu máy thành công!");
+            } else {
+                khuMayBUS.themKhuMay(km);
+                ThongBaoDialog.showSuccess(getStage(), "Thêm khu máy thành công!");
+            }
+
             if (onSaveCallback != null) onSaveCallback.run();
             closeDialog();
         } catch (Exception e) {
-            showError(e.getMessage());
+            // BUS sẽ throw khi không đủ quyền / trạng thái không HOATDONG / ràng buộc số máy...
+            setError(e.getMessage());
         }
     }
 
     @FXML
-    public void handleCancel() { closeDialog(); }
-
-    // ==================== PRIVATE ====================
-
-    private KhuMay buildEntity() {
-        KhuMay km = isEditMode ? currentEntity : new KhuMay();
-        if (txtMaKhu      != null) km.setMakhu(txtMaKhu.getText().trim());
-        if (txtTenKhu     != null) km.setTenkhu(txtTenKhu.getText().trim());
-        if (txtGiaCoso    != null) {
-            try { km.setGiacoso(Double.parseDouble(txtGiaCoso.getText().replace(",", "").trim())); }
-            catch (NumberFormatException ignored) {}
-        }
-        if (txtSoMayToiDa != null) {
-            try { km.setSomaytoida(Integer.parseInt(txtSoMayToiDa.getText().trim())); }
-            catch (NumberFormatException ignored) {}
-        }
-        if (cboTrangThai  != null) km.setTrangthai(cboTrangThai.getValue());
-        return km;
+    public void handleCancel() {
+        closeDialog();
     }
 
-    private boolean validateFields() {
-        if (txtTenKhu != null && txtTenKhu.getText().trim().isEmpty()) {
-            showError("Vui lòng nhập tên khu"); return false;
-        }
-        if (txtGiaCoso != null) {
-            try {
-                double gia = Double.parseDouble(txtGiaCoso.getText().replace(",", "").trim());
-                if (gia <= 0) { showError("Giá cơ sở phải lớn hơn 0"); return false; }
-            } catch (NumberFormatException e) {
-                showError("Giá cơ sở không hợp lệ"); return false;
-            }
-        }
-        if (txtSoMayToiDa != null) {
-            try {
-                int so = Integer.parseInt(txtSoMayToiDa.getText().trim());
-                if (so < 0) { showError("Số máy tối đa không được âm"); return false; }
-            } catch (NumberFormatException e) {
-                showError("Số máy tối đa không hợp lệ"); return false;
-            }
-        }
-        if (cboTrangThai != null && cboTrangThai.getValue() == null) {
-            showError("Vui lòng chọn trạng thái"); return false;
-        }
-        return true;
-    }
-
-    private void showError(String msg) {
-        if (lblError != null) { lblError.setText(msg); lblError.setVisible(true); }
+    private void setError(String msg) {
+        if (lblError != null) lblError.setText(msg);
     }
 
     private void clearError() {
-        if (lblError != null) { lblError.setText(""); lblError.setVisible(false); }
+        if (lblError != null) lblError.setText("");
     }
 
     private void closeDialog() {
-        ((Stage) btnSave.getScene().getWindow()).close();
+        if (btnCancel != null && btnCancel.getScene() != null) {
+            ((Stage) btnCancel.getScene().getWindow()).close();
+        }
+    }
+
+    private Stage getStage() {
+        return btnSave != null && btnSave.getScene() != null
+                ? (Stage) btnSave.getScene().getWindow()
+                : null;
     }
 }

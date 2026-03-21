@@ -106,5 +106,13 @@ public class ThongKeBUS {
     public void xuatBaoCaoExcel(LocalDate tuNgay, LocalDate denNgay) {
         throw new UnsupportedOperationException("Chưa implement (tuỳ chọn).");
     }
+    public List<Object[]> thongKeTopKhachHang(int nam, int top) throws Exception {
+        requireQuanLy();
+
+        if (nam < 2000) throw new Exception("Năm không hợp lệ");
+        if (top <= 0) throw new Exception("Số lượng top không hợp lệ");
+
+        return thongkeDAO.thongKeTopKhachHang(nam, top);
+    }
 }
 

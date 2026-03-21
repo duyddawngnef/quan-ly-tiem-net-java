@@ -267,6 +267,7 @@ public class MayTinhController implements Initializable {
             stage.setScene(new Scene(root));
             stage.showAndWait();
         } catch (Exception e) {
+            e.printStackTrace();
             ThongBaoDialogHelper.showError(tableView.getScene(), "Không thể mở dialog: " + e.getMessage());
         }
     }

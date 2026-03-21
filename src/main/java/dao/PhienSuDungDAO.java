@@ -4,7 +4,9 @@ import entity.PhienSuDung;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * PhienSuDungDAO - Data Access Object cho bảng phiensudung
@@ -266,6 +268,33 @@ public class PhienSuDungDAO {
         }
         return 0.0;
     }
+//    ================================
+//    THỐNG KÊ THEO KHU
+//    ===============================
+
+    public Map<String ,Integer> thongKeTheoKhu(){
+
+        String sql = "SELECT TenKhu , COUNT(MaPhien) FROM phiensudung AS p "+
+                "JOIN maytinh AS mt ON p.MaMay = mt.MaMay "+
+                "JOIN khumay AS km ON mt.MaKhu = km.MaKhu"+
+                "WHERE p.TrangThai = 'DANGCHOI' "+
+                "GROUP BY km.MaKhu";
+        Map<String , Integer> res = new HashMap<>();
+        try(Connection conn = DBConnection.getConnection()){
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            ResultSet r = stmt.executeQuery();
+            while (r.next()){
+
+                res.put(r.getString(1),r.getInt(2));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
+    }
+
 
     // ============== PRIVATE HELPERS ==============
 
