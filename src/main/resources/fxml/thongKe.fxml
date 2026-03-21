@@ -11,7 +11,7 @@
 
     <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="12">
-        <Label text="📊" styleClass="page-icon"/>
+        <Label text="&#xe26b;" styleClass="page-icon, icon-lg"/>
         <VBox spacing="2">
             <Label text="Thống Kê &amp; Báo Cáo" styleClass="page-title"/>
             <Label text="Phân tích doanh thu, chi phí và lợi nhuận" styleClass="page-subtitle"/>
@@ -41,7 +41,7 @@
     <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE">
 
         <!-- Tab 1 -->
-        <Tab text="📈  Doanh thu">
+        <Tab text="  Doanh thu">
             <VBox spacing="12" styleClass="tab-content-padding">
                 <HBox spacing="10" alignment="CENTER_LEFT" styleClass="toolbar">
                     <Label text="Loại:" styleClass="text-muted"/>
@@ -49,11 +49,15 @@
                               onAction="#handleLoaiTKChanged"/>
                     <DatePicker fx:id="dateFrom" promptText="Từ ngày" prefWidth="130"/>
                     <DatePicker fx:id="dateTo" promptText="Đến ngày" prefWidth="130"/>
-                    <Button text="📊  Thống kê" styleClass="btn btn-primary"
-                            onAction="#handleThongKe"/>
+                    <Button styleClass="btn btn-primary" onAction="#handleThongKe">
+                        <graphic><Label text="&#xe26b;" styleClass="icon-sm"/></graphic>
+                        <text>  Thống kê</text>
+                    </Button>
                     <Pane HBox.hgrow="ALWAYS"/>
-                    <Button text="📊  Xuất Excel" styleClass="btn btn-success"
-                            onAction="#handleXuatExcel"/>
+                    <Button styleClass="btn btn-success" onAction="#handleXuatExcel">
+                        <graphic><Label text="&#xeb9e;" styleClass="icon-sm"/></graphic>
+                        <text>  Xuất Excel</text>
+                    </Button>
                 </HBox>
 
                 <SplitPane dividerPositions="0.55" VBox.vgrow="ALWAYS">
@@ -81,14 +85,17 @@
         </Tab>
 
         <!-- Tab 2 -->
-        <Tab text="💰  Thu - Chi - Lợi nhuận">
+        <Tab text="  Thu - Chi - Lợi nhuận">
             <VBox spacing="12" styleClass="tab-content-padding">
                 <HBox spacing="10" alignment="CENTER_LEFT" styleClass="toolbar">
                     <Label text="Khoảng thời gian:" styleClass="text-muted"/>
                     <ComboBox fx:id="cboThoiGian" styleClass="combo-box" prefWidth="160"/>
                     <DatePicker fx:id="dateTCFrom" promptText="Từ ngày" prefWidth="130"/>
                     <DatePicker fx:id="dateTCTo" promptText="Đến ngày" prefWidth="130"/>
-                    <Button text="📊  Xem" styleClass="btn btn-primary" onAction="#handleThongKeThuChi"/>
+                    <Button styleClass="btn btn-primary" onAction="#handleThongKeThuChi">
+                        <graphic><Label text="&#xe26b;" styleClass="icon-sm"/></graphic>
+                        <text>  Xem</text>
+                    </Button>
                 </HBox>
 
                 <TableView fx:id="tableThuChi" VBox.vgrow="ALWAYS" styleClass="page-card, no-padding">
@@ -103,14 +110,17 @@
         </Tab>
 
         <!-- Tab 3 -->
-        <Tab text="🏆  Top khách hàng">
+        <Tab text="  Top khách hàng">
             <VBox spacing="12" styleClass="tab-content-padding">
                 <HBox spacing="10" alignment="CENTER_LEFT" styleClass="toolbar">
                     <Label text="Năm:" styleClass="text-muted"/>
                     <ComboBox fx:id="cboNamTop" styleClass="combo-box" prefWidth="100"/>
                     <Label text="Hiển thị top:" styleClass="text-muted"/>
                     <ComboBox fx:id="cboTopN" styleClass="combo-box" prefWidth="100"/>
-                    <Button text="📊  Xem" styleClass="btn btn-primary" onAction="#handleThongKeTop"/>
+                    <Button styleClass="btn btn-primary" onAction="#handleThongKeTop">
+                        <graphic><Label text="&#xe26b;" styleClass="icon-sm"/></graphic>
+                        <text>  Xem</text>
+                    </Button>
                 </HBox>
 
                 <TableView fx:id="tableTop" VBox.vgrow="ALWAYS" styleClass="page-card, no-padding">

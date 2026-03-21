@@ -12,7 +12,7 @@
 <VBox spacing="0" styleClass="dialog-root-xl" stylesheets="@../../css/style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.dialog.ChonDichVuDialog">
 
     <HBox alignment="CENTER_LEFT" spacing="12" styleClass="dialog-header">
-        <Label styleClass="dialog-icon" text="🥤" />
+        <Label styleClass="dialog-icon, icon" text="&#xe541;" />
         <VBox spacing="2">
             <Label styleClass="dialog-title" text="Order Dịch Vụ" />
             <Label fx:id="lblPhienInfo" styleClass="dialog-phien-info" text="Phiên: ..." />
@@ -21,7 +21,7 @@
 
     <VBox spacing="12" styleClass="dialog-body">
         <!-- Search -->
-        <TextField fx:id="txtSearch" onKeyReleased="#handleSearch" promptText="🔍  Tìm dịch vụ..." styleClass="search-bar" />
+        <TextField fx:id="txtSearch" onKeyReleased="#handleSearch" promptText="  Tìm dịch vụ..." styleClass="search-bar" />
 
         <!-- DV list table -->
         <TableView fx:id="tableDichVu" prefHeight="220">
@@ -44,7 +44,9 @@
                 <HBox alignment="CENTER" spacing="4">
                     <Button onAction="#handleDecrease" styleClass="btn btn-secondary, dialog-qty-btn" text="−" />
                     <TextField fx:id="txtSoLuong" prefWidth="60" styleClass="text-field, dialog-qty-field" text="1" />
-                    <Button onAction="#handleIncrease" styleClass="btn btn-primary, dialog-qty-btn" text="＋" />
+                    <Button onAction="#handleIncrease" styleClass="btn btn-primary, dialog-qty-btn">
+                        <graphic><Label text="&#xe145;" styleClass="icon-sm"/></graphic>
+                    </Button>
                 </HBox>
             </VBox>
         </HBox>
@@ -71,10 +73,19 @@
     </VBox>
 
     <HBox alignment="CENTER_RIGHT" spacing="10" styleClass="dialog-footer">
-        <Button onAction="#handleAddToCart" styleClass="btn btn-outline" text="＋  Thêm vào giỏ" />
+        <Button onAction="#handleAddToCart" styleClass="btn btn-outline">
+            <graphic><Label text="&#xe145;" styleClass="icon-sm"/></graphic>
+            <text>  Thêm vào giỏ</text>
+        </Button>
         <Pane HBox.hgrow="ALWAYS" />
-        <Button onAction="#handleRemoveFromCart" styleClass="btn btn-secondary" text="✕  Hủy" />
-        <Button fx:id="btnXacNhan" onAction="#handleXacNhan" styleClass="btn btn-success" text="✔  Xác nhận order" />
+        <Button onAction="#handleRemoveFromCart" styleClass="btn btn-secondary">
+            <graphic><Label text="&#xe5c9;" styleClass="icon-sm"/></graphic>
+            <text>  Hủy</text>
+        </Button>
+        <Button fx:id="btnXacNhan" onAction="#handleXacNhan" styleClass="btn btn-success">
+            <graphic><Label text="&#xe876;" styleClass="icon-sm"/></graphic>
+            <text>  Xác nhận order</text>
+        </Button>
     </HBox>
 
 </VBox>

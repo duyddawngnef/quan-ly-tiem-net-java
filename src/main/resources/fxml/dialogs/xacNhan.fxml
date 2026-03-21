@@ -10,12 +10,12 @@
       spacing="0" styleClass="dialog-root-md">
 
     <HBox styleClass="dialog-header" spacing="12" alignment="CENTER_LEFT">
-        <Label fx:id="lblHeaderIcon" text="❓" styleClass="dialog-icon"/>
+        <Label fx:id="lblHeaderIcon" text="&#xe8fd;" styleClass="dialog-icon, icon"/>
         <Label fx:id="lblDialogTitle" text="Xác nhận" styleClass="dialog-title"/>
     </HBox>
 
     <VBox styleClass="dialog-body" spacing="16" alignment="CENTER">
-        <Label fx:id="lblIcon" text="❓" styleClass="dialog-big-icon" alignment="CENTER"/>
+        <Label fx:id="lblIcon" text="&#xe8fd;" styleClass="dialog-big-icon, icon-xl" alignment="CENTER"/>
         <Label fx:id="lblMessage" text="Bạn có chắc muốn thực hiện thao tác này?"
                wrapText="true" styleClass="dialog-message" maxWidth="400"/>
         <Label fx:id="lblSubMessage" text="" wrapText="true"
@@ -23,10 +23,16 @@
     </VBox>
 
     <HBox styleClass="dialog-footer" spacing="10" alignment="CENTER">
-        <Button fx:id="btnCancel" text="✕  Không" styleClass="btn btn-secondary"
-                prefWidth="120" onAction="#handleCancel"/>
-        <Button fx:id="btnConfirm" text="✔  Xác nhận" styleClass="btn btn-primary"
-                prefWidth="120" onAction="#handleConfirm"/>
+        <Button fx:id="btnCancel" styleClass="btn btn-secondary"
+                prefWidth="120" onAction="#handleCancel">
+            <graphic><Label text="&#xe5c9;" styleClass="icon-sm"/></graphic>
+            <text>  Không</text>
+        </Button>
+        <Button fx:id="btnConfirm" styleClass="btn btn-primary"
+                prefWidth="120" onAction="#handleConfirm">
+            <graphic><Label text="&#xe876;" styleClass="icon-sm"/></graphic>
+            <text>  Xác nhận</text>
+        </Button>
     </HBox>
 
 </VBox>

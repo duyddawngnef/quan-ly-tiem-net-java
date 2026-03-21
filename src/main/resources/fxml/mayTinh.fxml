@@ -13,7 +13,7 @@
     <!-- Page Header -->
     <HBox alignment="CENTER_LEFT" spacing="12"
           styleClass="page-header-padding">
-        <Label text="💻" styleClass="page-icon"/>
+        <Label text="&#xe30b;" styleClass="page-icon, icon-lg"/>
         <VBox spacing="2">
             <Label text="Quản Lý Máy Tính" styleClass="page-title"/>
             <Label fx:id="lblSubtitle" text="Đang tải..." styleClass="page-subtitle"/>
@@ -22,23 +22,35 @@
 
     <!-- Toolbar -->
     <HBox styleClass="toolbar" spacing="8" alignment="CENTER_LEFT">
-        <TextField fx:id="txtSearch" promptText="🔍  Tìm kiếm..." styleClass="search-bar"
+        <TextField fx:id="txtSearch" promptText="  Tìm kiếm..." styleClass="search-bar"
                    prefWidth="260" onKeyReleased="#handleSearch"/>
         <ComboBox fx:id="cboKhu" promptText="Khu máy" styleClass="combo-box" prefWidth="140"/>
         <ComboBox fx:id="cboTrangThai" promptText="Trạng thái" styleClass="combo-box" prefWidth="140"/>
         <Pane HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnThem" text="＋  Thêm" styleClass="btn btn-primary"
-                onAction="#handleThem"/>
-        <Button fx:id="btnSua" text="✎  Sửa" styleClass="btn btn-warning"
-                onAction="#handleSua" disable="true"/>
-        <Button fx:id="btnBaoTri" text="🔧  Bảo trì" styleClass="btn btn-warning"
-                onAction="#handleBaoTri" disable="true"/>
-        <Button fx:id="btnKhoiPhuc" text="✅  Khôi phục" styleClass="btn btn-primary"
-                onAction="#handleKhoiPhuc" disable="true"/>
-        <Button fx:id="btnXoa" text="✕  Xóa" styleClass="btn btn-danger"
-                onAction="#handleXoa" disable="true"/>
-        <Button fx:id="btnLamMoi" text="↺  Làm mới" styleClass="btn btn-secondary"
-                onAction="#handleLamMoi"/>
+        <Button fx:id="btnThem" styleClass="btn btn-primary" onAction="#handleThem">
+            <graphic><Label text="&#xe145;" styleClass="icon-sm"/></graphic>
+            <text>  Thêm</text>
+        </Button>
+        <Button fx:id="btnSua" styleClass="btn btn-warning" onAction="#handleSua" disable="true">
+            <graphic><Label text="&#xe3c9;" styleClass="icon-sm"/></graphic>
+            <text>  Sửa</text>
+        </Button>
+        <Button fx:id="btnBaoTri" styleClass="btn btn-warning" onAction="#handleBaoTri" disable="true">
+            <graphic><Label text="&#xe869;" styleClass="icon-sm"/></graphic>
+            <text>  Bảo trì</text>
+        </Button>
+        <Button fx:id="btnKhoiPhuc" styleClass="btn btn-primary" onAction="#handleKhoiPhuc" disable="true">
+            <graphic><Label text="&#xe8b3;" styleClass="icon-sm"/></graphic>
+            <text>  Khôi phục</text>
+        </Button>
+        <Button fx:id="btnXoa" styleClass="btn btn-danger" onAction="#handleXoa" disable="true">
+            <graphic><Label text="&#xe872;" styleClass="icon-sm"/></graphic>
+            <text>  Xóa</text>
+        </Button>
+        <Button fx:id="btnLamMoi" styleClass="btn btn-secondary" onAction="#handleLamMoi">
+            <graphic><Label text="&#xe5d5;" styleClass="icon-sm"/></graphic>
+            <text>  Làm mới</text>
+        </Button>
     </HBox>
 
     <!-- Table -->

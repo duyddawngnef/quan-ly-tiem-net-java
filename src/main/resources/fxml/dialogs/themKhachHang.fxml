@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.dialog.ThemKhachHangDialog"
+      stylesheets="@../../css/style.css"
+      style="-fx-background-color: #FFFFFF; -fx-border-color: #1A3255; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;"
+      spacing="0"
+      prefWidth="450">
+
+    <HBox alignment="CENTER" style="-fx-background-color: #1A3255; -fx-padding: 15; -fx-background-radius: 5 5 0 0;">
+        <Label fx:id="lblTitle" text="THÊM KHÁCH HÀNG MỚI" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+    </HBox>
+
+    <VBox spacing="15" style="-fx-padding: 20;">
+        <HBox spacing="15">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Họ *" styleClass="form-label"/>
+                <TextField fx:id="txtHo" promptText="Nhập họ" styleClass="text-field"/>
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Tên *" styleClass="form-label"/>
+                <TextField fx:id="txtTen" promptText="Nhập tên" styleClass="text-field"/>
+            </VBox>
+        </HBox>
+
+        <VBox spacing="5">
+            <Label text="Số điện thoại *" styleClass="form-label"/>
+            <TextField fx:id="txtSDT" promptText="Nhập số điện thoại (10 số)" styleClass="text-field"/>
+        </VBox>
+
+        <VBox spacing="5">
+            <Label text="Trạng thái" styleClass="form-label"/>
+            <ComboBox fx:id="cboTrangThai" promptText="Chọn trạng thái" maxWidth="Infinity" styleClass="combo-box"/>
+        </VBox>
+
+        <Label fx:id="lblError" text="" style="-fx-text-fill: #E53935; -fx-font-style: italic; -fx-font-weight: bold;" wrapText="true"/>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT" spacing="12" style="-fx-padding: 0 20 20 20;">
+        <Button fx:id="btnCancel" onAction="#handleCancel" styleClass="btn, btn-secondary" prefWidth="110">
+            <graphic><Label text="&#xe5c9;" styleClass="icon-sm"/></graphic>
+            <text>  Hủy bỏ</text>
+        </Button>
+        <Button fx:id="btnSave" onAction="#handleSave" styleClass="btn, btn-primary" prefWidth="110">
+            <graphic><Label text="&#xe876;" styleClass="icon-sm"/></graphic>
+            <text>  Lưu lại</text>
+        </Button>
+    </HBox>
+
+</VBox>

@@ -9,12 +9,12 @@
       spacing="0" styleClass="dialog-root-sm">
 
     <HBox fx:id="headerBox" styleClass="dialog-header" spacing="12" alignment="CENTER_LEFT">
-        <Label fx:id="lblHeaderIcon" text="ℹ" styleClass="dialog-icon"/>
+        <Label fx:id="lblHeaderIcon" text="&#xe88e;" styleClass="dialog-icon, icon"/>
         <Label fx:id="lblTitle" text="Thông báo" styleClass="dialog-title"/>
     </HBox>
 
     <VBox styleClass="dialog-body" spacing="14" alignment="CENTER">
-        <Label fx:id="lblBigIcon" text="ℹ" styleClass="dialog-big-icon-lg" alignment="CENTER"/>
+        <Label fx:id="lblBigIcon" text="&#xe88e;" styleClass="dialog-big-icon-lg, icon-xl" alignment="CENTER"/>
         <Label fx:id="lblMessage" text="" wrapText="true"
                styleClass="dialog-message" maxWidth="380"/>
     </VBox>

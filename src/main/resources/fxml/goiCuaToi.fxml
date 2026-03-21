@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.controller.GoiCuaToiController"
+      styleClass="manager-page-root" spacing="20">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <VBox spacing="4">
+        <Label text="GÓI DỊCH VỤ CỦA TÔI" styleClass="manager-title"/>
+        <Label text="Danh sách gói dịch vụ bạn đã mua" styleClass="manager-subtitle"/>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT">
+        <Button styleClass="btn-gray" onAction="#handleLamMoi">
+            <graphic><Label text="&#xe5d5;" styleClass="icon-sm"/></graphic>
+            <text>  Làm mới</text>
+        </Button>
+    </HBox>
+
+    <TableView fx:id="tableGoi" VBox.vgrow="ALWAYS" styleClass="manager-table">
+        <columns>
+            <TableColumn fx:id="colMaGoiKH"    text="Mã gói KH"        prefWidth="110" styleClass="col-center"/>
+            <TableColumn fx:id="colTenGoi"     text="Tên gói"          prefWidth="180" styleClass="col-center"/>
+            <TableColumn fx:id="colSoGioBD"    text="Giờ ban đầu"      prefWidth="100" styleClass="col-center"/>
+            <TableColumn fx:id="colSoGioConLai" text="Giờ còn lại"     prefWidth="100" styleClass="col-center"/>
+            <TableColumn fx:id="colNgayMua"    text="Ngày mua"         prefWidth="130" styleClass="col-center"/>
+            <TableColumn fx:id="colNgayHetHan" text="Ngày hết hạn"     prefWidth="130" styleClass="col-center"/>
+            <TableColumn fx:id="colGiaMua"     text="Giá mua"          prefWidth="110" styleClass="col-center"/>
+            <TableColumn fx:id="colTrangThai"  text="Trạng thái"       prefWidth="110" styleClass="col-center"/>
+        </columns>
+        <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+        </columnResizePolicy>
+    </TableView>
+
+    <Label fx:id="lblTotal" text="" styleClass="manager-total"/>
+
+</VBox>

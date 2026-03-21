@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane styleClass="login-root" stylesheets="@../css/login.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controller.DangKyController">
+
+    <VBox alignment="TOP_RIGHT" spacing="14" styleClass="login-card">
+
+        <!-- Header -->
+        <VBox alignment="CENTER" spacing="4">
+            <StackPane styleClass="login-logo-circle">
+                <Label styleClass="login-logo-icon, icon" text="&#xe3c9;" />
+            </StackPane>
+            <Label styleClass="login-app-name" text="ĐĂNG KÝ TÀI KHOẢN" />
+            <Label styleClass="login-app-sub" text="Tạo tài khoản khách hàng mới" />
+        </VBox>
+
+        <Separator />
+
+        <!-- Họ -->
+        <VBox maxWidth="320" spacing="4">
+            <Label alignment="CENTER_LEFT" styleClass="login-subtitle" text="Họ *" />
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="login-field-icon-box">
+                <Label styleClass="login-icon, icon" text="&#xe7fd;" />
+                <TextField fx:id="txtHo" promptText="Nhập họ" styleClass="login-text-field" HBox.hgrow="ALWAYS" />
+            </HBox>
+        </VBox>
+
+        <!-- Tên -->
+        <VBox maxWidth="320" spacing="4">
+            <Label alignment="CENTER_LEFT" styleClass="login-subtitle" text="Tên *" />
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="login-field-icon-box">
+                <Label styleClass="login-icon, icon" text="&#xe7fd;" />
+                <TextField fx:id="txtTen" promptText="Nhập tên" styleClass="login-text-field" HBox.hgrow="ALWAYS" />
+            </HBox>
+        </VBox>
+
+        <!-- Số điện thoại -->
+        <VBox maxWidth="320" spacing="4">
+            <Label alignment="CENTER_LEFT" styleClass="login-subtitle" text="Số điện thoại *" />
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="login-field-icon-box">
+                <Label styleClass="login-icon, icon" text="&#xe0cd;" />
+                <TextField fx:id="txtSdt" promptText="Nhập số điện thoại" styleClass="login-text-field" HBox.hgrow="ALWAYS" />
+            </HBox>
+        </VBox>
+
+        <!-- Tên đăng nhập -->
+        <VBox maxWidth="320" spacing="4">
+            <Label alignment="CENTER_LEFT" styleClass="login-subtitle" text="Tên đăng nhập *" />
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="login-field-icon-box">
+                <Label styleClass="login-icon, icon" text="&#xe0c9;" />
+                <TextField fx:id="txtUsername" promptText="Tên đăng nhập (không dấu)" styleClass="login-text-field" HBox.hgrow="ALWAYS" />
+            </HBox>
+        </VBox>
+
+        <!-- Mật khẩu -->
+        <VBox maxWidth="320" spacing="4">
+            <Label alignment="CENTER_LEFT" styleClass="login-subtitle" text="Mật khẩu *" />
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="login-field-icon-box">
+                <Label styleClass="login-icon, icon" text="&#xe899;" />
+                <PasswordField fx:id="txtPassword" promptText="Ít nhất 6 ký tự" styleClass="login-text-field" HBox.hgrow="ALWAYS" />
+            </HBox>
+        </VBox>
+
+        <!-- Xác nhận mật khẩu -->
+        <VBox maxWidth="320" spacing="4">
+            <Label alignment="CENTER_LEFT" styleClass="login-subtitle" text="Xác nhận mật khẩu *" />
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="login-field-icon-box">
+                <Label styleClass="login-icon, icon" text="&#xe899;" />
+                <PasswordField fx:id="txtConfirmPassword" promptText="Nhập lại mật khẩu" styleClass="login-text-field" HBox.hgrow="ALWAYS" />
+            </HBox>
+        </VBox>
+
+        <!-- Error -->
+        <Label fx:id="lblError" maxWidth="320" styleClass="login-error-label" text="" wrapText="true" />
+
+        <!-- Buttons -->
+        <VBox maxWidth="320" spacing="8">
+            <Button fx:id="btnDangKy" maxWidth="Infinity" onAction="#handleDangKy" styleClass="login-btn">
+                <graphic><Label text="&#xe876;" styleClass="icon-sm"/></graphic>
+                <text>  ĐĂNG KÝ</text>
+            </Button>
+            <Button maxWidth="Infinity" onAction="#handleQuayLai" styleClass="btn-gray" text="← Quay lại đăng nhập" />
+        </VBox>
+
+        <Label styleClass="login-footer" text="© 2026 Quản Lý Tiệm Net v2.0" />
+    </VBox>
+</StackPane>

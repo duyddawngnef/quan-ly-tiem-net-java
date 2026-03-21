@@ -12,7 +12,7 @@
 
     <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="12">
-        <Label text="📥" styleClass="page-icon"/>
+        <Label text="&#xe179;" styleClass="page-icon, icon-lg"/>
         <VBox spacing="2">
             <Label text="Nhập Hàng Từ NCC" styleClass="page-title"/>
             <Label text="Tạo phiếu nhập và duyệt cập nhật tồn kho" styleClass="page-subtitle"/>
@@ -22,7 +22,7 @@
     <!-- Toolbar -->
     <HBox styleClass="toolbar" spacing="8" alignment="CENTER_LEFT">
         <TextField fx:id="txtSearch"
-                   promptText="🔍  Tìm phiếu nhập..."
+                   promptText="  Tìm phiếu nhập..."
                    styleClass="search-bar"
                    prefWidth="220"
                    onAction="#handleSearch"/>
@@ -44,25 +44,24 @@
 
         <Pane HBox.hgrow="ALWAYS"/>
 
-        <Button text="＋  Tạo phiếu nhập"
-                styleClass="btn btn-primary"
-                onAction="#handleTaoPhieu"/>
+        <Button styleClass="btn btn-primary" onAction="#handleTaoPhieu">
+            <graphic><Label text="&#xe145;" styleClass="icon-sm"/></graphic>
+            <text>  Tạo phiếu nhập</text>
+        </Button>
 
-        <Button fx:id="btnDuyet"
-                text="✔  Duyệt phiếu"
-                styleClass="btn btn-success"
-                onAction="#handleDuyetPhieu"
-                disable="true"/>
+        <Button fx:id="btnDuyet" styleClass="btn btn-success"
+                onAction="#handleDuyetPhieu" disable="true">
+            <graphic><Label text="&#xe876;" styleClass="icon-sm"/></graphic>
+            <text>  Duyệt phiếu</text>
+        </Button>
 
-        <Button fx:id="btnHuy"
-                text="✕  Hủy phiếu"
-                styleClass="btn btn-danger"
-                onAction="#handleHuyPhieu"
-                disable="true"/>
+        <Button fx:id="btnHuy" styleClass="btn btn-danger"
+                onAction="#handleHuyPhieu" disable="true">
+            <graphic><Label text="&#xe872;" styleClass="icon-sm"/></graphic>
+            <text>  Hủy phiếu</text>
+        </Button>
 
-        <Button text="↺"
-                styleClass="btn btn-secondary"
-                onAction="#handleRefresh"/>
+        <Button text="&#xe5d5;" styleClass="btn btn-secondary, icon" onAction="#handleRefresh"/>
     </HBox>
 
     <!-- Split: Phieu list + Detail -->

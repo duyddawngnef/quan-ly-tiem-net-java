@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<HBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.controller.DatDichVuController"
+      styleClass="manager-page-root" spacing="20">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <!-- Danh sách dịch vụ -->
+    <VBox spacing="16" HBox.hgrow="ALWAYS">
+        <VBox spacing="4">
+            <Label text="ĐẶT DỊCH VỤ" styleClass="manager-title"/>
+            <Label fx:id="lblPhienInfo" text="" styleClass="manager-subtitle"/>
+        </VBox>
+
+        <!-- Thông báo không có phiên -->
+        <Label fx:id="lblCanhBao" text="" styleClass="login-error-label"
+               wrapText="true" visible="false" managed="false"/>
+
+        <HBox alignment="CENTER_LEFT" spacing="10" styleClass="manager-toolbar">
+            <Label text="Lọc loại:" styleClass="form-field-label"/>
+            <ComboBox fx:id="cboLoai" prefWidth="160" styleClass="manager-combo"
+                      onAction="#handleFilter"/>
+            <Button styleClass="btn-gray" onAction="#handleLamMoi">
+                <graphic><Label text="&#xe5d5;" styleClass="icon-sm"/></graphic>
+                <text>  Làm mới</text>
+            </Button>
+        </HBox>
+
+        <TableView fx:id="tableDichVu" prefHeight="220" styleClass="manager-table">
+            <columns>
+                <TableColumn fx:id="colMaDV"     text="Mã DV"      prefWidth="80"  styleClass="col-center"/>
+                <TableColumn fx:id="colTenDV"    text="Tên dịch vụ" prefWidth="200" styleClass="col-center"/>
+                <TableColumn fx:id="colLoai"     text="Loại"        prefWidth="100" styleClass="col-center"/>
+                <TableColumn fx:id="colDonGia"   text="Đơn giá"     prefWidth="110" styleClass="col-center"/>
+                <TableColumn fx:id="colSoLuong"  text="Còn lại"     prefWidth="80"  styleClass="col-center"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TableView>
+
+        <!-- === DỊCH VỤ ĐÃ ĐẶT TRONG PHIÊN === -->
+        <VBox spacing="8" VBox.vgrow="ALWAYS" fx:id="paneDaDat"
+              visible="false" managed="false">
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label text="&#xe7f4;" styleClass="icon" style="-fx-text-fill:#1565C0;"/>
+                    <Label text="DỊCH VỤ ĐÃ ĐẶT TRONG PHIÊN" styleClass="form-title-dark"/>
+                </HBox>
+                <HBox HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblTongDaDat" text="Tổng: 0 ₫"
+                       style="-fx-font-weight:bold; -fx-font-size:13; -fx-text-fill:#1565c0;"/>
+            </HBox>
+            <TableView fx:id="tableDaDat" VBox.vgrow="ALWAYS" styleClass="manager-table">
+                <columns>
+                    <TableColumn fx:id="colDDTen"      text="Tên dịch vụ"  prefWidth="200" styleClass="col-center"/>
+                    <TableColumn fx:id="colDDSoLuong"  text="Số lượng"     prefWidth="80"  styleClass="col-center"/>
+                    <TableColumn fx:id="colDDDonGia"   text="Đơn giá"      prefWidth="110" styleClass="col-center"/>
+                    <TableColumn fx:id="colDDThanhTien" text="Thành tiền"  prefWidth="120" styleClass="col-center"/>
+                    <TableColumn fx:id="colDDThoiGian" text="Thời gian đặt" prefWidth="140" styleClass="col-center"/>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
+    </VBox>
+
+    <!-- Form đặt -->
+    <ScrollPane fx:id="paneForm" prefWidth="300" minWidth="260"
+                fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                styleClass="form-panel">
+        <VBox spacing="16" styleClass="form-panel-content">
+
+            <Label text="ĐẶT DỊCH VỤ" styleClass="form-title-dark"/>
+
+            <VBox spacing="6">
+                <Label text="Dịch vụ đã chọn" styleClass="form-field-label"/>
+                <Label fx:id="lblChonDV" text="Chưa chọn"
+                       style="-fx-font-weight:bold; -fx-text-fill:#1565c0;"/>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="Giá" styleClass="form-field-label"/>
+                <Label fx:id="lblGia" text="0 ₫"
+                       style="-fx-font-weight:bold; -fx-font-size:16; -fx-text-fill:#2e7d32;"/>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="Số lượng *" styleClass="form-field-label"/>
+                <Spinner fx:id="spinnerSoLuong" min="1" max="20" initialValue="1"
+                         editable="true" styleClass="manager-combo" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="Tổng tiền" styleClass="form-field-label"/>
+                <Label fx:id="lblTongTien" text="0 ₫"
+                       style="-fx-font-weight:bold; -fx-font-size:18; -fx-text-fill:#1565c0;"/>
+            </VBox>
+
+            <Label fx:id="lblFormError" text="" styleClass="login-error-label"
+                   wrapText="true"/>
+
+            <HBox spacing="10">
+                <Button fx:id="btnDat" styleClass="btn-save"
+                        HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                        onAction="#handleDatDichVu">
+                    <graphic><Label text="&#xe876;" styleClass="icon-sm"/></graphic>
+                    <text>  Đặt ngay</text>
+                </Button>
+                <Button styleClass="btn-cancel"
+                        HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                        onAction="#handleHuy">
+                    <graphic><Label text="&#xe5c9;" styleClass="icon-sm"/></graphic>
+                    <text>  Huỷ</text>
+                </Button>
+            </HBox>
+
+        </VBox>
+    </ScrollPane>
+
+</HBox>

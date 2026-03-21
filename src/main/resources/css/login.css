@@ -1,5 +1,36 @@
 /* LOGIN PAGE SPECIFIC STYLES */
 
+/* === MATERIAL DESIGN ICONS FONT === */
+@font-face {
+    font-family: 'Material Icons';
+    src: url('../fonts/MaterialIcons-Regular.ttf');
+}
+
+.icon {
+    -fx-font-family: "Material Icons";
+    -fx-font-size: 18px;
+    -fx-text-fill: #1565C0;
+}
+
+.icon-lg {
+    -fx-font-family: "Material Icons";
+    -fx-font-size: 26px;
+    -fx-text-fill: #1565C0;
+}
+
+.icon-xl {
+    -fx-font-family: "Material Icons";
+    -fx-font-size: 34px;
+    -fx-text-fill: #1565C0;
+}
+
+.icon-sm {
+    -fx-font-family: "Material Icons";
+    -fx-font-size: 14px;
+    -fx-text-fill: inherit;
+}
+
+
 .login-root {
     -fx-background-color: linear-gradient(to bottom right, #1565C0, #1E88E5, #42A5F5);
 }
@@ -55,8 +86,6 @@
 .login-subtitle {
     -fx-font-size: 13px;
     -fx-text-fill: #888888;
-    -fx-alignment: CENTER;
-    -fx-padding: 0 0 20 0;
 }
 
 .login-role-toggle {
@@ -81,6 +110,13 @@
     -fx-text-fill: #1565C0;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 4, 0, 0, 2);
+}
+
+.login-role-btn-inactive {
+    -fx-background-color: transparent;
+    -fx-text-fill: #999999;
+    -fx-font-weight: normal;
+    -fx-effect: none;
 }
 
 .login-field-icon-box {
@@ -140,6 +176,34 @@
     -fx-background-color: #0D47A1;
 }
 
+/* Nút Đăng nhập Khách hàng — outlined style */
+.login-btn-secondary {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1565C0;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-color: #1565C0;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-padding: 10 0 10 0;
+    -fx-min-width: 320;
+    -fx-cursor: hand;
+}
+
+.login-btn-secondary:hover {
+    -fx-background-color: #EEF4FD;
+    -fx-border-color: #1976D2;
+    -fx-text-fill: #1976D2;
+}
+
+.login-btn-secondary:pressed {
+    -fx-background-color: #DDEEFF;
+    -fx-border-color: #0D47A1;
+    -fx-text-fill: #0D47A1;
+}
+
+
 .login-register-link {
     -fx-text-fill: #1565C0;
     -fx-font-size: 13px;
@@ -165,4 +229,21 @@
 .login-footer {
     -fx-text-fill: #AAAAAA;
     -fx-font-size: 11px;
+}
+
+/* Nút dạng hyperlink để mở màn hình đăng ký */
+.login-link-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #1565C0;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-underline: true;
+}
+
+.login-link-btn:hover {
+    -fx-text-fill: #0D47A1;
+    -fx-effect: none;
 }

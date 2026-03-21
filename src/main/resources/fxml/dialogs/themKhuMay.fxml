@@ -1,59 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
+
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
+<?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="gui.dialog.ThemKhuMayDialog"
-      stylesheets="@../../css/style.css"
-      spacing="0" style="-fx-min-width:460; -fx-max-width:520;">
+      spacing="12" style="-fx-padding: 18;">
 
-    <!-- Header -->
-    <HBox styleClass="dialog-header" spacing="12" alignment="CENTER_LEFT">
-        <Label text="💻" style="-fx-font-size:22px;"/>
-        <Label fx:id="lblDialogTitle" text="Thêm / Sửa Khu Máy" styleClass="dialog-title"/>
+    <Label fx:id="lblTitle" text="Thêm Khu Máy"
+           style="-fx-font-size:18px; -fx-font-weight:bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" prefWidth="120"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Mã khu:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtMaKhu" promptText="VD: K001"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Tên khu:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtTenKhu" promptText="VD: Khu A"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Giá cơ sở:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtGiaCoSo" promptText="VD: 10000"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Số máy tối đa:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtSoMayToiDa" promptText="VD: 30"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Trạng thái:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cboTrangThai" prefWidth="200"
+                  GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label fx:id="lblError" text="" style="-fx-text-fill: #d32f2f;"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="btnCancel" text="Hủy" onAction="#handleCancel"/>
+        <Button fx:id="btnSave" text="Lưu" defaultButton="true" onAction="#handleSave"/>
     </HBox>
-
-    <!-- Body -->
-    <ScrollPane fitToWidth="true" style="-fx-background-color:transparent; -fx-border-color:transparent; -fx-max-height:480;">
-        <VBox styleClass="dialog-body" spacing="12">
-            <VBox spacing="4">
-                <Label text="Mã khu *" styleClass="form-label"/>
-                <TextField fx:id="txtMaKhu" promptText="VD: KHU001" styleClass="text-field" maxWidth="Infinity"/>
-                <Label fx:id="lbltxtMaKhuError" styleClass="error-label" text=""/>
-            </VBox>
-            <VBox spacing="4">
-                <Label text="Tên khu *" styleClass="form-label"/>
-                <TextField fx:id="txtTenKhu" promptText="VD: Khu Thường" styleClass="text-field" maxWidth="Infinity"/>
-                <Label fx:id="lbltxtTenKhuError" styleClass="error-label" text=""/>
-            </VBox>
-            <VBox spacing="4">
-                <Label text="Giá cơ sở (VNĐ) *" styleClass="form-label"/>
-                <TextField fx:id="txtGiaCoso" promptText="VD: 10000" styleClass="text-field" maxWidth="Infinity"/>
-                <Label fx:id="lbltxtGiaCosoError" styleClass="error-label" text=""/>
-            </VBox>
-            <VBox spacing="4">
-                <Label text="Số máy tối đa*" styleClass="form-label"/>
-                <TextField fx:id="txtSoMayToiDa" promptText="VD: 5" styleClass="text-field" maxWidth="Infinity"/>
-                <Label fx:id="lbltxtSoMayToiDaError" styleClass="error-label" text=""/>
-            </VBox>
-            <VBox spacing="4">
-                <Label text="Trạng thái" styleClass="form-label"/>
-                <ComboBox fx:id="cboTrangThai" promptText="Chọn trạng thái" styleClass="combo-box" maxWidth="Infinity"/>
-                <Label fx:id="lblcboTrangThaiError" styleClass="error-label" text=""/>
-            </VBox>
-
-            <Label fx:id="lblError" styleClass="error-label" text="" wrapText="true"/>
-        </VBox>
-    </ScrollPane>
-
-    <!-- Footer -->
-    <HBox styleClass="dialog-footer" spacing="10" alignment="CENTER_RIGHT">
-        <Button text="✕  Hủy" styleClass="btn btn-secondary"
-                onAction="#handleCancel"/>
-        <Button fx:id="btnSave" text="💾  Lưu" styleClass="btn btn-primary"
-                onAction="#handleSave"/>
-    </HBox>
-
 </VBox>

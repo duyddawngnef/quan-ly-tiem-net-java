@@ -11,14 +11,16 @@
 
     <!-- Header -->
     <HBox alignment="CENTER_LEFT" spacing="12">
-        <Label text="⏱" styleClass="page-icon"/>
+        <Label text="&#xe425;" styleClass="page-icon, icon-lg"/>
         <VBox spacing="2">
             <Label text="Quản Lý Phiên Sử Dụng" styleClass="page-title"/>
             <Label fx:id="lblSubtitle" text="Đang tải..." styleClass="page-subtitle"/>
         </VBox>
         <Pane HBox.hgrow="ALWAYS"/>
-        <Label fx:id="lblLiveTime" text="🕐 00:00:00"
-               styleClass="live-time"/>
+        <HBox spacing="4" alignment="CENTER_RIGHT">
+            <Label text="&#xe8b5;" styleClass="icon-sm"/>
+            <Label fx:id="lblLiveTime" text="00:00:00" styleClass="live-time"/>
+        </HBox>
     </HBox>
 
     <!-- Stats Cards -->
@@ -32,23 +34,32 @@
             <Label text="Doanh thu hôm nay" styleClass="stat-label"/>
         </VBox>
         <VBox styleClass="stat-card" spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Tổng số phiên" styleClass="stat-label"/>
             <Label fx:id="lblPhienHomNay" text="0" styleClass="stat-number"/>
-            <Label text="Phiên hôm nay" styleClass="stat-label"/>
         </VBox>
     </HBox>
 
     <!-- Toolbar -->
     <HBox styleClass="toolbar" spacing="8" alignment="CENTER_LEFT">
-        <TextField fx:id="txtSearch" promptText="🔍  Tìm KH, máy, mã phiên..."
+        <TextField fx:id="txtSearch" promptText="  Tìm KH, máy, mã phiên..."
                    styleClass="search-bar" prefWidth="240" onKeyReleased="#handleSearch"/>
         <ComboBox fx:id="cboTrangThai" prefWidth="160" onAction="#handleFilter"/>
         <Pane HBox.hgrow="ALWAYS"/>
-        <Button text="▶  Mở phiên mới"  styleClass="btn btn-success"  onAction="#handleMoPhien"/>
-        <Button fx:id="btnKetThuc" text="■  Kết thúc" styleClass="btn btn-danger"
-                onAction="#handleKetThucPhien" disable="true"/>
-        <Button fx:id="btnOrderDV" text="🥤  Order DV" styleClass="btn btn-warning"
-                onAction="#handleOrderDichVu" disable="true"/>
-        <Button text="↺" styleClass="btn btn-secondary, refresh-btn-large" onAction="#handleRefresh"/>
+        <Button styleClass="btn btn-success" onAction="#handleMoPhien">
+            <graphic><Label text="&#xe037;" styleClass="icon-sm"/></graphic>
+            <text>  Mở phiên mới</text>
+        </Button>
+        <Button fx:id="btnKetThuc" styleClass="btn btn-danger"
+                onAction="#handleKetThucPhien" disable="true">
+            <graphic><Label text="&#xe047;" styleClass="icon-sm"/></graphic>
+            <text>  Kết thúc</text>
+        </Button>
+        <Button fx:id="btnOrderDV" styleClass="btn btn-warning"
+                onAction="#handleOrderDichVu" disable="true">
+            <graphic><Label text="&#xe63d;" styleClass="icon-sm"/></graphic>
+            <text>  Order DV</text>
+        </Button>
+        <Button text="&#xe5d5;" styleClass="btn btn-secondary, refresh-btn-large, icon" onAction="#handleRefresh"/>
     </HBox>
 
     <!-- Table -->

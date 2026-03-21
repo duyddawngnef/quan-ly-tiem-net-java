@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.controller.PhienCuaToiController"
+      styleClass="manager-page-root" spacing="20">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label text="PHIÊN SỬ DỤNG CỦA TÔI" styleClass="manager-title"/>
+
+    <!-- Card phiên đang chạy -->
+    <VBox fx:id="cardPhienDangChay" spacing="10" styleClass="form-panel"
+          visible="false" managed="false">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+        <HBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="&#xe939;" styleClass="icon" style="-fx-text-fill:#4CAF50;"/>
+            <Label text="PHIÊN ĐANG CHẠY" styleClass="form-title-dark"/>
+        </HBox>
+        <Separator/>
+        <HBox spacing="30" alignment="CENTER_LEFT">
+            <VBox spacing="4">
+                <Label text="Máy tính" style="-fx-font-size:11; -fx-text-fill:#888;"/>
+                <Label fx:id="lblMaMay" text="" style="-fx-font-weight:bold; -fx-font-size:16;"/>
+            </VBox>
+            <VBox spacing="4">
+                <Label text="Bắt đầu" style="-fx-font-size:11; -fx-text-fill:#888;"/>
+                <Label fx:id="lblGioBatDau" text="" style="-fx-font-size:13;"/>
+            </VBox>
+            <VBox spacing="4">
+                <Label text="Loại thanh toán" style="-fx-font-size:11; -fx-text-fill:#888;"/>
+                <Label fx:id="lblLoaiTT" text="" style="-fx-font-size:13;"/>
+            </VBox>
+            <!-- Đẩy nút sang phải -->
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnKetThucPhien" styleClass="btn-danger"
+                    onAction="#handleKetThucPhien">
+                <graphic><Label text="&#xe047;" styleClass="icon-sm"/></graphic>
+                <text>  Kết thúc phiên</text>
+            </Button>
+        </HBox>
+    </VBox>
+
+    <!-- Thông báo không có phiên -->
+    <Label fx:id="lblKhongCoPhien" text="Bạn hiện không có phiên đang chạy."
+           styleClass="manager-subtitle" visible="false" managed="false"/>
+
+    <!-- Lịch sử phiên -->
+    <VBox spacing="8" VBox.vgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="LỊCH SỬ PHIÊN" styleClass="manager-title"/>
+            <Button styleClass="btn-gray" onAction="#handleLamMoi">
+                <graphic><Label text="&#xe5d5;" styleClass="icon-sm"/></graphic>
+                <text>  Làm mới</text>
+            </Button>
+        </HBox>
+
+        <TableView fx:id="tablePhien" VBox.vgrow="ALWAYS" styleClass="manager-table">
+            <columns>
+                <TableColumn fx:id="colMaPhien"   text="Mã phiên"     prefWidth="110" styleClass="col-center"/>
+                <TableColumn fx:id="colMaMay"     text="Máy"          prefWidth="80"  styleClass="col-center"/>
+                <TableColumn fx:id="colGioBD"     text="Bắt đầu"      prefWidth="140" styleClass="col-center"/>
+                <TableColumn fx:id="colGioKT"     text="Kết thúc"     prefWidth="140" styleClass="col-center"/>
+                <TableColumn fx:id="colTongGio"   text="Tổng giờ"     prefWidth="90"  styleClass="col-center"/>
+                <TableColumn fx:id="colTienChoi"  text="Tiền giờ"     prefWidth="110" styleClass="col-center"/>
+                <TableColumn fx:id="colTrangThai" text="Trạng thái"   prefWidth="110" styleClass="col-center"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+        </TableView>
+    </VBox>
+
+</VBox>

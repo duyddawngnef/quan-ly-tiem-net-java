@@ -12,7 +12,7 @@
 
     <!-- Page Header -->
     <HBox alignment="CENTER_LEFT" spacing="12" styleClass="page-header-padding">
-        <Label text="🎁" styleClass="page-icon"/>
+        <Label text="&#xe54e;" styleClass="page-icon, icon-lg"/>
         <VBox spacing="2">
             <Label text="Quản Lý Khuyến Mãi" styleClass="page-title"/>
             <Label fx:id="lblSubtitle" text="Đang tải..." styleClass="page-subtitle"/>
@@ -21,14 +21,26 @@
 
     <!-- Toolbar -->
     <HBox styleClass="toolbar" spacing="8" alignment="CENTER_LEFT">
-        <TextField fx:id="txtSearch" promptText="🔍  Tìm kiếm..." styleClass="search-bar"
+        <TextField fx:id="txtSearch" promptText="  Tìm kiếm..." styleClass="search-bar"
                    prefWidth="260" onKeyReleased="#handleSearch"/>
         <ComboBox fx:id="cboTrangThai" promptText="Trạng thái" styleClass="combo-box" prefWidth="140"/>
         <Pane HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnThem" text="＋  Thêm" styleClass="btn btn-primary" onAction="#handleThem"/>
-        <Button fx:id="btnSua" text="✎  Sửa" styleClass="btn btn-warning" onAction="#handleSua" disable="true"/>
-        <Button fx:id="btnXoa" text="✕  Xóa" styleClass="btn btn-danger" onAction="#handleXoa" disable="true"/>
-        <Button fx:id="btnLamMoi" text="↺  Làm mới" styleClass="btn btn-secondary" onAction="#handleLamMoi"/>
+        <Button fx:id="btnThem" styleClass="btn btn-primary" onAction="#handleThem">
+            <graphic><Label text="&#xe145;" styleClass="icon-sm"/></graphic>
+            <text>  Thêm</text>
+        </Button>
+        <Button fx:id="btnSua" styleClass="btn btn-warning" onAction="#handleSua" disable="true">
+            <graphic><Label text="&#xe3c9;" styleClass="icon-sm"/></graphic>
+            <text>  Sửa</text>
+        </Button>
+        <Button fx:id="btnXoa" styleClass="btn btn-danger" onAction="#handleXoa" disable="true">
+            <graphic><Label text="&#xe872;" styleClass="icon-sm"/></graphic>
+            <text>  Xóa</text>
+        </Button>
+        <Button fx:id="btnLamMoi" styleClass="btn btn-secondary" onAction="#handleLamMoi">
+            <graphic><Label text="&#xe5d5;" styleClass="icon-sm"/></graphic>
+            <text>  Làm mới</text>
+        </Button>
     </HBox>
 
     <!-- Table -->
@@ -39,6 +51,7 @@
                 <TableColumn fx:id="colTenKM" text="Tên CTKM" prefWidth="200"/>
                 <TableColumn fx:id="colLoai" text="Loại" prefWidth="120"/>
                 <TableColumn fx:id="colGiaTri" text="Giá trị" prefWidth="100"/>
+                <TableColumn fx:id="colNapToiThieu" text="Nạp tối thiểu" prefWidth="120"/>
                 <TableColumn fx:id="colTuNgay" text="Từ ngày" prefWidth="120"/>
                 <TableColumn fx:id="colDenNgay" text="Đến ngày" prefWidth="120"/>
                 <TableColumn fx:id="colTrangThai" text="Trạng thái" prefWidth="100"/>

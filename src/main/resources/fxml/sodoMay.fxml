@@ -11,7 +11,7 @@
 
     <!-- Page Header -->
     <HBox alignment="CENTER_LEFT" spacing="12">
-        <Label text="🗺" styleClass="page-icon"/>
+        <Label text="&#xe55b;" styleClass="page-icon, icon-lg"/>
         <VBox spacing="2">
             <Label text="Sơ Đồ Máy" styleClass="page-title"/>
             <Label text="Trạng thái thời gian thực" styleClass="page-subtitle"/>
@@ -65,11 +65,20 @@
         <ComboBox fx:id="cboKhu" promptText="Tất cả khu" styleClass="combo-box" prefWidth="160"
                   onAction="#handleFilterKhu"/>
         <Pane HBox.hgrow="ALWAYS"/>
-        <Button text="↺  Làm mới" styleClass="btn btn-secondary" onAction="#handleRefresh"/>
-        <Button fx:id="btnMoPhien" text="▶  Mở phiên" styleClass="btn btn-success"
-                onAction="#handleMoPhien" disable="true"/>
-        <Button fx:id="btnKetThuc" text="■  Kết thúc phiên" styleClass="btn btn-danger"
-                onAction="#handleKetThucPhien" disable="true"/>
+        <Button styleClass="btn btn-secondary" onAction="#handleRefresh">
+            <graphic><Label text="&#xe5d5;" styleClass="icon-sm"/></graphic>
+            <text>  Làm mới</text>
+        </Button>
+        <Button fx:id="btnMoPhien" styleClass="btn btn-success"
+                onAction="#handleMoPhien" disable="true">
+            <graphic><Label text="&#xe037;" styleClass="icon-sm"/></graphic>
+            <text>  Mở phiên</text>
+        </Button>
+        <Button fx:id="btnKetThuc" styleClass="btn btn-danger"
+                onAction="#handleKetThucPhien" disable="true">
+            <graphic><Label text="&#xe047;" styleClass="icon-sm"/></graphic>
+            <text>  Kết thúc phiên</text>
+        </Button>
     </HBox>
 
     <!-- Machine grid -->

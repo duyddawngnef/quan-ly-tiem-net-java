@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
 
+<?import javafx.geometry.*?>
+<!--        prefRowCount="3" wrapText="true"-->
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="gui.dialog.ThemMayTinhDialog"
       stylesheets="@../../css/style.css"
-      spacing="0" styleClass="dialog-root-lg">
+      spacing="0" style="-fx-min-width:460; -fx-max-width:520;">
 
     <!-- Header -->
     <HBox styleClass="dialog-header" spacing="12" alignment="CENTER_LEFT">
-        <Label text="💻" styleClass="dialog-icon"/>
+        <Label text="&#xe30b;" styleClass="icon-lg" style="-fx-text-fill:#1565C0;"/>
+
         <Label fx:id="lblDialogTitle" text="Thêm / Sửa Máy Tính" styleClass="dialog-title"/>
+
     </HBox>
 
     <!-- Body -->
-    <ScrollPane fitToWidth="true" styleClass="dialog-scroll-max">
+    <ScrollPane fitToWidth="true" style="-fx-background-color:transparent; -fx-border-color:transparent; -fx-max-height:480;">
         <VBox styleClass="dialog-body" spacing="12">
             <VBox spacing="4">
                 <Label text="Mã máy *" styleClass="form-label"/>
-                <TextField fx:id="txtMaMay" promptText="VD: MAY001" styleClass="text-field" maxWidth="Infinity"/>
+                <TextField fx:id="txtMaMay" promptText="VD: PC001" styleClass="text-field" maxWidth="Infinity" disable="true"/>
                 <Label fx:id="lbltxtMaMayError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
@@ -30,7 +33,7 @@
             </VBox>
             <VBox spacing="4">
                 <Label text="Cấu hình *" styleClass="form-label"/>
-                <TextArea fx:id="txtCauHinh" promptText="VD: i5-10400F, 16GB RAM, GTX 1060" styleClass="text-field" maxWidth="Infinity" prefRowCount="3" wrapText="true"/>
+                <TextField fx:id="txtCauHinh" promptText="VD: i5-10400F, 16GB RAM, GTX 1060" styleClass="text-field" maxWidth="Infinity" />
                 <Label fx:id="lbltxtCauHinhError" styleClass="error-label" text=""/>
             </VBox>
             <VBox spacing="4">
@@ -55,10 +58,14 @@
 
     <!-- Footer -->
     <HBox styleClass="dialog-footer" spacing="10" alignment="CENTER_RIGHT">
-        <Button text="✕  Hủy" styleClass="btn btn-secondary"
-                onAction="#handleCancel"/>
-        <Button fx:id="btnSave" text="💾  Lưu" styleClass="btn btn-primary"
-                onAction="#handleSave"/>
+        <Button fx:id="btnCancel" styleClass="btn btn-secondary" onAction="#handleCancel">
+            <graphic><Label text="&#xe5c9;" styleClass="icon-sm"/></graphic>
+            <text>  Hủy</text>
+        </Button>
+        <Button fx:id="btnSave" styleClass="btn btn-primary" onAction="#handleSave">
+            <graphic><Label text="&#xe161;" styleClass="icon-sm"/></graphic>
+            <text>  Lưu</text>
+        </Button>
     </HBox>
 
 </VBox>
