@@ -16,6 +16,12 @@
             <Label text="Nạp Tiền Tài Khoản" styleClass="page-title"/>
             <Label text="Nạp tiền cho khách hàng và áp dụng khuyến mãi" styleClass="page-subtitle"/>
         </VBox>
+<!--        //cho co giản full trang-->
+        <Pane HBox.hgrow="ALWAYS"/>
+        <HBox spacing="4" alignment="CENTER_RIGHT">
+            <Label text="&#xe8b5;" styleClass="icon-sm"/>
+            <Label fx:id="lblLiveTime" text="00:00:00" styleClass="live-time"/>
+        </HBox>
     </HBox>
 
     <HBox spacing="16" VBox.vgrow="ALWAYS">

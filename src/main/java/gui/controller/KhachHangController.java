@@ -12,12 +12,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import utils.KhachHangExporter;
 import utils.ThongBaoDialogHelper;
 
+import java.io.File;
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -33,6 +38,7 @@ public class KhachHangController implements Initializable {
     @FXML private TextField txtSearch;
 
     @FXML private ComboBox<String> cboTrangThai;
+    @FXML private ComboBox<String> cbFilterSoDu;
     @FXML private Label lblSubtitle;
     @FXML private Label lblTotal;
     @FXML private Button btnSua;
@@ -45,6 +51,7 @@ public class KhachHangController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         setupTableColumns();
         setupTableSelection();
         if (cboTrangThai != null) {
@@ -52,7 +59,13 @@ public class KhachHangController implements Initializable {
             cboTrangThai.setValue("Tất cả");
             cboTrangThai.setOnAction(e -> applyFilter());
         }
+        if(cbFilterSoDu != null) {
+            cbFilterSoDu.getItems().setAll("Tất cả","< 50,000đ" , "50,000 - 200,000đ" , "> 200,000đ");
+            cbFilterSoDu.setValue("Tất cả");
+            cbFilterSoDu.setOnAction(e -> applyFilter());
+        }
         loadData();
+        List<KhachHang> ds = filteredList;
     }
 
     private void setupTableColumns() {
@@ -112,6 +125,7 @@ public class KhachHangController implements Initializable {
     private void applyFilter() {
         String keyword = txtSearch != null ? txtSearch.getText().toLowerCase().trim() : "";
         String tt = cboTrangThai != null ? cboTrangThai.getValue() : "Tất cả";
+        String tk = cbFilterSoDu != null ? cbFilterSoDu.getValue().trim() : "Tất cả";
         if (filteredList == null) return;
         filteredList.setPredicate(item -> {
             boolean matchKw = keyword.isEmpty()
@@ -121,7 +135,46 @@ public class KhachHangController implements Initializable {
                 || (item.getSodienthoai()  != null && item.getSodienthoai().contains(keyword))
                 || (item.getTendangnhap()  != null && item.getTendangnhap().toLowerCase().contains(keyword));
             boolean matchTT = tt == null || "Tất cả".equals(tt) || tt.equals(item.getTrangthai());
-            return matchKw && matchTT;
+
+            //lọc theo số dư
+            double sd = item.getSodu();
+            boolean flagTK;
+            switch (tk){
+                case "Tất cả":
+                    flagTK =true;
+                    break;
+                case "< 50,000đ":
+                    if(sd < 50000){
+                        flagTK = true;
+                        break;
+                    }
+                    else{
+                        flagTK = false;
+                        break;
+                    }
+                case "50,000 - 200,000đ":
+                    if(sd >= 50000 && sd <= 200000){
+                        flagTK = true;
+                        break;
+                    }
+                    else{
+                        flagTK = false;
+                        break;
+                    }
+                case "> 200,000đ":
+                    if(sd > 200000){
+                        flagTK = true;
+                        break;
+                    }
+                    else{
+                        flagTK = false;
+                        break;
+                    }
+                default:
+                    flagTK = true;
+            }
+
+            return matchKw && matchTT && flagTK;
         });
         updateSubtitle();
     }
@@ -155,7 +208,33 @@ public class KhachHangController implements Initializable {
     public void handleLamMoi() {
         if (txtSearch    != null) txtSearch.clear();
         if (cboTrangThai != null) cboTrangThai.setValue("Tất cả");
+        if(cbFilterSoDu != null) cbFilterSoDu.setValue("Tất cả");
         loadData();
+    }
+
+    @FXML
+    public void exportExcel(){
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Lưu thông tin khách hàng Excel");
+        fileChooser.getExtensionFilters().add(
+          new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)","*.xlsx")
+        );
+        fileChooser.setInitialFileName(
+                "ThongTinKhachHang"+ LocalDate.now().toString()+".xlsx"
+        );
+        File file = fileChooser.showSaveDialog(
+                tableView != null && tableView.getScene() != null
+                ?tableView.getScene().getWindow():
+                        null
+        );
+        if(file == null)
+            return;
+//        if(!file.getName().toLowerCase().endsWith(".xlsx"));{
+//            file = new File(file.getAbsolutePath() + ".xlsx");
+//        }
+        KhachHangExporter.exportKhachHang(file,filteredList);
+
     }
 
     private void openDialog(KhachHang entity) {
