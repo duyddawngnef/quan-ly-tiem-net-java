@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import utils.SessionManager;
 import entity.NhanVien;
@@ -29,6 +30,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
+            Font.loadFont(getClass().getResourceAsStream("/fonts/MaterialIcons-Regular.ttf"), 14);
             Parent root = FXMLLoader.load(
                     Objects.requireNonNull(
                             getClass().getResource("/fxml/login.fxml"),

@@ -26,6 +26,8 @@
                    prefWidth="260" onKeyReleased="#handleSearch"/>
                 <ComboBox fx:id="cboTrangThai" promptText="Trạng thái" styleClass="combo-box" prefWidth="140">
                 </ComboBox>
+                <ComboBox fx:id="cbFilterSoDu" promptText="Tất cả số dư" styleClass="combo-box" prefWidth="180" >
+                </ComboBox>
         <Pane HBox.hgrow="ALWAYS"/>
         <Button fx:id="btnThem" styleClass="btn btn-primary"
                 onAction="#handleThem">
@@ -46,6 +48,11 @@
                 onAction="#handleLamMoi">
             <graphic><Label text="&#xe5d5;" styleClass="icon-sm"/></graphic>
             <text>  Làm mới</text>
+        </Button>
+
+        <Button styleClass="btn btn-success" onAction="#exportExcel">
+            <graphic><Label text="&#xeb9e;" styleClass="icon-sm"/></graphic>
+            <text>  Xuất Excel</text>
         </Button>
     </HBox>
 

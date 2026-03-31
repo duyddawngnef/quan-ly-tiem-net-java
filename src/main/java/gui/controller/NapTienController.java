@@ -7,17 +7,22 @@ import bus.NapTienBUS;
 import entity.ChuongTrinhKhuyenMai;
 import entity.KhachHang;
 import entity.LichSuNapTien;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import utils.ThongBaoDialogHelper;
 import utils.SessionManager;
 
 import java.net.URL;
+import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javafx.beans.property.SimpleStringProperty;
 import java.util.List;
@@ -40,6 +45,7 @@ public class NapTienController implements Initializable {
     @FXML private Label     lblTienKMFmt;
     @FXML private Label     lblTongCong;
     @FXML private Label     lblGoiY;
+    @FXML private Label     lblLiveTime;
     @FXML private Label     lblError;
     @FXML private Button    btnNapTien;
     @FXML private DatePicker dateFilter;
@@ -60,12 +66,16 @@ public class NapTienController implements Initializable {
     private KhachHang currentKH = null;
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+    private Timeline clockTimeline;
+
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupTableHistory();
         loadDanhSachKH();
         loadCTKM();
         hideKHInfo();
+        startClock();
         if (cboCTKM   != null) cboCTKM.setOnAction(e -> recalculate());
         if (txtSoTien != null) txtSoTien.textProperty().addListener((obs, o, n) -> recalculate());
         if (btnNapTien != null) btnNapTien.setDisable(true);
@@ -208,6 +218,23 @@ public class NapTienController implements Initializable {
             resetCalc();
         } catch (Exception ignored) {}
     }
+
+
+
+    //==========================================
+    //      TIMER
+    //=========================================
+    private void startClock() {
+        if (lblLiveTime == null) return;
+        //tạo bộ định dạng thời gian
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm:ss");
+        //
+        clockTimeline = new Timeline(new KeyFrame(Duration.seconds(1),
+                e -> lblLiveTime.setText(LocalDateTime.now().format(fmt))));
+        clockTimeline.setCycleCount(Timeline.INDEFINITE);
+        clockTimeline.play();
+    }
+
 
     private void goiYKhuyenMaiLoiNhat(double soTien) {
         if (lblGoiY == null) return;
